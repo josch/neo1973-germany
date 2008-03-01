@@ -1,0 +1,174 @@
+fonts {
+   font: "DejaVuSansMono.ttf" "Sans";
+}
+
+collections {
+    group {
+        name: "main";
+        parts {
+            part {
+                name: "background";
+                type: RECT;
+                description {
+                    state: "normal" 0.0;
+                    rel1 {
+                        relative: 0.0 0.0;
+                        offset: 0 0;
+                    }
+                    rel2 {
+                        relative: 1.0 1.0;
+                        offset: -1 -1;
+                    }
+                    color: 255 255 255 255;
+                }
+            }
+            part {
+				name: "minus";
+				type: RECT;
+				description {
+					state: "default" 0.0;
+					rel1 {
+					    relative: 0.0 0.9;
+					    offset: 0 0;
+					}
+					rel2 {
+					    relative: 0.2 1.0;
+					    offset: -1 -1;
+					}
+				}
+            }
+            part {
+				name: "plus";
+				type: RECT;
+				description {
+					state: "default" 0.0;
+					rel1 {
+					    relative: 0.8 0.9;
+					    offset: 0 0;
+					}
+					rel2 {
+					    relative: 1.0 1.0;
+					    offset: -1 -1;
+					}
+				}
+            }
+        }
+    }
+    group {
+        name: "overlay";
+        parts {
+			part {
+				name: "label";
+				type: TEXT;
+				effect: SOFT_OUTLINE;
+				mouse_events: 0;
+				description {
+					state: "default" 0.0;
+					rel1 {
+					    relative: 0.0 0.0;
+					    offset: 0 0;
+					}
+					rel2 {
+					    relative: 1.0 0.05;
+					    offset: -1 -1;
+					}
+					text {
+						font: "Sans";
+						size: 1;
+						fit: 1 1;
+    					align: 0.5 0.5;
+					}
+				}
+			}
+            part {
+                name: "center";
+                type: RECT;
+                description {
+                    state: "normal" 0.0;
+                    rel1 {
+                        relative: 0.5 0.5;
+                        offset: -2 -2;
+                    }
+                    rel2 {
+                        relative: 0.5 0.5;
+                        offset: 1 1;
+                    }
+                    color: 255 0 0 255;
+                }
+            }
+            part {
+				name: "minus";
+				type: TEXT;
+				effect: SOFT_OUTLINE;
+				mouse_events: 0;
+				description {
+					state: "default" 0.0;
+					rel1 {
+					    relative: 0.0 0.9;
+					    offset: 0 0;
+					}
+					rel2 {
+					    relative: 0.2 1.0;
+					    offset: -1 -1;
+					}
+					text {
+					    text: "[-]";
+						font: "Sans";
+						size: 1;
+						fit: 1 1;
+					    align: 0.5 0.5;
+					}
+				}
+            }
+            part {
+				name: "bar";
+				type: TEXT;
+				effect: SOFT_OUTLINE;
+				mouse_events: 0;
+				description {
+					state: "default" 0.0;
+					rel1 {
+					    relative: 0.2 0.9;
+					    offset: 0 0;
+					}
+					rel2 {
+					    relative: 0.8 1.0;
+					    offset: -1 -1;
+					}
+					text {
+					    text: "|||||||||||||+||||";
+						font: "Sans";
+						size: 1;
+						fit: 1 1;
+					    align: 0.5 0.5;
+					}
+					visible:0;
+				}
+            }
+            part {
+				name: "plus";
+				type: TEXT;
+				effect: SOFT_OUTLINE;
+				mouse_events: 0;
+				description {
+					state: "default" 0.0;
+					rel1 {
+					    relative: 0.8 0.9;
+					    offset: 0 0;
+					}
+					rel2 {
+					    relative: 1.0 1.0;
+					    offset: -1 -1;
+					}
+					text {
+					    text: "[+]";
+						font: "Sans";
+						size: 1;
+						fit: 1 1;
+					    align: 0.5 0.5;
+					}
+				}
+            }
+        }
+    }
+}
