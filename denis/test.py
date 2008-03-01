@@ -1,1 +1,1 @@
-print "Hallo neo1978-germany"
+print "Hallo ihr Neos da draussen :)"
