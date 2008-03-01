@@ -4,8 +4,8 @@
 WIDTH = 480
 HEIGHT = 640
 
-TITLE = "pyphone"
-WM_NAME = "pyphone"
+TITLE = "pylgrim"
+WM_NAME = "pylgrim"
 WM_CLASS = "swallow"
 
 import os
@@ -78,6 +78,10 @@ class TestView(edje.Edje):
         #global variable for zooming
         self.zoom_step = 0.0
         
+        #global list for tiles to download
+        self.tiles_to_download = []
+        self.tiles_to_download_total = 0
+        
         #initial lat,lon,zoom
         self.lat = 49.009051
         self.lon = 8.402481
@@ -87,29 +91,72 @@ class TestView(edje.Edje):
         border = 3
         for i in xrange((2*border+1)**2):
             self.icons.append(tile(self.evas_canvas.evas_obj.evas))
-            
-        self.set_current_tile(self.lat, self.lon, self.z)
-        
-        self.mouse_down = False
         
         self.overlay = edje.Edje(self.evas_canvas.evas_obj.evas, file=f, group='overlay')
         self.overlay.size = self.evas_canvas.evas_obj.evas.size
         self.overlay.layer = 1
         self.overlay.show()
         
+        self.progress_bg = evas.Rectangle(self.evas_canvas.evas_obj.evas)
+        self.progress_bg.geometry = 0,0,0,0
+        self.progress_bg.color = 255, 255, 255, 255
+        self.progress_bg.layer = 2
+        self.progress_bg.show()
+        
+        self.progress = evas.Rectangle(self.evas_canvas.evas_obj.evas)
+        self.progress.geometry = 0,0,0,0
+        self.progress.color = 255, 0, 0, 255
+        self.progress.layer = 3
+        self.progress.show()
+        
         self.overlay.part_text_set("label", "lat:%f lon:%f zoom:%d"%(self.lat,self.lon,self.z))
         
-    def paint_current_tile(self):
+        self.set_current_tile(self.lat, self.lon, self.z)
+        
+        self.mouse_down = False
+    
+    #jump to coordinates
+    def set_current_tile(self, lat, lon, z):
+        self.z = z
+        self.x = (lon+180)/360 * 2**z
+        self.y = (1-math.log(math.tan(lat*math.pi/180) + 1/math.cos(lat*math.pi/180))/math.pi)/2 * 2**z
+        self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
+        self.init_redraw()
+        
+    def init_redraw(self):
         border = 3
         for i in xrange(2*border+1):
             for j in xrange(2*border+1):
                 if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-border,self.y+j-border)):
-                    self.download(self.x+i-border,self.y+j-border,self.z)
+                    self.tiles_to_download.append((self.z,self.x+i-border,self.y+j-border))
+        self.tiles_to_download_total = len(self.tiles_to_download)
+        if self.tiles_to_download_total > 0:
+            self.progress_bg.geometry = 39, self.size[1]/2-1, self.size[0]-78,22
+            self.progress.geometry = 40, self.size[1]/2, 1,20
+            self.overlay.part_text_set("progress", "downloaded 0 of %d tiles"%self.tiles_to_download_total)
+        ecore.timer_add(0.0, self.download_and_paint_current_tiles)
+    
+    def download_and_paint_current_tiles(self):
+        if len(self.tiles_to_download) > 0:
+            z,x,y = self.tiles_to_download.pop()
+            self.progress.geometry = 40, self.size[1]/2, (self.size[0]-80)*(self.tiles_to_download_total-len(self.tiles_to_download))/self.tiles_to_download_total,20
+            self.overlay.part_text_set("progress", "downloaded %d of %d tiles"%(self.tiles_to_download_total-len(self.tiles_to_download),self.tiles_to_download_total))
+            self.download(x,y,z)
+            return True
+        
+        #if all tiles are downloaded
+        border = 3
+        for i in xrange(2*border+1):
+            for j in xrange(2*border+1):
                 self.icons[(2*border+1)*i+j].file_set("%d/%d/%d.png"%(self.z,self.x+i-border,self.y+j-border))
                 self.icons[(2*border+1)*i+j].set_position((i-border)*256+self.size[0]/2-self.offset_x,(j-border)*256+self.size[1]/2-self.offset_y)
                 self.icons[(2*border+1)*i+j].size = 256,256
                 self.icons[(2*border+1)*i+j].fill = 0, 0, 256, 256
         self.current_pos = (0,0)
+        self.overlay.part_text_set("progress", "")
+        self.progress_bg.geometry = 0,0,0,0
+        self.progress.geometry = 0,0,0,0
+        return False
     
     def zoom_in(self, z):
         for icon in self.icons:
@@ -151,14 +198,6 @@ class TestView(edje.Edje):
             self.overlay.part_text_set("label", "lat:%f lon:%f zoom:%d"%(self.lat, self.lon, self.z))
         return False
     
-    #jump to coordinates
-    def set_current_tile(self, lat, lon, z):
-        self.z = z
-        self.x = (lon+180)/360 * 2**z
-        self.y = (1-math.log(math.tan(lat*math.pi/180) + 1/math.cos(lat*math.pi/180))/math.pi)/2 * 2**z
-        self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
-        self.paint_current_tile()
-    
     @edje.decorators.signal_callback("mouse,down,1", "*")
     def on_mouse_down(self, emission, source):
         if source in "plus":
@@ -172,11 +211,11 @@ class TestView(edje.Edje):
     @edje.decorators.signal_callback("mouse,up,1", "*")
     def on_mouse_up(self, emission, source):
         self.mouse_down = False
-        if abs(self.current_pos[0]) > 500 or abs(self.current_pos[1]) > 500:
-            self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
+        if abs(self.current_pos[0]) > 512 or abs(self.current_pos[1]) > 512:
             self.x = int(self.x) + (self.offset_x-self.current_pos[0])/256.0
             self.y = int(self.y) + (self.offset_y-self.current_pos[1])/256.0
-            self.paint_current_tile()
+            self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
+            self.init_redraw()
         if abs(self.current_pos[0]) > 0 or abs(self.current_pos[1]) > 0:
             #on mouse up + move: update current coordinates
             x = int(self.x) + (self.offset_x-self.current_pos[0])/256.0
@@ -196,6 +235,7 @@ class TestView(edje.Edje):
             for icon in self.icons:
                 icon.set_position(icon.pos[0]-delta_x,icon.pos[1]-delta_y)
             self.current_pos = (self.current_pos[0]-delta_x,self.current_pos[1]-delta_y)
+            
         
 class EvasCanvas(object):
     def __init__(self, fullscreen, engine, size):
