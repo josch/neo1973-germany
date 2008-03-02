@@ -44,16 +44,18 @@ class TestView(edje.Edje):
     
     def download(self, x,y,z):
         import urllib
-        webFile = urllib.urlopen("http://a.tile.openstreetmap.org/%d/%d/%d.png"%(z,x,y))
-        if not os.path.exists("%d"%z):
-            os.mkdir("%d"%z)
-        if not os.path.exists("%d/%d"%(z,x)):
-            os.mkdir("%d/%d"%(z,x))
-        localFile = open("%d/%d/%d.png"%(z,x,y), 'w')
-        localFile.write(webFile.read())
-        webFile.close()
-        localFile.close()
-
+        try:
+            webFile = urllib.urlopen("http://a.tile.openstrzzeetmap.org/%d/%d/%d.png"%(z,x,y))
+            if not os.path.exists("%d"%z):
+                os.mkdir("%d"%z)
+            if not os.path.exists("%d/%d"%(z,x)):
+                os.mkdir("%d/%d"%(z,x))
+            localFile = open("%d/%d/%d.png"%(z,x,y), 'w')
+            localFile.write(webFile.read())
+            webFile.close()
+            localFile.close()
+        except Exception, e:
+            print e
     
     def __init__(self):
         self.options, self.args = myOptionParser(usage="usage: %prog [options]").parse_args()
@@ -167,7 +169,11 @@ class TestView(edje.Edje):
         #if all tiles are downloaded
         for i in xrange(2*self.border+1):
             for j in xrange(2*self.border+1):
-                self.icons[(2*self.border+1)*i+j].file_set("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border))
+                #if some errors occurd replace with placeholder
+                if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border)):
+                    self.icons[(2*self.border+1)*i+j].file_set("404.png")
+                else:
+                    self.icons[(2*self.border+1)*i+j].file_set("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border))
                 self.icons[(2*self.border+1)*i+j].set_position((i-self.border)*256+self.size[0]/2-self.offset_x,(j-self.border)*256+self.size[1]/2-self.offset_y)
                 self.icons[(2*self.border+1)*i+j].size = 256,256
                 self.icons[(2*self.border+1)*i+j].fill = 0, 0, 256, 256
@@ -203,6 +209,7 @@ class TestView(edje.Edje):
     
     def animate_zoom_in(self):
         if self.z < 18:
+            self.animate = True
             if self.zoom_step < 1.0:
                 self.zoom_in(self.zoom_step)
                 self.zoom_step+=0.125
@@ -211,10 +218,13 @@ class TestView(edje.Edje):
             self.zoom_step = 0.0
             self.z+=1
             self.set_current_tile(self.lat, self.lon, self.z)
+        else:
+            self.animate = False
         return False
         
     def animate_zoom_out(self):
         if self.z > 5:
+            self.animate = True
             if self.zoom_step < 1.0:
                 self.zoom_out(self.zoom_step)
                 self.zoom_step+=0.125
@@ -223,16 +233,16 @@ class TestView(edje.Edje):
             self.zoom_step = 0.0
             self.z-=1
             self.set_current_tile(self.lat, self.lon, self.z)
+        else:
+            self.animate = False
         return False
     
     @edje.decorators.signal_callback("mouse,down,1", "*")
     def on_mouse_down(self, emission, source):
         if not self.animate:
             if source in "plus":
-                self.animate = True
                 ecore.timer_add(0.05, self.animate_zoom_in)
             if source in "minus":
-                self.animate = True
                 ecore.timer_add(0.05, self.animate_zoom_out)
             else:
                 self.x_pos, self.y_pos = self.evas_canvas.evas_obj.evas.pointer_canvas_xy
