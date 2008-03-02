@@ -1,8 +1,8 @@
 #!/usr/bin/python
 #coding=utf8
 
-WIDTH = 800
-HEIGHT = 480
+WIDTH = 480
+HEIGHT = 640
 
 TITLE = "pylgrim"
 WM_NAME = "pylgrim"
@@ -74,6 +74,7 @@ class TestView(edje.Edje):
         self.size = self.evas_canvas.evas_obj.evas.size
         self.on_key_down_add(self.on_key_down)
         self.focus = True
+        self.evas_canvas.evas_obj.data["main"] = self
         self.show()
         
         
@@ -93,13 +94,11 @@ class TestView(edje.Edje):
         self.z = 10
         
         self.icons = []
-        border = 3
-        for i in xrange((2*border+1)**2):
-            self.icons.append(tile(self.evas_canvas.evas_obj.evas))
         
         self.overlay = edje.Edje(self.evas_canvas.evas_obj.evas, file=f, group='overlay')
         self.overlay.size = self.evas_canvas.evas_obj.evas.size
         self.overlay.layer = 1
+        self.evas_canvas.evas_obj.data["overlay"] = self.overlay
         self.overlay.show()
         
         self.progress_bg = evas.Rectangle(self.evas_canvas.evas_obj.evas)
@@ -114,13 +113,14 @@ class TestView(edje.Edje):
         self.progress.layer = 3
         self.progress.show()
         
-        self.overlay.part_text_set("label", "lat:%f lon:%f zoom:%d"%(self.lat,self.lon,self.z))
-        
-        self.set_current_tile(self.lat, self.lon, self.z)
+        self.border = 0
         
         self.mouse_down = False
         
         self.animate = False
+        
+        self.set_current_tile(self.lat, self.lon, self.z)
+        
     
     #jump to coordinates
     def set_current_tile(self, lat, lon, z):
@@ -132,12 +132,24 @@ class TestView(edje.Edje):
         
     def init_redraw(self):
         self.animate = True
-        border = 3
-        for i in xrange(2*border+1):
-            for j in xrange(2*border+1):
-                if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-border,self.y+j-border)):
-                    self.tiles_to_download.append((self.z,self.x+i-border,self.y+j-border))
+        #calculate size of tile raster - reload if it differs from before eg. when size changes
+        self.border = int((self.size[0]+self.size[1])/512)+1
+        if len(self.icons) != (2*self.border+1)**2:
+            print "use", self.border
+            #clean up
+            for icon in self.icons:
+                icon.delete()
+            self.icons = []
+            #fill
+            for i in xrange((2*self.border+1)**2):
+                self.icons.append(tile(self.evas_canvas.evas_obj.evas))
+        #add all tiles that are not yet downloaded to a list
+        for i in xrange(2*self.border+1):
+            for j in xrange(2*self.border+1):
+                if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border)):
+                    self.tiles_to_download.append((self.z,self.x+i-self.border,self.y+j-self.border))
         self.tiles_to_download_total = len(self.tiles_to_download)
+        #if there are tiles to download, display progress bar
         if self.tiles_to_download_total > 0:
             self.progress_bg.geometry = 39, self.size[1]/2-1, self.size[0]-78,22
             self.progress.geometry = 40, self.size[1]/2, 1,20
@@ -153,13 +165,12 @@ class TestView(edje.Edje):
             return True
         
         #if all tiles are downloaded
-        border = 3
-        for i in xrange(2*border+1):
-            for j in xrange(2*border+1):
-                self.icons[(2*border+1)*i+j].file_set("%d/%d/%d.png"%(self.z,self.x+i-border,self.y+j-border))
-                self.icons[(2*border+1)*i+j].set_position((i-border)*256+self.size[0]/2-self.offset_x,(j-border)*256+self.size[1]/2-self.offset_y)
-                self.icons[(2*border+1)*i+j].size = 256,256
-                self.icons[(2*border+1)*i+j].fill = 0, 0, 256, 256
+        for i in xrange(2*self.border+1):
+            for j in xrange(2*self.border+1):
+                self.icons[(2*self.border+1)*i+j].file_set("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border))
+                self.icons[(2*self.border+1)*i+j].set_position((i-self.border)*256+self.size[0]/2-self.offset_x,(j-self.border)*256+self.size[1]/2-self.offset_y)
+                self.icons[(2*self.border+1)*i+j].size = 256,256
+                self.icons[(2*self.border+1)*i+j].fill = 0, 0, 256, 256
         self.current_pos = (0,0)
         self.overlay.part_text_set("progress", "")
         self.progress_bg.geometry = 0,0,0,0
@@ -231,7 +242,7 @@ class TestView(edje.Edje):
     def on_mouse_up(self, emission, source):
         self.mouse_down = False
         if not self.animate:
-            if abs(self.current_pos[0]) > 50 or abs(self.current_pos[1]) > 50:
+            if abs(self.current_pos[0]) > self.size[0]/2 or abs(self.current_pos[1]) > self.size[1]/2:
                 self.x = int(self.x) + (self.offset_x-self.current_pos[0])/256.0
                 self.y = int(self.y) + (self.offset_y-self.current_pos[1])/256.0
                 self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
@@ -269,7 +280,7 @@ class EvasCanvas(object):
 
         self.evas_obj.title = TITLE
         self.evas_obj.name_class = (WM_NAME, WM_CLASS)
-        self.evas_obj.fullscreen = False #fullscreen
+        self.evas_obj.fullscreen = fullscreen
         self.evas_obj.size = size
         self.evas_obj.show()
 
@@ -278,6 +289,7 @@ class EvasCanvas(object):
         size = (w, h)
         for key in evas_obj.data.keys():
             evas_obj.data[key].size = size
+        evas_obj.data["main"].init_redraw()
 
     def on_delete_request(self, evas_obj):
         ecore.main_loop_quit()
@@ -310,7 +322,7 @@ class myOptionParser(OptionParser):
                       default=20,
                       help="frames per second to use, default=%default")
         
-    def parse_geometry(option, opt, value, parser):
+    def parse_geometry(self, option, opt, value, parser):
         try:
             w, h = value.split("x")
             w = int(w)
