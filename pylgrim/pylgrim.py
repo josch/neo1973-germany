@@ -1,8 +1,8 @@
 #!/usr/bin/python
 #coding=utf8
 
-WIDTH = 480
-HEIGHT = 640
+WIDTH = 800
+HEIGHT = 480
 
 TITLE = "pylgrim"
 WM_NAME = "pylgrim"
@@ -37,8 +37,10 @@ class TestView(edje.Edje):
     def on_key_down(self, obj, event):
         if event.keyname in ("F6", "f"):
             self.evas_canvas.evas_obj.fullscreen = not self.evas_canvas.evas_obj.fullscreen
-        elif event.keyname == "Escape":
+        elif event.keyname in ("Escape", "q"):
             ecore.main_loop_quit()
+        else:
+            print "key not recognized:",event.keyname
     
     def download(self, x,y,z):
         import urllib
@@ -70,7 +72,10 @@ class TestView(edje.Edje):
         except edje.EdjeLoadError, e:
             raise SystemExit("error loading %s: %s" % (f, e))
         self.size = self.evas_canvas.evas_obj.evas.size
+        self.on_key_down_add(self.on_key_down)
+        self.focus = True
         self.show()
+        
         
         #mouse position
         self.x_pos, self.y_pos = (0,0)
@@ -114,6 +119,8 @@ class TestView(edje.Edje):
         self.set_current_tile(self.lat, self.lon, self.z)
         
         self.mouse_down = False
+        
+        self.animate = False
     
     #jump to coordinates
     def set_current_tile(self, lat, lon, z):
@@ -124,6 +131,7 @@ class TestView(edje.Edje):
         self.init_redraw()
         
     def init_redraw(self):
+        self.animate = True
         border = 3
         for i in xrange(2*border+1):
             for j in xrange(2*border+1):
@@ -156,7 +164,17 @@ class TestView(edje.Edje):
         self.overlay.part_text_set("progress", "")
         self.progress_bg.geometry = 0,0,0,0
         self.progress.geometry = 0,0,0,0
+        self.update_coordinates()
+        self.animate = False
         return False
+    
+    def update_coordinates(self):
+        x = int(self.x) + (self.offset_x-self.current_pos[0])/256.0
+        y = int(self.y) + (self.offset_y-self.current_pos[1])/256.0
+        self.lon = (x*360)/2**self.z-180
+        n = math.pi*(1-2*y/2**self.z)
+        self.lat = 180/math.pi*math.atan(0.5*(math.exp(n)-math.exp(-n)))
+        self.overlay.part_text_set("label", "lat:%f lon:%f zoom:%d"%(self.lat,self.lon,self.z))
     
     def zoom_in(self, z):
         for icon in self.icons:
@@ -182,7 +200,6 @@ class TestView(edje.Edje):
             self.zoom_step = 0.0
             self.z+=1
             self.set_current_tile(self.lat, self.lon, self.z)
-            self.overlay.part_text_set("label", "lat:%f lon:%f zoom:%d"%(self.lat, self.lon, self.z))
         return False
         
     def animate_zoom_out(self):
@@ -195,39 +212,37 @@ class TestView(edje.Edje):
             self.zoom_step = 0.0
             self.z-=1
             self.set_current_tile(self.lat, self.lon, self.z)
-            self.overlay.part_text_set("label", "lat:%f lon:%f zoom:%d"%(self.lat, self.lon, self.z))
         return False
     
     @edje.decorators.signal_callback("mouse,down,1", "*")
     def on_mouse_down(self, emission, source):
-        if source in "plus":
-            ecore.timer_add(0.05, self.animate_zoom_in)
-        if source in "minus":
-            ecore.timer_add(0.05, self.animate_zoom_out)
-        else:
-            self.x_pos, self.y_pos = self.evas_canvas.evas_obj.evas.pointer_canvas_xy
-            self.mouse_down = True
+        if not self.animate:
+            if source in "plus":
+                self.animate = True
+                ecore.timer_add(0.05, self.animate_zoom_in)
+            if source in "minus":
+                self.animate = True
+                ecore.timer_add(0.05, self.animate_zoom_out)
+            else:
+                self.x_pos, self.y_pos = self.evas_canvas.evas_obj.evas.pointer_canvas_xy
+                self.mouse_down = True
         
     @edje.decorators.signal_callback("mouse,up,1", "*")
     def on_mouse_up(self, emission, source):
         self.mouse_down = False
-        if abs(self.current_pos[0]) > 512 or abs(self.current_pos[1]) > 512:
-            self.x = int(self.x) + (self.offset_x-self.current_pos[0])/256.0
-            self.y = int(self.y) + (self.offset_y-self.current_pos[1])/256.0
-            self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
-            self.init_redraw()
-        if abs(self.current_pos[0]) > 0 or abs(self.current_pos[1]) > 0:
-            #on mouse up + move: update current coordinates
-            x = int(self.x) + (self.offset_x-self.current_pos[0])/256.0
-            y = int(self.y) + (self.offset_y-self.current_pos[1])/256.0
-            self.lon = (x*360)/2**self.z-180
-            n = math.pi*(1-2*y/2**self.z)
-            self.lat = 180/math.pi*math.atan(0.5*(math.exp(n)-math.exp(-n)))
-            self.overlay.part_text_set("label", "lat:%f lon:%f zoom:%d"%(self.lat,self.lon,self.z))
+        if not self.animate:
+            if abs(self.current_pos[0]) > 50 or abs(self.current_pos[1]) > 50:
+                self.x = int(self.x) + (self.offset_x-self.current_pos[0])/256.0
+                self.y = int(self.y) + (self.offset_y-self.current_pos[1])/256.0
+                self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
+                self.init_redraw()
+            if abs(self.current_pos[0]) > 0 or abs(self.current_pos[1]) > 0:
+                #on mouse up + move: update current coordinates
+                self.update_coordinates()
         
     @edje.decorators.signal_callback("mouse,move", "*")
     def on_mouse_move(self, emission, source):
-        if self.mouse_down:
+        if self.mouse_down and not self.animate:
             x_pos, y_pos = self.evas_canvas.evas_obj.evas.pointer_canvas_xy
             delta_x = self.x_pos - x_pos
             delta_y = self.y_pos - y_pos
