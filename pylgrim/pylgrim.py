@@ -160,17 +160,18 @@ class TestView(edje.Edje):
             #fill
             for i in xrange((2*self.border+1)**2):
                 self.icons.append(tile(self.evas_canvas.evas_obj.evas))
-        #add all tiles that are not yet downloaded to a list
-        for i in xrange(2*self.border+1):
-            for j in xrange(2*self.border+1):
-                if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border)):
-                    self.tiles_to_download.append((self.z,self.x+i-self.border,self.y+j-self.border))
-        self.tiles_to_download_total = len(self.tiles_to_download)
-        #if there are tiles to download, display progress bar
-        if self.tiles_to_download_total > 0:
-            self.progress_bg.geometry = 39, self.size[1]/2-1, self.size[0]-78,22
-            self.progress.geometry = 40, self.size[1]/2, 1,20
-            self.overlay.part_text_set("progress", "downloaded 0 of %d tiles"%self.tiles_to_download_total)
+        if not self.options.offline:
+            #add all tiles that are not yet downloaded to a list
+            for i in xrange(2*self.border+1):
+                for j in xrange(2*self.border+1):
+                    if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border)):
+                        self.tiles_to_download.append((self.z,self.x+i-self.border,self.y+j-self.border))
+            self.tiles_to_download_total = len(self.tiles_to_download)
+            #if there are tiles to download, display progress bar
+            if self.tiles_to_download_total > 0:
+                self.progress_bg.geometry = 39, self.size[1]/2-1, self.size[0]-78,22
+                self.progress.geometry = 40, self.size[1]/2, 1,20
+                self.overlay.part_text_set("progress", "downloaded 0 of %d tiles"%self.tiles_to_download_total)
         ecore.timer_add(0.0, self.download_and_paint_current_tiles)
     
     def download_and_paint_current_tiles(self):
@@ -185,10 +186,12 @@ class TestView(edje.Edje):
         for i in xrange(2*self.border+1):
             for j in xrange(2*self.border+1):
                 #if some errors occurd replace with placeholder
-                if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border)):
-                    self.icons[(2*self.border+1)*i+j].file_set("404.png")
-                else:
+                #if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border)):
+                try:
                     self.icons[(2*self.border+1)*i+j].file_set("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border))
+                except:
+                    self.icons[(2*self.border+1)*i+j].file_set("404.png")
+                    
                 self.icons[(2*self.border+1)*i+j].set_position((i-self.border)*256+self.size[0]/2-self.offset_x,(j-self.border)*256+self.size[1]/2-self.offset_y)
                 self.icons[(2*self.border+1)*i+j].size = 256,256
                 self.icons[(2*self.border+1)*i+j].fill = 0, 0, 256, 256
@@ -333,6 +336,10 @@ class myOptionParser(OptionParser):
                       "--no-fullscreen",
                       action="store_true",
                       help="do not launch in fullscreen")
+        self.add_option("-o",
+                      "--offline",
+                      action="store_true",
+                      help="do not attempt to download tiles")
         self.add_option("-g",
                       "--geometry",
                       type="string",
