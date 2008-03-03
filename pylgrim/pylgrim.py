@@ -42,6 +42,7 @@ class tile(evas.Image):
         evas.Image.__init__(self,canvas)
         self.pass_events = True
         self.show()
+        #we need this to store the original position while the zoom animations
         self.position = (0,0)
     
     def set_position(self, x, y):
@@ -54,8 +55,38 @@ class TestView(edje.Edje):
             self.evas_canvas.evas_obj.fullscreen = not self.evas_canvas.evas_obj.fullscreen
         elif event.keyname in ("Escape", "q"):
             ecore.main_loop_quit()
+        elif event.keyname in ("Up",) and not self.animate:
+            delta_y = -10
+            for icon in self.icons:
+                icon.set_position(icon.pos[0],icon.pos[1]-delta_y)
+            self.current_pos = (self.current_pos[0],self.current_pos[1]-delta_y)
+        elif event.keyname in ("Down",) and not self.animate:
+            delta_y = 10
+            for icon in self.icons:
+                icon.set_position(icon.pos[0],icon.pos[1]-delta_y)
+            self.current_pos = (self.current_pos[0],self.current_pos[1]-delta_y)
+        elif event.keyname in ("Left",) and not self.animate:
+            delta_x = -10
+            for icon in self.icons:
+                icon.set_position(icon.pos[0]-delta_x,icon.pos[1])
+            self.current_pos = (self.current_pos[0]-delta_x,self.current_pos[1])
+        elif event.keyname in ("Right",) and not self.animate:
+            delta_x = 10
+            for icon in self.icons:
+                icon.set_position(icon.pos[0]-delta_x,icon.pos[1])
+            self.current_pos = (self.current_pos[0]-delta_x,self.current_pos[1])
         else:
             print "key not recognized:",event.keyname
+            
+    def on_key_up(self, obj, event):
+        if event.keyname in ("Up","Down", "Left", "Right") and not self.animate:
+            if abs(self.current_pos[0]) > self.size[0]/2 or abs(self.current_pos[1]) > self.size[1]/2:
+                self.x = int(self.x) + (self.offset_x-self.current_pos[0])/256.0
+                self.y = int(self.y) + (self.offset_y-self.current_pos[1])/256.0
+                self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
+                self.init_redraw()
+            self.update_coordinates()
+            
     
     def download(self, x,y,z):
         import urllib
@@ -90,6 +121,7 @@ class TestView(edje.Edje):
             raise SystemExit("error loading %s: %s" % (f, e))
         self.size = self.evas_canvas.evas_obj.evas.size
         self.on_key_down_add(self.on_key_down)
+        self.on_key_up_add(self.on_key_up)
         self.focus = True
         self.evas_canvas.evas_obj.data["main"] = self
         self.show()
