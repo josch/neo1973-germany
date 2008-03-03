@@ -55,6 +55,10 @@ class TestView(edje.Edje):
             self.evas_canvas.evas_obj.fullscreen = not self.evas_canvas.evas_obj.fullscreen
         elif event.keyname in ("Escape", "q"):
             ecore.main_loop_quit()
+        elif event.keyname in ("F7","plus") and not self.animate:
+            ecore.timer_add(0.05, self.animate_zoom_in)
+        elif event.keyname in ("F8","minus") and not self.animate:
+            ecore.timer_add(0.05, self.animate_zoom_out)
         elif event.keyname in ("Up",) and not self.animate:
             delta_y = -10
             for icon in self.icons:
