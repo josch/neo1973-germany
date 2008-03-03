@@ -150,7 +150,7 @@ class TestView(edje.Edje):
     def init_redraw(self):
         self.animate = True
         #calculate size of tile raster - reload if it differs from before eg. when size changes
-        self.border = int((self.size[0]+self.size[1])/512)+1
+        self.border = int((self.size[0]+self.size[1])/512)
         if len(self.icons) != (2*self.border+1)**2:
             print "use", self.border
             #clean up
@@ -185,13 +185,11 @@ class TestView(edje.Edje):
         #if all tiles are downloaded
         for i in xrange(2*self.border+1):
             for j in xrange(2*self.border+1):
-                #if some errors occurd replace with placeholder
-                #if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border)):
+                #if some errors occur replace with placeholder
                 try:
                     self.icons[(2*self.border+1)*i+j].file_set("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border))
                 except:
                     self.icons[(2*self.border+1)*i+j].file_set("404.png")
-                    
                 self.icons[(2*self.border+1)*i+j].set_position((i-self.border)*256+self.size[0]/2-self.offset_x,(j-self.border)*256+self.size[1]/2-self.offset_y)
                 self.icons[(2*self.border+1)*i+j].size = 256,256
                 self.icons[(2*self.border+1)*i+j].fill = 0, 0, 256, 256
@@ -260,7 +258,7 @@ class TestView(edje.Edje):
         if not self.animate:
             if source in "plus":
                 ecore.timer_add(0.05, self.animate_zoom_in)
-            if source in "minus":
+            elif source in "minus":
                 ecore.timer_add(0.05, self.animate_zoom_out)
             else:
                 self.x_pos, self.y_pos = self.evas_canvas.evas_obj.evas.pointer_canvas_xy
