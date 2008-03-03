@@ -130,7 +130,8 @@ class TestView(edje.Edje):
         self.progress.layer = 3
         self.progress.show()
         
-        self.border = 0
+        self.border_x = 0
+        self.border_y = 0
         
         self.mouse_down = False
         
@@ -150,22 +151,24 @@ class TestView(edje.Edje):
     def init_redraw(self):
         self.animate = True
         #calculate size of tile raster - reload if it differs from before eg. when size changes
-        self.border = int((self.size[0]+self.size[1])/512)
-        if len(self.icons) != (2*self.border+1)**2:
-            print "use", self.border
+        self.border_x = int(math.ceil(self.size[0]/256.0))
+        self.border_y = int(math.ceil(self.size[1]/256.0))
+        if len(self.icons) != (2*self.border_x+1)*(2*self.border_y+1):
+            print "x:", self.border_x
+            print "y:", self.border_y
             #clean up
             for icon in self.icons:
                 icon.delete()
             self.icons = []
             #fill
-            for i in xrange((2*self.border+1)**2):
+            for i in xrange((2*self.border_x+1)*(2*self.border_y+1)):
                 self.icons.append(tile(self.evas_canvas.evas_obj.evas))
         if not self.options.offline:
             #add all tiles that are not yet downloaded to a list
-            for i in xrange(2*self.border+1):
-                for j in xrange(2*self.border+1):
-                    if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border)):
-                        self.tiles_to_download.append((self.z,self.x+i-self.border,self.y+j-self.border))
+            for i in xrange(2*self.border_x+1):
+                for j in xrange(2*self.border_y+1):
+                    if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border_x,self.y+j-self.border_y)):
+                        self.tiles_to_download.append((self.z,self.x+i-self.border_x,self.y+j-self.border_y))
             self.tiles_to_download_total = len(self.tiles_to_download)
             #if there are tiles to download, display progress bar
             if self.tiles_to_download_total > 0:
@@ -183,16 +186,16 @@ class TestView(edje.Edje):
             return True
         
         #if all tiles are downloaded
-        for i in xrange(2*self.border+1):
-            for j in xrange(2*self.border+1):
+        for i in xrange(2*self.border_x+1):
+            for j in xrange(2*self.border_y+1):
                 #if some errors occur replace with placeholder
                 try:
-                    self.icons[(2*self.border+1)*i+j].file_set("%d/%d/%d.png"%(self.z,self.x+i-self.border,self.y+j-self.border))
+                    self.icons[(2*self.border_y+1)*i+j].file_set("%d/%d/%d.png"%(self.z,self.x+i-self.border_x,self.y+j-self.border_y))
                 except:
-                    self.icons[(2*self.border+1)*i+j].file_set("404.png")
-                self.icons[(2*self.border+1)*i+j].set_position((i-self.border)*256+self.size[0]/2-self.offset_x,(j-self.border)*256+self.size[1]/2-self.offset_y)
-                self.icons[(2*self.border+1)*i+j].size = 256,256
-                self.icons[(2*self.border+1)*i+j].fill = 0, 0, 256, 256
+                    self.icons[(2*self.border_y+1)*i+j].file_set("404.png")
+                self.icons[(2*self.border_y+1)*i+j].set_position((i-self.border_x)*256+self.size[0]/2-self.offset_x,(j-self.border_y)*256+self.size[1]/2-self.offset_y)
+                self.icons[(2*self.border_y+1)*i+j].size = 256,256
+                self.icons[(2*self.border_y+1)*i+j].fill = 0, 0, 256, 256
         self.current_pos = (0,0)
         self.overlay.part_text_set("progress", "")
         self.progress_bg.geometry = 0,0,0,0
