@@ -1,0 +1,48 @@
+Secure Locate 3.1 - Released March 7, 2006
+Copyright (c) 2005 Kevin Lindsay
+
+Search:          locate [-qi] [-d <path>] [--database=<path1:path2:...>]
+                        <search string>
+                 locate [-r <regexp>] [--regexp=<regexp>]
+Update database: locate [-qv] [-o <file>] [--output=<file>]
+                 locate [-e <dir1,dir2,...>] [-f <fs_type1,...> ] [-l <level>]
+                        [-c <file>] <[-U <path>] [-u]>
+General:         locate [-Vh] [--version] [--help]
+
+   Options:
+   -u                 - Create slocate database starting at path /.
+   -U <dir>           - Create slocate database starting at path <dir>.
+   -c <file>           - Parse original GNU Locate's configuration file
+                        when using the -u or -U options.  If 'updatedb' is
+                        symbolically linked to the 'locate' binary, the
+                        original configuration file '/etc/updatedb.conf' will
+                        automatically be used.
+   -e <dir1,dir2,...> - Exclude directories from the slocate database when
+                        using the -u or -U options.
+   -f <fs_type1,...>  - Exclude file system types from the slocate database
+                        when using the -u or -U options. (ie. NFS, etc).
+   -l <level>         - Security level. 
+                           0 turns security checks off. This will make
+                             searchs faster.
+                           1 turns security checks on. This is the default.
+   -q                 - Quiet mode.  Error messages are suppressed.
+   -n <num>           - Limit the amount of results shown to <num>.
+   -i                 - Does a case insensitive search.
+   -r <regexp>
+   --regexp=<regexp>  - Search the database using a basic POSIX regular
+                        expression.
+   -o <file>
+   --output=<file>    - Specifies the database to create.
+   -d <path>
+   --database=<path>  - Specfies the path of databases to search in.
+   -h
+   --help             - Display this help.
+   -v
+   --verbose          - Verbose mode. Display files when creating database.
+   -V
+   --version          - Display version.
+
+Author: Kevin Lindsay
+Bugs:   slocate@trakker.ca
+HTTP:   http://slocate.trakker.ca/
+
