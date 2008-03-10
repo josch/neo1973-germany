@@ -46,7 +46,7 @@ tiles = 0
 for z in range(5,18):
     x1,y1 = getxy(lat1, lon1, z)
     x2,y2 = getxy(lat2, lon2, z)
-    tiles += (x2-x1)*(y1-y2)
+    tiles += (x2+1-x1)*(y1+1-y2)
     
 print "do you really want to download %d tiles? [Y/n]"%tiles,
 data = sys.stdin.read(1)

@@ -16,6 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+#TODO: restructure tile loading
+#TODO: add wikipedia geotagging
+#TODO: add dynamic preloading
+#TODO: add gps connection
+
 WIDTH = 480
 HEIGHT = 640
 
@@ -25,7 +30,7 @@ WM_CLASS = "swallow"
 
 import os
 import sys
-import e_dbus
+from e_dbus import DBusEcoreMainLoop
 import evas
 import evas.decorators
 import edje
@@ -36,8 +41,21 @@ from dbus import SystemBus, Interface
 from optparse import OptionParser
 import time
 import math
+import urllib
 
 class tile(evas.Image):
+    def __init__(self, canvas):
+        evas.Image.__init__(self,canvas)
+        self.pass_events = True
+        self.show()
+        #we need this to store the original position while the zoom animations
+        self.position = (0,0)
+    
+    def set_position(self, x, y):
+        self.position = (x,y)
+        self.move(x,y)
+        
+class mark(evas.Image):
     def __init__(self, canvas):
         evas.Image.__init__(self,canvas)
         self.pass_events = True
@@ -93,7 +111,6 @@ class TestView(edje.Edje):
             
     
     def download(self, x,y,z):
-        import urllib
         try:
             webFile = urllib.urlopen("http://a.tile.openstreetmap.org/%d/%d/%d.png"%(z,x,y))
             if not os.path.exists("%d"%z):
@@ -140,55 +157,101 @@ class TestView(edje.Edje):
         #global list for tiles to download
         self.tiles_to_download = []
         self.tiles_to_download_total = 0
+        self.tiles_to_preload = []
         
         #initial lat,lon,zoom
-        self.lat = 49.009051
-        self.lon = 8.402481
-        self.z = 10
+        self.lat = 0
+        self.lon = 0
+        self.x = 0
+        self.y = 0
+        self.z = 0
+        self.offset_x = 0
+        self.offset_y = 0
         
         self.icons = []
         
         self.overlay = edje.Edje(self.evas_canvas.evas_obj.evas, file=f, group='overlay')
         self.overlay.size = self.evas_canvas.evas_obj.evas.size
-        self.overlay.layer = 1
+        self.overlay.layer = 2
         self.evas_canvas.evas_obj.data["overlay"] = self.overlay
         self.overlay.show()
         
         self.progress_bg = evas.Rectangle(self.evas_canvas.evas_obj.evas)
         self.progress_bg.geometry = 0,0,0,0
         self.progress_bg.color = 255, 255, 255, 255
-        self.progress_bg.layer = 2
+        self.progress_bg.layer = 3
         self.progress_bg.show()
         
         self.progress = evas.Rectangle(self.evas_canvas.evas_obj.evas)
         self.progress.geometry = 0,0,0,0
         self.progress.color = 255, 0, 0, 255
-        self.progress.layer = 3
+        self.progress.layer = 4
         self.progress.show()
         
-        self.border_x = 0
-        self.border_y = 0
+        #calculate size of tile raster
+        self.border_x = int(math.ceil(self.size[0]/256.0))
+        self.border_y = int(math.ceil(self.size[1]/256.0))
         
         self.mouse_down = False
         
         self.animate = False
         
-        self.set_current_tile(self.lat, self.lon, self.z)
+        self.set_current_tile(49.009051, 8.402481, 10)
         
+        '''
+        self.marker = mark(self.evas_canvas.evas_obj.evas)
+        self.marker.file_set("blue-dot.png")
+        self.marker.lat = 49.073866
+        self.marker.lon = 8.184814
+        self.marker.size_set(32,32)
+        self.marker.fill_set(0,0,32,32)
+        self.marker.x = (self.marker.lon+180)/360 * 2**self.z
+        self.marker.y = (1-math.log(math.tan(self.marker.lat*math.pi/180) + 1/math.cos(self.marker.lat*math.pi/180))/math.pi)/2 * 2**self.z
+        self.marker.offset_x, self.marker.offset_y = int((self.marker.x-int(self.marker.x))*256),int((self.marker.y-int(self.marker.y))*256)
+        self.marker.set_position(self.size[0]/2-16+256*(int(self.marker.x)-int(self.x))+self.marker.offset_x-self.offset_x, self.size[1]/2-32+256*(int(self.marker.y)-int(self.y))+self.marker.offset_y-self.offset_y)
+        self.marker.layer = 1
+        self.marker.show()
+        '''
+        
+        ecore.timer_add(3, self.init_dbus)
+    
+    def init_dbus(self):
+        print 'LocationFeed init_dbus'
+        try:
+            gps_obj = SystemBus(mainloop=DBusEcoreMainLoop()).get_object('org.mobile.gps', '/org/mobile/gps/RemoteObject')
+            gps_name = 'org.mobile.gps.RemoteInterface'
+            gps_obj.connect_to_signal("position", self.position, dbus_interface=gps_name)
+            self.gps_interface = Interface(gps_obj, gps_name)
+            return False
+        except Exception, e:
+            print 'LocationFeed', e
+            return True
+    def position(self, content):
+        print 'position', content['longitude'], content['latitude']
+        if self.animate == False:
+            self.set_current_tile(float(content['latitude']), float(content['longitude']), self.z)
     
     #jump to coordinates
     def set_current_tile(self, lat, lon, z):
-        self.z = z
-        self.x = (lon+180)/360 * 2**z
-        self.y = (1-math.log(math.tan(lat*math.pi/180) + 1/math.cos(lat*math.pi/180))/math.pi)/2 * 2**z
-        self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
-        self.init_redraw()
+        x = (lon+180)/360 * 2**z
+        y = (1-math.log(math.tan(lat*math.pi/180) + 1/math.cos(lat*math.pi/180))/math.pi)/2 * 2**z
+        offset_x, offset_y = int((x-int(x))*256),int((y-int(y))*256)
+        #only redraw if x, y, z, offset_x or offset_y differ from before
+        if int(x) != int(self.x) \
+        or int(y) != int(self.y) \
+        or z != self.z \
+        or offset_x != self.offset_x \
+        or offset_y != self.offset_y:
+            self.z = z
+            self.x = x
+            self.y = y
+            self.offset_x, self.offset_y = offset_x, offset_y
+            self.init_redraw()
         
     def init_redraw(self):
+        print "redraw"
         self.animate = True
-        #calculate size of tile raster - reload if it differs from before eg. when size changes
-        self.border_x = int(math.ceil(self.size[0]/256.0))
-        self.border_y = int(math.ceil(self.size[1]/256.0))
+        #reload icons list if its length differs from before eg. when size changes
         if len(self.icons) != (2*self.border_x+1)*(2*self.border_y+1):
             print "x:", self.border_x
             print "y:", self.border_y
@@ -206,6 +269,21 @@ class TestView(edje.Edje):
                     if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border_x,self.y+j-self.border_y)):
                         self.tiles_to_download.append((self.z,self.x+i-self.border_x,self.y+j-self.border_y))
             self.tiles_to_download_total = len(self.tiles_to_download)
+            '''
+            #add additional tiles around the raster to a preload list
+            for i in xrange(2*self.border_x+3):
+                if i == 0 or i == 2*self.border_x+2:
+                    #if first or last row, download full row
+                    for j in xrange(2*self.border_y+3):
+                        if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border_x-1,self.y+j-self.border_y-1)):
+                            self.tiles_to_preload.append((self.z,self.x+i-self.border_x-1,self.y+j-self.border_y-1))
+                            #lots TODO here
+                            #let preload more than one tile - maybe a preload_border_x/y variable
+                            #manage simultaneos proeloads
+                            #manage not preloading duplicates
+                else
+                    #else download first and last tile
+            '''
             #if there are tiles to download, display progress bar
             if self.tiles_to_download_total > 0:
                 self.progress_bg.geometry = 39, self.size[1]/2-1, self.size[0]-78,22
@@ -221,7 +299,7 @@ class TestView(edje.Edje):
             self.download(x,y,z)
             return True
         
-        #if all tiles are downloaded
+        #we get here if all tiles are downloaded
         for i in xrange(2*self.border_x+1):
             for j in xrange(2*self.border_y+1):
                 #if some errors occur replace with placeholder
@@ -271,8 +349,7 @@ class TestView(edje.Edje):
                 return True
             
             self.zoom_step = 0.0
-            self.z+=1
-            self.set_current_tile(self.lat, self.lon, self.z)
+            self.set_current_tile(self.lat, self.lon, self.z+1)
         else:
             self.animate = False
         return False
@@ -286,8 +363,7 @@ class TestView(edje.Edje):
                 return True
             
             self.zoom_step = 0.0
-            self.z-=1
-            self.set_current_tile(self.lat, self.lon, self.z)
+            self.set_current_tile(self.lat, self.lon, self.z-1)
         else:
             self.animate = False
         return False
@@ -307,7 +383,8 @@ class TestView(edje.Edje):
     def on_mouse_up(self, emission, source):
         self.mouse_down = False
         if not self.animate:
-            if abs(self.current_pos[0]) > self.size[0]/2 or abs(self.current_pos[1]) > self.size[1]/2:
+            #redraw if moved further than one tile in each direction 'cause the preoload will only download one tile further than requested
+            if abs(self.current_pos[0]) > 256 or abs(self.current_pos[1]) > 256:
                 self.x = int(self.x) + (self.offset_x-self.current_pos[0])/256.0
                 self.y = int(self.y) + (self.offset_y-self.current_pos[1])/256.0
                 self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
@@ -326,6 +403,8 @@ class TestView(edje.Edje):
             for icon in self.icons:
                 icon.set_position(icon.pos[0]-delta_x,icon.pos[1]-delta_y)
             self.current_pos = (self.current_pos[0]-delta_x,self.current_pos[1]-delta_y)
+            
+            #self.marker.set_position(self.marker.pos[0]-delta_x,self.marker.pos[1]-delta_y)
             
         
 class EvasCanvas(object):
@@ -354,6 +433,9 @@ class EvasCanvas(object):
         size = (w, h)
         for key in evas_obj.data.keys():
             evas_obj.data[key].size = size
+        #calculate size of tile raster
+        evas_obj.data["main"].border_x = int(math.ceil(evas_obj.data["main"].size[0]/256.0))
+        evas_obj.data["main"].border_y = int(math.ceil(evas_obj.data["main"].size[1]/256.0))
         evas_obj.data["main"].init_redraw()
 
     def on_delete_request(self, evas_obj):
@@ -399,45 +481,6 @@ class myOptionParser(OptionParser):
         except Exception, e:
             raise optparse.OptionValueError("Invalid format for %s" % option)
         parser.values.geometry = (w, h)
-
-class dbus(object):
-    def __init__(self):
-        try:
-            obj = SystemBus(mainloop=e_dbus.DBusEcoreMainLoop()).get_object('org.mobile.gsm', '/org/mobile/gsm/RemoteObject')
-        except Exception, e:
-            print e
-            raise SystemExit
-
-        #connect functions to dbus events
-        dbus_interface = 'org.mobile.gsm.RemoteInterface'
-        for fkt in (self.modem_info, self.sim_info, self.network_info, self.gsmCRING, self.gsmNO_CARRIER, self.gsmBUSY, self.error,):
-            obj.connect_to_signal(fkt.__name__, fkt, dbus_interface=dbus_interface)
-        gsm = Interface(obj, dbus_interface)
-
-        #get status info on startup
-        gsm.FireModemInfo()
-        gsm.FireNetworkInfo()
-    
-    def modem_info(self, array):
-        print array
-
-    def sim_info(self, array):
-        print array
-        
-    def network_info(self, array):
-        print array
-        
-    def gsmBUSY(self, string):
-        print string
-
-    def gsmCRING(self, string):
-        print string
-
-    def gsmNO_CARRIER(self, *values):
-        print values
-
-    def error(self, string):
-        print string
 
 if __name__ == "__main__":
     TestView()
