@@ -196,7 +196,7 @@ class TestView(edje.Edje):
         
         self.animate = False
         
-        self.set_current_tile(49.009051, 8.402481, 10)
+        self.set_current_tile(49.009051, 8.402481, 13)
         
         '''
         self.marker = mark(self.evas_canvas.evas_obj.evas)
@@ -227,9 +227,11 @@ class TestView(edje.Edje):
             print 'LocationFeed', e
             return True
     def position(self, content):
-        print 'position', content['longitude'], content['latitude']
-        if self.animate == False:
-            self.set_current_tile(float(content['latitude']), float(content['longitude']), self.z)
+        longitude = float(content.get('longitude', self.lat))
+        latitude = float(content.get('latitude', self.lon))
+        print 'position', longitude, latitude
+        if not self.animate:
+            self.set_current_tile(latitude, longitude, self.z)
     
     #jump to coordinates
     def set_current_tile(self, lat, lon, z):
