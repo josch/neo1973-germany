@@ -199,8 +199,8 @@ class Pylgrim(edje.Edje):
         print 'download', filename
         try:
             dirname = "%d/%d"%(z,x)
-	    if not os.path.exists(dirname):
-	    	os.makedirs(dirname)
+            if not os.path.exists(dirname):
+                    os.makedirs(dirname)
             localFile = open(filename, 'w')
             webFile = urllib.urlopen("http://a.tile.openstreetmap.org/%d/%d/%d.png"%(z,x,y))
             localFile.write(webFile.read())
@@ -208,8 +208,8 @@ class Pylgrim(edje.Edje):
             localFile.close()
         except Exception, e:
             print 'download error', e
-	    if not os.path.exists(filename):
-		os.unlink(filename)
+            if os.path.exists(filename):
+                os.unlink(filename)
 
     def position(self, content):
         longitude = float(content.get('longitude', self.lat))
@@ -296,6 +296,8 @@ class Pylgrim(edje.Edje):
                     self.icons[(2*self.border_y+1)*i+j].file_set(filename)
                 except Exception, e:
                     print e
+                    if os.path.exists(filename):
+                        os.unlink(filename)
                     self.icons[(2*self.border_y+1)*i+j].file_set("404.png")
                 self.icons[(2*self.border_y+1)*i+j].set_position((i-self.border_x)*256+self.size[0]/2-self.offset_x,(j-self.border_y)*256+self.size[1]/2-self.offset_y)
                 self.icons[(2*self.border_y+1)*i+j].size = 256,256
