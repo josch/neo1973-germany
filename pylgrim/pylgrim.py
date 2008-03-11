@@ -59,9 +59,10 @@ class Mark(evas.Image):
         self.move(x,y)
 
 class Pylgrim(edje.Edje):
-    def __init__(self, filename, evas_canvas, offline=False):
+    def __init__(self, evas_canvas, filename, initial_lat, initial_lon, initial_zoom=10, offline=False, use_overlay=True):
         self.evas_canvas = evas_canvas
         self.offline = offline
+        self.use_overlay = use_overlay
 
         edje.Edje.__init__(self, self.evas_canvas.evas_obj.evas, file=filename, group="pylgrim")
         self.size = self.evas_canvas.evas_obj.evas.size
@@ -98,18 +99,19 @@ class Pylgrim(edje.Edje):
         self.overlay.layer = 2
         self.evas_canvas.evas_obj.data["overlay"] = self.overlay
         self.overlay.show()
+        if self.use_overlay:
 
-        self.progress_bg = evas.Rectangle(self.evas_canvas.evas_obj.evas)
-        self.progress_bg.geometry = 0,0,0,0
-        self.progress_bg.color = 255, 255, 255, 255
-        self.progress_bg.layer = 3
-        self.progress_bg.show()
+            self.progress_bg = evas.Rectangle(self.evas_canvas.evas_obj.evas)
+            self.progress_bg.geometry = 0,0,0,0
+            self.progress_bg.color = 255, 255, 255, 255
+            self.progress_bg.layer = 3
+            self.progress_bg.show()
 
-        self.progress = evas.Rectangle(self.evas_canvas.evas_obj.evas)
-        self.progress.geometry = 0,0,0,0
-        self.progress.color = 255, 0, 0, 255
-        self.progress.layer = 4
-        self.progress.show()
+            self.progress = evas.Rectangle(self.evas_canvas.evas_obj.evas)
+            self.progress.geometry = 0,0,0,0
+            self.progress.color = 255, 0, 0, 255
+            self.progress.layer = 4
+            self.progress.show()
 
         #calculate size of tile raster
         self.border_x = int(math.ceil(self.size[0]/256.0))
@@ -119,7 +121,7 @@ class Pylgrim(edje.Edje):
 
         self.animate = False
 
-        self.set_current_tile(49.009051, 8.402481, 13)
+        self.set_current_tile(initial_lat, initial_lon, initial_zoom)
 
         '''
         self.marker = Mark(self.evas_canvas.evas_obj.evas)
@@ -193,18 +195,21 @@ class Pylgrim(edje.Edje):
             self.update_coordinates()
 
     def download(self, x,y,z):
+        filename = "%d/%d/%d.png"%(z,x,y)
+        print 'download', filename
         try:
+            dirname = "%d/%d"%(z,x)
+	    if not os.path.exists(dirname):
+	    	os.makedirs(dirname)
+            localFile = open(filename, 'w')
             webFile = urllib.urlopen("http://a.tile.openstreetmap.org/%d/%d/%d.png"%(z,x,y))
-            if not os.path.exists("%d"%z):
-                os.mkdir("%d"%z)
-            if not os.path.exists("%d/%d"%(z,x)):
-                os.mkdir("%d/%d"%(z,x))
-            localFile = open("%d/%d/%d.png"%(z,x,y), 'w')
             localFile.write(webFile.read())
             webFile.close()
             localFile.close()
         except Exception, e:
-            print e
+            print 'download error', e
+	    if not os.path.exists(filename):
+		os.unlink(filename)
 
     def position(self, content):
         longitude = float(content.get('longitude', self.lat))
@@ -267,7 +272,7 @@ class Pylgrim(edje.Edje):
                     #else download first and last tile
             '''
             #if there are tiles to download, display progress bar
-            if self.tiles_to_download_total > 0:
+            if self.use_overlay and self.tiles_to_download_total > 0:
                 self.progress_bg.geometry = 39, self.size[1]/2-1, self.size[0]-78,22
                 self.progress.geometry = 40, self.size[1]/2, 1,20
                 self.overlay.part_text_set("progress", "downloaded 0 of %d tiles"%self.tiles_to_download_total)
@@ -276,8 +281,9 @@ class Pylgrim(edje.Edje):
     def download_and_paint_current_tiles(self):
         if len(self.tiles_to_download) > 0:
             z,x,y = self.tiles_to_download.pop()
-            self.progress.geometry = 40, self.size[1]/2, (self.size[0]-80)*(self.tiles_to_download_total-len(self.tiles_to_download))/self.tiles_to_download_total,20
-            self.overlay.part_text_set("progress", "downloaded %d of %d tiles"%(self.tiles_to_download_total-len(self.tiles_to_download),self.tiles_to_download_total))
+            if self.use_overlay:
+                self.progress.geometry = 40, self.size[1]/2, (self.size[0]-80)*(self.tiles_to_download_total-len(self.tiles_to_download))/self.tiles_to_download_total,20
+                self.overlay.part_text_set("progress", "downloaded %d of %d tiles"%(self.tiles_to_download_total-len(self.tiles_to_download),self.tiles_to_download_total))
             self.download(x,y,z)
             return True
 
@@ -285,17 +291,20 @@ class Pylgrim(edje.Edje):
         for i in xrange(2*self.border_x+1):
             for j in xrange(2*self.border_y+1):
                 #if some errors occur replace with placeholder
+                filename = "%d/%d/%d.png"%(self.z,self.x+i-self.border_x,self.y+j-self.border_y)
                 try:
-                    self.icons[(2*self.border_y+1)*i+j].file_set("%d/%d/%d.png"%(self.z,self.x+i-self.border_x,self.y+j-self.border_y))
-                except:
+                    self.icons[(2*self.border_y+1)*i+j].file_set(filename)
+                except Exception, e:
+                    print e
                     self.icons[(2*self.border_y+1)*i+j].file_set("404.png")
                 self.icons[(2*self.border_y+1)*i+j].set_position((i-self.border_x)*256+self.size[0]/2-self.offset_x,(j-self.border_y)*256+self.size[1]/2-self.offset_y)
                 self.icons[(2*self.border_y+1)*i+j].size = 256,256
                 self.icons[(2*self.border_y+1)*i+j].fill = 0, 0, 256, 256
         self.current_pos = (0,0)
-        self.overlay.part_text_set("progress", "")
-        self.progress_bg.geometry = 0,0,0,0
-        self.progress.geometry = 0,0,0,0
+        if self.use_overlay:
+            self.overlay.part_text_set("progress", "")
+            self.progress_bg.geometry = 0,0,0,0
+            self.progress.geometry = 0,0,0,0
         self.update_coordinates()
         self.animate = False
         return False
@@ -482,7 +491,7 @@ if __name__ == "__main__":
         size=options.geometry
         )
     filename = os.path.splitext(sys.argv[0])[0] + ".edj"
-    Pylgrim(filename, evas_canvas, options.offline)
+    Pylgrim(evas_canvas, filename, 49.009051, 8.402481, 13, options.offline, )
     ecore.main_loop_begin()
 
 '''
