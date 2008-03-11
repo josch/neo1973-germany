@@ -252,7 +252,8 @@ class Pylgrim(edje.Edje):
             #add all tiles that are not yet downloaded to a list
             for i in xrange(2*self.border_x+1):
                 for j in xrange(2*self.border_y+1):
-                    if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border_x,self.y+j-self.border_y)):
+                    if not os.path.exists("%d/%d/%d.png"%(self.z,self.x+i-self.border_x,self.y+j-self.border_y))\
+                    and not (self.z,self.x+i-self.border_x,self.y+j-self.border_y) in self.tiles_to_download:
                         self.tiles_to_download.append((self.z,self.x+i-self.border_x,self.y+j-self.border_y))
             self.tiles_to_download_total = len(self.tiles_to_download)
             '''
