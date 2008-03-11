@@ -212,9 +212,9 @@ class Pylgrim(edje.Edje):
                 os.unlink(filename)
 
     def position(self, content):
-        longitude = float(content.get('longitude', self.lat))
-        latitude = float(content.get('latitude', self.lon))
-        print 'position', longitude, latitude
+        latitude = float(content.get('latitude', self.lat))
+        longitude = float(content.get('longitude', self.lon))
+        print 'position', latitude, longitude
         if not self.animate:
             self.set_current_tile(latitude, longitude, self.z)
 
@@ -240,8 +240,7 @@ class Pylgrim(edje.Edje):
         self.animate = True
         #reload icons list if its length differs from before eg. when size changes
         if len(self.icons) != (2*self.border_x+1)*(2*self.border_y+1):
-            print "x:", self.border_x
-            print "y:", self.border_y
+            print "x:", self.border_x, "y:", self.border_y
             #clean up
             for icon in self.icons:
                 icon.delete()
