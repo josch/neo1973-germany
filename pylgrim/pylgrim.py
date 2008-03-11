@@ -1,6 +1,5 @@
 #!/usr/bin/python
 #coding=utf8
-
 '''
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,13 +20,6 @@
 #TODO: add dynamic preloading
 #TODO: add gps connection
 
-WIDTH = 480
-HEIGHT = 640
-
-TITLE = "pylgrim"
-WM_NAME = "pylgrim"
-WM_CLASS = "swallow"
-
 import os
 import sys
 from e_dbus import DBusEcoreMainLoop
@@ -38,36 +30,127 @@ import edje.decorators
 import ecore
 import ecore.evas
 from dbus import SystemBus, Interface
-from optparse import OptionParser
 import time
 import math
 import urllib
 
-class tile(evas.Image):
+class Tile(evas.Image):
     def __init__(self, canvas):
         evas.Image.__init__(self,canvas)
         self.pass_events = True
         self.show()
         #we need this to store the original position while the zoom animations
         self.position = (0,0)
-    
-    def set_position(self, x, y):
-        self.position = (x,y)
-        self.move(x,y)
-        
-class mark(evas.Image):
-    def __init__(self, canvas):
-        evas.Image.__init__(self,canvas)
-        self.pass_events = True
-        self.show()
-        #we need this to store the original position while the zoom animations
-        self.position = (0,0)
-    
+
     def set_position(self, x, y):
         self.position = (x,y)
         self.move(x,y)
 
-class TestView(edje.Edje):
+class Mark(evas.Image):
+    def __init__(self, canvas):
+        evas.Image.__init__(self,canvas)
+        self.pass_events = True
+        self.show()
+        #we need this to store the original position while the zoom animations
+        self.position = (0,0)
+
+    def set_position(self, x, y):
+        self.position = (x,y)
+        self.move(x,y)
+
+class Pylgrim(edje.Edje):
+    def __init__(self, filename, evas_canvas, offline=False):
+        self.evas_canvas = evas_canvas
+        self.offline = offline
+
+        edje.Edje.__init__(self, self.evas_canvas.evas_obj.evas, file=filename, group="pylgrim")
+        self.size = self.evas_canvas.evas_obj.evas.size
+        self.on_key_down_add(self.on_key_down)
+        self.on_key_up_add(self.on_key_up)
+        self.focus = True
+        self.evas_canvas.evas_obj.data["pylgrim"] = self
+        self.show()
+
+        #mouse position
+        self.x_pos, self.y_pos = (0,0)
+
+        #global variable for zooming
+        self.zoom_step = 0.0
+
+        #global list for tiles to download
+        self.tiles_to_download = []
+        self.tiles_to_download_total = 0
+        self.tiles_to_preload = []
+
+        #initial lat,lon,zoom
+        self.lat = 0
+        self.lon = 0
+        self.x = 0
+        self.y = 0
+        self.z = 0
+        self.offset_x = 0
+        self.offset_y = 0
+
+        self.icons = []
+
+        self.overlay = edje.Edje(self.evas_canvas.evas_obj.evas, file=filename, group='overlay')
+        self.overlay.size = self.evas_canvas.evas_obj.evas.size
+        self.overlay.layer = 2
+        self.evas_canvas.evas_obj.data["overlay"] = self.overlay
+        self.overlay.show()
+
+        self.progress_bg = evas.Rectangle(self.evas_canvas.evas_obj.evas)
+        self.progress_bg.geometry = 0,0,0,0
+        self.progress_bg.color = 255, 255, 255, 255
+        self.progress_bg.layer = 3
+        self.progress_bg.show()
+
+        self.progress = evas.Rectangle(self.evas_canvas.evas_obj.evas)
+        self.progress.geometry = 0,0,0,0
+        self.progress.color = 255, 0, 0, 255
+        self.progress.layer = 4
+        self.progress.show()
+
+        #calculate size of tile raster
+        self.border_x = int(math.ceil(self.size[0]/256.0))
+        self.border_y = int(math.ceil(self.size[1]/256.0))
+
+        self.mouse_down = False
+
+        self.animate = False
+
+        self.set_current_tile(49.009051, 8.402481, 13)
+
+        '''
+        self.marker = Mark(self.evas_canvas.evas_obj.evas)
+        self.marker.file_set("blue-dot.png")
+        self.marker.lat = 49.073866
+        self.marker.lon = 8.184814
+        self.marker.size_set(32,32)
+        self.marker.fill_set(0,0,32,32)
+        self.marker.x = (self.marker.lon+180)/360 * 2**self.z
+        self.marker.y = (1-math.log(math.tan(self.marker.lat*math.pi/180) + 1/math.cos(self.marker.lat*math.pi/180))/math.pi)/2 * 2**self.z
+        self.marker.offset_x, self.marker.offset_y = int((self.marker.x-int(self.marker.x))*256),int((self.marker.y-int(self.marker.y))*256)
+        self.marker.set_position(self.size[0]/2-16+256*(int(self.marker.x)-int(self.x))+self.marker.offset_x-self.offset_x, self.size[1]/2-32+256*(int(self.marker.y)-int(self.y))+self.marker.offset_y-self.offset_y)
+        self.marker.layer = 1
+        self.marker.show()
+        '''
+
+        ecore.timer_add(3, self.init_dbus)
+
+    def init_dbus(self):
+        print 'LocationFeed init_dbus'
+        try:
+            gps_obj = SystemBus(mainloop=DBusEcoreMainLoop()).get_object('org.mobile.gps', '/org/mobile/gps/RemoteObject')
+            gps_name = 'org.mobile.gps.RemoteInterface'
+            gps_obj.connect_to_signal("position", self.position, dbus_interface=gps_name)
+            self.gps_interface = Interface(gps_obj, gps_name)
+            #self.gps_interface.get_position()
+            return False
+        except Exception, e:
+            print 'LocationFeed', e
+            return True
+
     def on_key_down(self, obj, event):
         if event.keyname in ("F6", "f"):
             self.evas_canvas.evas_obj.fullscreen = not self.evas_canvas.evas_obj.fullscreen
@@ -99,7 +182,7 @@ class TestView(edje.Edje):
             self.current_pos = (self.current_pos[0]-delta_x,self.current_pos[1])
         else:
             print "key not recognized:",event.keyname
-            
+
     def on_key_up(self, obj, event):
         if event.keyname in ("Up","Down", "Left", "Right") and not self.animate:
             if abs(self.current_pos[0]) > self.size[0]/2 or abs(self.current_pos[1]) > self.size[1]/2:
@@ -108,8 +191,7 @@ class TestView(edje.Edje):
                 self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
                 self.init_redraw()
             self.update_coordinates()
-            
-    
+
     def download(self, x,y,z):
         try:
             webFile = urllib.urlopen("http://a.tile.openstreetmap.org/%d/%d/%d.png"%(z,x,y))
@@ -123,116 +205,14 @@ class TestView(edje.Edje):
             localFile.close()
         except Exception, e:
             print e
-    
-    def __init__(self):
-        self.options, self.args = myOptionParser(usage="usage: %prog [options]").parse_args()
-        
-        edje.frametime_set(1.0 / self.options.fps)
-        
-        self.evas_canvas = EvasCanvas(
-            fullscreen=not self.options.no_fullscreen,
-            engine=self.options.engine,
-            size=self.options.geometry
-        )
-        
-        f = os.path.splitext(sys.argv[0])[0] + ".edj"
-        try:
-            edje.Edje.__init__(self, self.evas_canvas.evas_obj.evas, file=f, group="main")
-        except edje.EdjeLoadError, e:
-            raise SystemExit("error loading %s: %s" % (f, e))
-        self.size = self.evas_canvas.evas_obj.evas.size
-        self.on_key_down_add(self.on_key_down)
-        self.on_key_up_add(self.on_key_up)
-        self.focus = True
-        self.evas_canvas.evas_obj.data["main"] = self
-        self.show()
-        
-        
-        #mouse position
-        self.x_pos, self.y_pos = (0,0)
-        
-        #global variable for zooming
-        self.zoom_step = 0.0
-        
-        #global list for tiles to download
-        self.tiles_to_download = []
-        self.tiles_to_download_total = 0
-        self.tiles_to_preload = []
-        
-        #initial lat,lon,zoom
-        self.lat = 0
-        self.lon = 0
-        self.x = 0
-        self.y = 0
-        self.z = 0
-        self.offset_x = 0
-        self.offset_y = 0
-        
-        self.icons = []
-        
-        self.overlay = edje.Edje(self.evas_canvas.evas_obj.evas, file=f, group='overlay')
-        self.overlay.size = self.evas_canvas.evas_obj.evas.size
-        self.overlay.layer = 2
-        self.evas_canvas.evas_obj.data["overlay"] = self.overlay
-        self.overlay.show()
-        
-        self.progress_bg = evas.Rectangle(self.evas_canvas.evas_obj.evas)
-        self.progress_bg.geometry = 0,0,0,0
-        self.progress_bg.color = 255, 255, 255, 255
-        self.progress_bg.layer = 3
-        self.progress_bg.show()
-        
-        self.progress = evas.Rectangle(self.evas_canvas.evas_obj.evas)
-        self.progress.geometry = 0,0,0,0
-        self.progress.color = 255, 0, 0, 255
-        self.progress.layer = 4
-        self.progress.show()
-        
-        #calculate size of tile raster
-        self.border_x = int(math.ceil(self.size[0]/256.0))
-        self.border_y = int(math.ceil(self.size[1]/256.0))
-        
-        self.mouse_down = False
-        
-        self.animate = False
-        
-        self.set_current_tile(49.009051, 8.402481, 13)
-        
-        '''
-        self.marker = mark(self.evas_canvas.evas_obj.evas)
-        self.marker.file_set("blue-dot.png")
-        self.marker.lat = 49.073866
-        self.marker.lon = 8.184814
-        self.marker.size_set(32,32)
-        self.marker.fill_set(0,0,32,32)
-        self.marker.x = (self.marker.lon+180)/360 * 2**self.z
-        self.marker.y = (1-math.log(math.tan(self.marker.lat*math.pi/180) + 1/math.cos(self.marker.lat*math.pi/180))/math.pi)/2 * 2**self.z
-        self.marker.offset_x, self.marker.offset_y = int((self.marker.x-int(self.marker.x))*256),int((self.marker.y-int(self.marker.y))*256)
-        self.marker.set_position(self.size[0]/2-16+256*(int(self.marker.x)-int(self.x))+self.marker.offset_x-self.offset_x, self.size[1]/2-32+256*(int(self.marker.y)-int(self.y))+self.marker.offset_y-self.offset_y)
-        self.marker.layer = 1
-        self.marker.show()
-        '''
-        
-        ecore.timer_add(3, self.init_dbus)
-    
-    def init_dbus(self):
-        print 'LocationFeed init_dbus'
-        try:
-            gps_obj = SystemBus(mainloop=DBusEcoreMainLoop()).get_object('org.mobile.gps', '/org/mobile/gps/RemoteObject')
-            gps_name = 'org.mobile.gps.RemoteInterface'
-            gps_obj.connect_to_signal("position", self.position, dbus_interface=gps_name)
-            self.gps_interface = Interface(gps_obj, gps_name)
-            return False
-        except Exception, e:
-            print 'LocationFeed', e
-            return True
+
     def position(self, content):
         longitude = float(content.get('longitude', self.lat))
         latitude = float(content.get('latitude', self.lon))
         print 'position', longitude, latitude
         if not self.animate:
             self.set_current_tile(latitude, longitude, self.z)
-    
+
     #jump to coordinates
     def set_current_tile(self, lat, lon, z):
         x = (lon+180)/360 * 2**z
@@ -249,7 +229,7 @@ class TestView(edje.Edje):
             self.y = y
             self.offset_x, self.offset_y = offset_x, offset_y
             self.init_redraw()
-        
+
     def init_redraw(self):
         print "redraw"
         self.animate = True
@@ -263,8 +243,8 @@ class TestView(edje.Edje):
             self.icons = []
             #fill
             for i in xrange((2*self.border_x+1)*(2*self.border_y+1)):
-                self.icons.append(tile(self.evas_canvas.evas_obj.evas))
-        if not self.options.offline:
+                self.icons.append(Tile(self.evas_canvas.evas_obj.evas))
+        if not self.offline:
             #add all tiles that are not yet downloaded to a list
             for i in xrange(2*self.border_x+1):
                 for j in xrange(2*self.border_y+1):
@@ -292,7 +272,7 @@ class TestView(edje.Edje):
                 self.progress.geometry = 40, self.size[1]/2, 1,20
                 self.overlay.part_text_set("progress", "downloaded 0 of %d tiles"%self.tiles_to_download_total)
         ecore.timer_add(0.0, self.download_and_paint_current_tiles)
-    
+
     def download_and_paint_current_tiles(self):
         if len(self.tiles_to_download) > 0:
             z,x,y = self.tiles_to_download.pop()
@@ -300,7 +280,7 @@ class TestView(edje.Edje):
             self.overlay.part_text_set("progress", "downloaded %d of %d tiles"%(self.tiles_to_download_total-len(self.tiles_to_download),self.tiles_to_download_total))
             self.download(x,y,z)
             return True
-        
+
         #we get here if all tiles are downloaded
         for i in xrange(2*self.border_x+1):
             for j in xrange(2*self.border_y+1):
@@ -319,7 +299,7 @@ class TestView(edje.Edje):
         self.update_coordinates()
         self.animate = False
         return False
-    
+
     def update_coordinates(self):
         x = int(self.x) + (self.offset_x-self.current_pos[0])/256.0
         y = int(self.y) + (self.offset_y-self.current_pos[1])/256.0
@@ -327,21 +307,21 @@ class TestView(edje.Edje):
         n = math.pi*(1-2*y/2**self.z)
         self.lat = 180/math.pi*math.atan(0.5*(math.exp(n)-math.exp(-n)))
         self.overlay.part_text_set("label", "lat:%f lon:%f zoom:%d"%(self.lat,self.lon,self.z))
-    
+
     def zoom_in(self, z):
         for icon in self.icons:
             x = (1+z)*(icon.position[0]-self.size[0]/2)+self.size[0]/2
             y = (1+z)*(icon.position[1]-self.size[1]/2)+self.size[1]/2
             icon.geometry = int(x),int(y),256+int(256*z),256+int(256*z)
             icon.fill = 0, 0, 256+int(256*z),256+int(256*z)
-            
+
     def zoom_out(self, z):
         for icon in self.icons:
             x = (1-z*0.5)*(icon.position[0]-self.size[0]/2)+self.size[0]/2
             y = (1-z*0.5)*(icon.position[1]-self.size[1]/2)+self.size[1]/2
             icon.geometry = int(x),int(y),256-int(256*z*0.5),256-int(256*z*0.5)
             icon.fill = 0, 0, 256-int(256*z*0.5),256-int(256*z*0.5)
-    
+
     def animate_zoom_in(self):
         if self.z < 18:
             self.animate = True
@@ -349,13 +329,13 @@ class TestView(edje.Edje):
                 self.zoom_in(self.zoom_step)
                 self.zoom_step+=0.125
                 return True
-            
+
             self.zoom_step = 0.0
             self.set_current_tile(self.lat, self.lon, self.z+1)
         else:
             self.animate = False
         return False
-        
+
     def animate_zoom_out(self):
         if self.z > 5:
             self.animate = True
@@ -363,13 +343,13 @@ class TestView(edje.Edje):
                 self.zoom_out(self.zoom_step)
                 self.zoom_step+=0.125
                 return True
-            
+
             self.zoom_step = 0.0
             self.set_current_tile(self.lat, self.lon, self.z-1)
         else:
             self.animate = False
         return False
-    
+
     @edje.decorators.signal_callback("mouse,down,1", "*")
     def on_mouse_down(self, emission, source):
         if not self.animate:
@@ -380,7 +360,7 @@ class TestView(edje.Edje):
             else:
                 self.x_pos, self.y_pos = self.evas_canvas.evas_obj.evas.pointer_canvas_xy
                 self.mouse_down = True
-        
+
     @edje.decorators.signal_callback("mouse,up,1", "*")
     def on_mouse_up(self, emission, source):
         self.mouse_down = False
@@ -394,7 +374,7 @@ class TestView(edje.Edje):
             if abs(self.current_pos[0]) > 0 or abs(self.current_pos[1]) > 0:
                 #on mouse up + move: update current coordinates
                 self.update_coordinates()
-        
+
     @edje.decorators.signal_callback("mouse,move", "*")
     def on_mouse_move(self, emission, source):
         if self.mouse_down and not self.animate:
@@ -405,88 +385,104 @@ class TestView(edje.Edje):
             for icon in self.icons:
                 icon.set_position(icon.pos[0]-delta_x,icon.pos[1]-delta_y)
             self.current_pos = (self.current_pos[0]-delta_x,self.current_pos[1]-delta_y)
-            
+
             #self.marker.set_position(self.marker.pos[0]-delta_x,self.marker.pos[1]-delta_y)
-            
-        
-class EvasCanvas(object):
-    def __init__(self, fullscreen, engine, size):
-        if engine == "x11":
-            f = ecore.evas.SoftwareX11
-        elif engine == "x11-16":
-            if ecore.evas.engine_type_supported_get("software_x11_16"):
-                f = ecore.evas.SoftwareX11_16
-            else:
-                print "warning: x11-16 is not supported, fallback to x11"
-                f = ecore.evas.SoftwareX11
-
-        self.evas_obj = f(w=size[0], h=size[1])
-        self.evas_obj.callback_delete_request = self.on_delete_request
-        self.evas_obj.callback_resize = self.on_resize
-
-        self.evas_obj.title = TITLE
-        self.evas_obj.name_class = (WM_NAME, WM_CLASS)
-        self.evas_obj.fullscreen = fullscreen
-        self.evas_obj.size = size
-        self.evas_obj.show()
-
-    def on_resize(self, evas_obj):
-        x, y, w, h = evas_obj.evas.viewport
-        size = (w, h)
-        for key in evas_obj.data.keys():
-            evas_obj.data[key].size = size
-        #calculate size of tile raster
-        evas_obj.data["main"].border_x = int(math.ceil(evas_obj.data["main"].size[0]/256.0))
-        evas_obj.data["main"].border_y = int(math.ceil(evas_obj.data["main"].size[1]/256.0))
-        evas_obj.data["main"].init_redraw()
-
-    def on_delete_request(self, evas_obj):
-        ecore.main_loop_quit()
-
-class myOptionParser(OptionParser):
-    def __init__(self, usage):
-        OptionParser.__init__(self, usage)
-        self.add_option("-e",
-                      "--engine",
-                      type="choice",
-                      choices=("x11", "x11-16"),
-                      default="x11-16",
-                      help=("which display engine to use (x11, x11-16), "
-                            "default=%default"))
-        self.add_option("-n",
-                      "--no-fullscreen",
-                      action="store_true",
-                      help="do not launch in fullscreen")
-        self.add_option("-o",
-                      "--offline",
-                      action="store_true",
-                      help="do not attempt to download tiles")
-        self.add_option("-g",
-                      "--geometry",
-                      type="string",
-                      metavar="WxH",
-                      action="callback",
-                      callback=self.parse_geometry,
-                      default=(WIDTH, HEIGHT),
-                      help="use given window geometry")
-        self.add_option("-f",
-                      "--fps",
-                      type="int",
-                      default=20,
-                      help="frames per second to use, default=%default")
-        
-    def parse_geometry(self, option, opt, value, parser):
-        try:
-            w, h = value.split("x")
-            w = int(w)
-            h = int(h)
-        except Exception, e:
-            raise optparse.OptionValueError("Invalid format for %s" % option)
-        parser.values.geometry = (w, h)
 
 if __name__ == "__main__":
-    TestView()
-    #dbus()
+    WIDTH = 480
+    HEIGHT = 640
+
+    TITLE = "pylgrim"
+    WM_NAME = "pylgrim"
+    WM_CLASS = "swallow"
+
+
+    from optparse import OptionParser
+
+    class myOptionParser(OptionParser):
+        def __init__(self, usage):
+            OptionParser.__init__(self, usage)
+            self.add_option("-e",
+                        "--engine",
+                        type="choice",
+                        choices=("x11", "x11-16"),
+                        default="x11-16",
+                        help=("which display engine to use (x11, x11-16), "
+                                "default=%default"))
+            self.add_option("-n",
+                        "--no-fullscreen",
+                        action="store_true",
+                        help="do not launch in fullscreen")
+            self.add_option("-o",
+                        "--offline",
+                        action="store_true",
+                        help="do not attempt to download tiles")
+            self.add_option("-g",
+                        "--geometry",
+                        type="string",
+                        metavar="WxH",
+                        action="callback",
+                        callback=self.parse_geometry,
+                        default=(WIDTH, HEIGHT),
+                        help="use given window geometry")
+            self.add_option("-f",
+                        "--fps",
+                        type="int",
+                        default=20,
+                        help="frames per second to use, default=%default")
+
+        def parse_geometry(self, option, opt, value, parser):
+            try:
+                w, h = value.split("x")
+                w = int(w)
+                h = int(h)
+            except Exception, e:
+                raise optparse.OptionValueError("Invalid format for %s" % option)
+            parser.values.geometry = (w, h)
+
+    class EvasCanvas(object):
+        def __init__(self, fullscreen, engine, size):
+            if engine == "x11":
+                f = ecore.evas.SoftwareX11
+            elif engine == "x11-16":
+                if ecore.evas.engine_type_supported_get("software_x11_16"):
+                    f = ecore.evas.SoftwareX11_16
+                else:
+                    print "warning: x11-16 is not supported, fallback to x11"
+                    f = ecore.evas.SoftwareX11
+
+            self.evas_obj = f(w=size[0], h=size[1])
+            self.evas_obj.callback_delete_request = self.on_delete_request
+            self.evas_obj.callback_resize = self.on_resize
+
+            self.evas_obj.title = TITLE
+            self.evas_obj.name_class = (WM_NAME, WM_CLASS)
+            self.evas_obj.fullscreen = fullscreen
+            self.evas_obj.size = size
+            self.evas_obj.show()
+
+        def on_resize(self, evas_obj):
+            x, y, w, h = evas_obj.evas.viewport
+            size = (w, h)
+            for key in evas_obj.data.keys():
+                evas_obj.data[key].size = size
+            #calculate size of tile raster
+            evas_obj.data["pylgrim"].border_x = int(math.ceil(evas_obj.data["pylgrim"].size[0]/256.0))
+            evas_obj.data["pylgrim"].border_y = int(math.ceil(evas_obj.data["pylgrim"].size[1]/256.0))
+            evas_obj.data["pylgrim"].init_redraw()
+
+        def on_delete_request(self, evas_obj):
+            ecore.main_loop_quit()
+
+    options, args = myOptionParser(usage="usage: %prog [options]").parse_args()
+    edje.frametime_set(1.0 / options.fps)
+    evas_canvas = EvasCanvas(
+        fullscreen=not options.no_fullscreen,
+        engine=options.engine,
+        size=options.geometry
+        )
+    filename = os.path.splitext(sys.argv[0])[0] + ".edj"
+    Pylgrim(filename, evas_canvas, options.offline)
     ecore.main_loop_begin()
 
 '''
