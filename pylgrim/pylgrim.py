@@ -58,7 +58,26 @@ class Mark(evas.Image):
         self.position = (x,y)
         self.move(x,y)
 
-class Pylgrim(edje.Edje):
+class PylgrimMap(object):
+    def download(self, x,y,z):
+        filename = "%d/%d/%d.png"%(z,x,y)
+        print 'download', filename
+        try:
+            dirname = "%d/%d"%(z,x)
+            if not os.path.exists(dirname):
+                    os.makedirs(dirname)
+            localFile = open(filename, 'w')
+            webFile = urllib.urlopen("http://a.tile.openstreetmap.org/%d/%d/%d.png"%(z,x,y))
+            localFile.write(webFile.read())
+            webFile.close()
+            localFile.close()
+        except Exception, e:
+            print 'download error', e
+            if os.path.exists(filename):
+                os.unlink(filename)
+
+
+class PylgrimView(edje.Edje, PylgrimMap):
     def __init__(self, evas_canvas, filename, initial_lat, initial_lon, initial_zoom=10, offline=False, use_overlay=True):
         self.evas_canvas = evas_canvas
         self.offline = offline
@@ -162,11 +181,13 @@ class Pylgrim(edje.Edje):
             return True
     
     def position(self, content):
-        latitude = float(content.get('latitude', self.lat))
-        longitude = float(content.get('longitude', self.lon))
-        print 'position', latitude, longitude
-        if not self.animate:
-            self.set_current_tile(latitude, longitude, self.z)
+        fix = int(content.get('fix', 0))
+        if fix:
+            latitude = float(content.get('latitude', self.lat))
+            longitude = float(content.get('longitude', self.lon))
+            print 'position', latitude, longitude
+            if not self.animate:
+                self.set_current_tile(latitude, longitude, self.z)
 
     def on_key_down(self, obj, event):
         if event.keyname in ("F6", "f"):
@@ -208,23 +229,6 @@ class Pylgrim(edje.Edje):
                 self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
                 self.init_redraw()
             self.update_coordinates()
-
-    def download(self, x,y,z):
-        filename = "%d/%d/%d.png"%(z,x,y)
-        print 'download', filename
-        try:
-            dirname = "%d/%d"%(z,x)
-            if not os.path.exists(dirname):
-                    os.makedirs(dirname)
-            localFile = open(filename, 'w')
-            webFile = urllib.urlopen("http://a.tile.openstreetmap.org/%d/%d/%d.png"%(z,x,y))
-            localFile.write(webFile.read())
-            webFile.close()
-            localFile.close()
-        except Exception, e:
-            print 'download error', e
-            if os.path.exists(filename):
-                os.unlink(filename)
 
     #jump to coordinates
     def set_current_tile(self, lat, lon, z):
@@ -410,6 +414,10 @@ class Pylgrim(edje.Edje):
 
             #self.marker.set_position(self.marker.pos[0]-delta_x,self.marker.pos[1]-delta_y)
 
+class PylgrimControl(PylgrimView):
+    def __init__(self, evas_canvas, filename, initial_lat, initial_lon, initial_zoom=10, offline=False, use_overlay=True):
+        PylgrimView.__init__(self, evas_canvas, filename, initial_lat, initial_lon, initial_zoom=10, offline=False, use_overlay=True)
+
 if __name__ == "__main__":
     WIDTH = 480
     HEIGHT = 640
@@ -504,7 +512,7 @@ if __name__ == "__main__":
         size=options.geometry
         )
     filename = os.path.splitext(sys.argv[0])[0] + ".edj"
-    Pylgrim(evas_canvas, filename, 49.009051, 8.402481, 13, options.offline, )
+    PylgrimControl(evas_canvas, filename, 49.009051, 8.402481, 13, options.offline, )
     ecore.main_loop_begin()
 
 '''
