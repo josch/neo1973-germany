@@ -1,6 +1,9 @@
 fonts {
    font: "DejaVuSansMono.ttf" "Sans";
 }
+images {
+   image: "button.png" COMP;
+}
 
 collections {
     group {
@@ -23,63 +26,63 @@ collections {
                 }
             }
             part {
-				name: "minus";
-				type: RECT;
-				description {
-					state: "default" 0.0;
-					rel1 {
-					    relative: 0.0 0.9;
-					    offset: 0 0;
-					}
-					rel2 {
-					    relative: 0.2 1.0;
-					    offset: -1 -1;
-					}
-				}
+                name: "minus";
+                type: RECT;
+                description {
+                    state: "default" 0.0;
+                    rel1 {
+                        relative: 0.0 0.9;
+                        offset: 0 0;
+                    }
+                    rel2 {
+                        relative: 0.2 1.0;
+                        offset: -1 -1;
+                    }
+                }
             }
             part {
-				name: "plus";
-				type: RECT;
-				description {
-					state: "default" 0.0;
-					rel1 {
-					    relative: 0.8 0.9;
-					    offset: 0 0;
-					}
-					rel2 {
-					    relative: 1.0 1.0;
-					    offset: -1 -1;
-					}
-				}
+                name: "plus";
+                type: RECT;
+                description {
+                    state: "default" 0.0;
+                    rel1 {
+                        relative: 0.8 0.9;
+                        offset: 0 0;
+                    }
+                    rel2 {
+                        relative: 1.0 1.0;
+                        offset: -1 -1;
+                    }
+                }
             }
         }
     }
     group {
         name: "overlay";
         parts {
-			part {
-				name: "label";
-				type: TEXT;
-				effect: SOFT_OUTLINE;
-				mouse_events: 0;
-				description {
-					state: "default" 0.0;
-					rel1 {
-					    relative: 0.0 0.0;
-					    offset: 0 0;
-					}
-					rel2 {
-					    relative: 1.0 0.1;
-					    offset: -1 -1;
-					}
-					text {
-						font: "Sans";
-						size: 1;
-						fit: 1 1;
-    					align: 0.5 0.0;
-					}
-				}
-			}
+            part {
+                name: "label";
+                type: TEXT;
+                effect: SOFT_OUTLINE;
+                mouse_events: 0;
+                description {
+                    state: "default" 0.0;
+                    rel1 {
+                        relative: 0.0 0.0;
+                        offset: 0 0;
+                    }
+                    rel2 {
+                        relative: 1.0 0.1;
+                        offset: -1 -1;
+                    }
+                    text {
+                        font: "Sans";
+                        size: 1;
+                        fit: 1 1;
+                        align: 0.5 0.0;
+                    }
+                }
+            }
             part {
                 name: "center";
                 type: RECT;
@@ -97,101 +100,186 @@ collections {
                 }
             }
             part {
-				name: "progress";
-				type: TEXT;
-				effect: SOFT_OUTLINE;
-				mouse_events: 0;
-				description {
-					state: "default" 0.0;
-					rel1 {
-					    relative: 0.05 0.4;
-					    offset: 0 0;
-					}
-					rel2 {
-					    relative: 0.95 0.5;
-					    offset: -1 -1;
-					}
-					text {
-						font: "Sans";
-						size: 1;
-						fit: 1 1;
-					    align: 0.5 1.0;
-					}
-				}
+                name: "progress";
+                type: TEXT;
+                effect: SOFT_OUTLINE;
+                mouse_events: 0;
+                description {
+                    state: "default" 0.0;
+                    rel1 {
+                        relative: 0.05 0.4;
+                        offset: 0 0;
+                    }
+                    rel2 {
+                        relative: 0.95 0.5;
+                        offset: -1 -1;
+                    }
+                    text {
+                        font: "Sans";
+                        size: 1;
+                        fit: 1 1;
+                        align: 0.5 1.0;
+                    }
+                }
             }
             part {
-				name: "minus";
-				type: TEXT;
-				effect: SOFT_OUTLINE;
-				mouse_events: 0;
-				description {
-					state: "default" 0.0;
-					rel1 {
-					    relative: 0.0 0.9;
-					    offset: 0 0;
-					}
-					rel2 {
-					    relative: 0.2 1.0;
-					    offset: -1 -1;
-					}
-					text {
-					    text: "[-]";
-						font: "Sans";
-						size: 1;
-						fit: 1 1;
-					    align: 0.5 0.5;
-					}
-				}
+                name: "minus";
+                type: TEXT;
+                effect: SOFT_OUTLINE;
+                mouse_events: 0;
+                description {
+                    state: "default" 0.0;
+                    rel1 {
+                        relative: 0.0 0.9;
+                        offset: 0 0;
+                    }
+                    rel2 {
+                        relative: 0.2 1.0;
+                        offset: -1 -1;
+                    }
+                    text {
+                        text: "[-]";
+                        font: "Sans";
+                        size: 1;
+                        fit: 1 1;
+                        align: 0.5 0.5;
+                    }
+                }
             }
             part {
-				name: "bar";
-				type: TEXT;
-				effect: SOFT_OUTLINE;
-				mouse_events: 0;
-				description {
-					state: "default" 0.0;
-					rel1 {
-					    relative: 0.2 0.9;
-					    offset: 0 0;
-					}
-					rel2 {
-					    relative: 0.8 1.0;
-					    offset: -1 -1;
-					}
-					text {
-					    text: "|||||||||||||+||||";
-						font: "Sans";
-						size: 1;
-						fit: 1 1;
-					    align: 0.5 0.5;
-					}
-					visible:0;
-				}
+                name: "bar";
+                type: TEXT;
+                effect: SOFT_OUTLINE;
+                mouse_events: 0;
+                description {
+                    state: "default" 0.0;
+                    rel1 {
+                        relative: 0.2 0.9;
+                        offset: 0 0;
+                    }
+                    rel2 {
+                        relative: 0.8 1.0;
+                        offset: -1 -1;
+                    }
+                    text {
+                        text: "|||||||||||||+||||";
+                        font: "Sans";
+                        size: 1;
+                        fit: 1 1;
+                        align: 0.5 0.5;
+                    }
+                    visible:0;
+                }
             }
             part {
-				name: "plus";
-				type: TEXT;
-				effect: SOFT_OUTLINE;
-				mouse_events: 0;
-				description {
-					state: "default" 0.0;
-					rel1 {
-					    relative: 0.8 0.9;
-					    offset: 0 0;
-					}
-					rel2 {
-					    relative: 1.0 1.0;
-					    offset: -1 -1;
-					}
-					text {
-					    text: "[+]";
-						font: "Sans";
-						size: 1;
-						fit: 1 1;
-					    align: 0.5 0.5;
-					}
-				}
+                name: "plus";
+                type: TEXT;
+                effect: SOFT_OUTLINE;
+                mouse_events: 0;
+                description {
+                    state: "default" 0.0;
+                    rel1 {
+                        relative: 0.8 0.9;
+                        offset: 0 0;
+                    }
+                    rel2 {
+                        relative: 1.0 1.0;
+                        offset: -1 -1;
+                    }
+                    text {
+                        text: "[+]";
+                        font: "Sans";
+                        size: 1;
+                        fit: 1 1;
+                        align: 0.5 0.5;
+                    }
+                }
             }
+        }
+    }
+    group {
+        name: "menu";
+        parts
+        {
+            #define BUTTON(part_name, ypos, button_text)                \
+            part {                                                      \
+                name: "button_clip_"part_name;                          \
+                type: RECT;                                             \
+                mouse_events: 0;                                        \
+                description {                                           \
+                    state: "default" 0.0;                               \
+                    rel1 {                                              \
+                        relative: 0.1 0.1+(ypos*0.2);                   \
+                        offset: 0 0;                                    \
+                    }                                                   \
+                    rel2 {                                              \
+                        relative: 0.9 0.25+(ypos*0.2);                  \
+                        offset: -1 -1;                                  \
+                    }                                                   \
+                }                                                       \
+            }                                                           \
+            part {                                                      \
+                name: "button_"part_name;                               \
+                mouse_events: 1;                                        \
+                type: IMAGE;                                            \
+                clip_to: "button_clip_"part_name;                       \
+                description {                                           \
+                    state: "default" 0.0;                               \
+                    rel1 {                                              \
+                        relative: 0.0 0.0;                              \
+                        offset: 0 0;                                    \
+                        to: "button_clip_"part_name;                    \
+                    }                                                   \
+                    rel2 {                                              \
+                        relative: 1.0 1.0;                              \
+                        offset: -1 -1;                                  \
+                        to: "button_clip_"part_name;                    \
+                    }                                                   \
+                    image {                                             \
+                        normal: "button.png";                           \
+                        border: 20 20 20 20;                            \
+                    }                                                   \
+                }                                                       \
+                description {                                           \
+                    state: "active" 0.0;                                \
+                    inherit: "default" 0.0;                             \
+                    image {                                             \
+                        normal: "button.png";                           \
+                        border: 20 20 20 20;                            \
+                    }                                                   \
+                }                                                       \
+            }                                                           \
+            part {                                                      \
+                name: "button_text_"part_name;                          \
+                mouse_events: 0;                                        \
+                type: TEXT;                                             \
+                clip_to: "button_clip_"part_name;                       \
+                effect: SOFT_OUTLINE;                                   \
+                description {                                           \
+                    state: "default" 0.0;                               \
+                    rel1 {                                              \
+                        relative: 0.1 0.0;                              \
+                        offset: 0 0;                                    \
+                        to: "button_clip_"part_name;                    \
+                    }                                                   \
+                    rel2 {                                              \
+                        relative: 0.9 1.0;                              \
+                        offset: -1 -1;                                  \
+                        to: "button_clip_"part_name;                    \
+                    }                                                   \
+                    text {                                              \
+                        font: "Sans";                                   \
+                        size: 1;                                        \
+                        fit: 1 1;                                       \
+                        align: 0.5 0.5;                                 \
+                        text: button_text;                              \
+                    }                                                   \
+                }                                                       \
+            }
+            BUTTON("0", 0, "fix to GPS");
+            BUTTON("1", 1, "wiki POIs");
+            BUTTON("2", 2, "online mode");
+            BUTTON("3", 3, "back");
         }
     }
 }

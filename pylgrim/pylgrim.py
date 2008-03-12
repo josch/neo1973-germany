@@ -84,11 +84,11 @@ class Pylgrim(edje.Edje):
         self.tiles_to_preload = []
 
         #initial lat,lon,zoom
-        self.lat = 0
-        self.lon = 0
+        self.lat = initial_lat
+        self.lon = initial_lon
         self.x = 0
         self.y = 0
-        self.z = 0
+        self.z = initial_zoom
         self.offset_x = 0
         self.offset_y = 0
 
@@ -112,7 +112,15 @@ class Pylgrim(edje.Edje):
             self.progress.color = 255, 0, 0, 255
             self.progress.layer = 4
             self.progress.show()
-
+        
+        '''
+        self.menu = edje.Edje(self.evas_canvas.evas_obj.evas, file=filename, group='menu')
+        self.menu.size = self.evas_canvas.evas_obj.evas.size
+        self.menu.layer = 4
+        self.evas_canvas.evas_obj.data["menu"] = self.menu
+        self.menu.show()
+        '''
+        
         #calculate size of tile raster
         self.border_x = int(math.ceil(self.size[0]/256.0))
         self.border_y = int(math.ceil(self.size[1]/256.0))
@@ -152,6 +160,13 @@ class Pylgrim(edje.Edje):
         except Exception, e:
             print 'LocationFeed', e
             return True
+    
+    def position(self, content):
+        latitude = float(content.get('latitude', self.lat))
+        longitude = float(content.get('longitude', self.lon))
+        print 'position', latitude, longitude
+        if not self.animate:
+            self.set_current_tile(latitude, longitude, self.z)
 
     def on_key_down(self, obj, event):
         if event.keyname in ("F6", "f"):
@@ -211,15 +226,11 @@ class Pylgrim(edje.Edje):
             if os.path.exists(filename):
                 os.unlink(filename)
 
-    def position(self, content):
-        latitude = float(content.get('latitude', self.lat))
-        longitude = float(content.get('longitude', self.lon))
-        print 'position', latitude, longitude
-        if not self.animate:
-            self.set_current_tile(latitude, longitude, self.z)
-
     #jump to coordinates
     def set_current_tile(self, lat, lon, z):
+        #update shown coordinates everytime they change
+        self.overlay.part_text_set("label", "lat:%f lon:%f zoom:%d"%(lat,lon,z))
+        
         x = (lon+180)/360 * 2**z
         y = (1-math.log(math.tan(lat*math.pi/180) + 1/math.cos(lat*math.pi/180))/math.pi)/2 * 2**z
         offset_x, offset_y = int((x-int(x))*256),int((y-int(y))*256)
@@ -307,7 +318,6 @@ class Pylgrim(edje.Edje):
             self.overlay.part_text_set("progress", "")
             self.progress_bg.geometry = 0,0,0,0
             self.progress.geometry = 0,0,0,0
-        self.update_coordinates()
         self.animate = False
         return False
 
@@ -382,6 +392,7 @@ class Pylgrim(edje.Edje):
                 self.y = int(self.y) + (self.offset_y-self.current_pos[1])/256.0
                 self.offset_x, self.offset_y = int((self.x-int(self.x))*256),int((self.y-int(self.y))*256)
                 self.init_redraw()
+                self.update_coordinates()
             if abs(self.current_pos[0]) > 0 or abs(self.current_pos[1]) > 0:
                 #on mouse up + move: update current coordinates
                 self.update_coordinates()
