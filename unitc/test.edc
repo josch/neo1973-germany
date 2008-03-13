@@ -1,0 +1,180 @@
+collections {
+	color_classes {
+		color_class {
+			name: "empty";
+			color: 0 0 0 0;
+			color2: 0 0 0 0;
+			color3: 0 0 0 0;
+			}
+		color_class {
+			name: "active";
+			color: 128 128 160 255;
+			color2: 128 128 128 255;
+			color3: 128 128 128 255;
+			}
+		color_class {
+			name: "text";
+			color: 255 170 0 255;
+			color2: 0 0 0 0;
+			color3: 0 0 0 0;
+			}
+		color_class {
+			name: "title";
+			color: 96 96 96 255;
+			color2: 0 0 0 192;
+			color3: 0 0 0 32;
+			}
+		}
+	styles {
+		style {
+			name: "textblock_style";
+			base: "font=sans font_size=20 align=left valign=top color=#db0 wrap=word";
+			tag: "h1" "+ font_size=28";
+			tag: "/h1" "- \n";
+			tag: "p" "+";
+			tag: "/p" "- \n";
+			tag: "em" "+ style=underline underline_color=#000A underline2_color=#0005";
+			tag: "/em" "-";
+			tag: "br" "\n";
+			}
+		}
+	images {
+		image: "logo_bw.png" COMP;
+		image: "logo.png" COMP;
+		image: "plus.png" COMP;
+		image: "minus.png" COMP;
+		image: "empty.png" COMP;
+		}
+	group {
+		name: "background";
+		parts {
+//			part {
+//				name: "background_color";
+//				mouse_events: 0;				
+//				type: RECT;
+//				description {
+//					color: 65 110 200 255;
+//					rel1 {
+//						relative: 0.0 0.0;
+//						}
+//					rel2 {
+//						relative: 1.0 1.0;
+//						}
+//					}
+//				}
+			part {
+				name: "background_image";
+				mouse_events: 0;
+				type: IMAGE;
+				description {
+					rel1 {
+						relative: 0.0 0.0;
+						}
+					rel2 {
+						relative: 1.0 1.0;
+						}
+					image {
+						normal: "logo.png";
+						}
+					}
+				}		
+			}
+		}
+	group {
+		name: "foreground";
+		parts {
+			part {
+				name: "plus_image";
+				type: IMAGE;
+				description {
+					rel1 {
+						relative: 7/8 1;
+						offset: -50 -110;
+						}
+					rel2 {
+						relative: 7/8 1;
+						offset: 50 -10;
+						}
+					image {
+						normal: "plus.png";
+						}
+					}
+				}
+			}
+		parts {
+			part {
+				name: "minus_image";
+				type: IMAGE;
+				description {
+					rel1 {
+						relative: 1/8 1;
+						offset: -50 -110;
+						}
+					rel2 {
+						relative: 1/8 1;
+						offset: 50 -10;
+						}
+					image {
+						normal: "minus.png";
+						}
+					}
+				}
+			}
+		}
+	group {
+		name: "thing";
+		min: 480 160;
+		max: 480 160;
+		parts {
+			part {
+				name:"empty";
+				type: RECT;
+				description {
+					color_class: "active";
+					rel1 {
+						relative: 0 0;
+						}
+					rel2 {
+						relative: 1 1;
+						}
+					}
+				}
+			part {
+				name:"text";
+				mouse_events: 0;
+				type: TEXT;
+				effect: PLAIN;
+				description {
+//					align: 0.5 0.5;
+					color_class: "title";
+					rel1 {
+						relative: 0 0;
+						}
+					rel2 {
+						relative: 1 1;
+						}
+					text {
+						text: "???";
+						font: "sans.bold";
+						size: 25;
+						min: 1 1;
+						}
+					}
+				}
+//			part {
+//				name: "select";
+//				type: IMAGE;
+//				description {
+//					rel1 {
+//						relative: 0 0;
+//						}
+//					rel2 {
+//						relative: 1 1;
+//						}
+//					image {
+//						normal: "minus.png";
+//						}
+//					}
+//				}
+			}
+		}

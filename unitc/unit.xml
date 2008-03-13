@@ -1,0 +1,111 @@
+<?xml version="1.0" ?>
+
+<convertfactors version='2008-02-13'>
+	<unitgroup>
+		<category
+			name="length"
+			refunit="m"
+		>
+			<unit
+				name="mm"
+				from_ref ="result / 0.001"
+			    to_ref ="number * 0.001"
+                />
+			<unit
+				name="cm"
+				from_ref="result / 0.01"
+                to_ref="number * 0.01"
+			/>
+			<unit
+				name="dm"
+				from_ref="result / 0.1"
+                to_ref="number * 0.1"
+			/>
+            <unit
+                name="m"
+                from_ref="result"
+                to_ref="number"
+			/>
+            <unit
+				name="km"
+				from_ref="result / 1000"
+                to_ref="number * 1000"
+			/>
+		</category>
+		<category
+			name="currency"
+			refunit="euro"
+		>
+            <unit
+                name="Euro"
+                from_ref="result"
+                to_ref="number"
+            />
+            <unit
+                name="USD"
+                from_ref="result / 1.4573"
+                to_ref="number * 1.4573"
+            />
+            <unit
+                name="TWD"
+                from_ref="result * 46.125"
+                to_ref="number / 46.125"
+            />
+			<unit
+				name="DM"
+				from_ref="result * 1.95583"
+                to_ref="number / 1.95583"
+			/>
+		</category>
+        <category
+            name="temperature"
+            refunit="celsius"
+        >
+            <unit
+                name="celsius"
+                from_ref="result"
+                to_ref="number"
+            />
+            <unit
+                name="kelvin"
+                from_ref="273.15 - result"
+                to_ref="number - 273.15"
+            />
+            <unit
+                name="fahrenheit"
+                to_ref="(number - 32) / 1.8"
+                from_ref="result * 1.8 + 32"
+            />
+        </category>
+        <category
+            name="wind speed"
+            refunit="m/s"
+        >
+            <unit
+                name="m/s"
+                from_ref="result"
+                to_ref="number"
+            />
+            <unit
+                name="km/h"
+                from_ref="result/1000*3600"
+                to_ref="number*1000/3600"
+            />
+            <unit
+                name="sm/h"
+                from_ref="result / 0.514"
+                to_ref="number * 0.514"
+            />
+            <unit
+                name="mph"
+                from_ref="result / 0.447"
+                to_ref="number * 0.447"
+            />
+            <unit
+                name="bft"
+                from_ref="(9 + 6 * result) ** 0.5 -3"
+                to_ref="number + number * number / 6"
+            />
+        </category>
+	</unitgroup>
+</convertfactors>

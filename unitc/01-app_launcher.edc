@@ -1,0 +1,306 @@
+images {
+   image: "bg.png" COMP;
+   image: "phone-asleep.png" COMP;
+   image: "power.png" COMP;
+   image: "location-off.png" COMP;
+   image: "hotornot.png" COMP;
+   image: "maybe.png" COMP;
+   image: "yes.png" COMP;
+   image: "no.png" COMP;
+}
+
+collections {
+   group {
+      name: "main";
+      min: 480 640;
+
+      script {
+         public selected = 0;
+         public pulsing = 0;
+         public stop_pulsing_timer_id = 0;
+         const Float:pulse_timeout = 10.0;
+
+         public unselect() {
+            if (get_int(selected) == 0)
+               return;
+            run_program(get_int(selected));
+            set_int(selected, 0);
+         }
+
+         public stop_pulsing() {
+            if (get_int(pulsing) == 0)
+               return;
+            set_state(get_int(pulsing), "default", 0.0);
+            set_int(pulsing, 0);
+            if (get_int(stop_pulsing_timer_id) != 0) {
+               cancel_timer(get_int(stop_pulsing_timer_id));
+               set_int(stop_pulsing_timer_id, 0);
+            }
+         }
+
+         public stop_pulsing_cb(val) {
+            stop_pulsing();
+            return 0;
+         }
+         
+         public item_alpha = 0;
+         public item_timer = 0;
+         
+         public alpha_change() {
+            custom_state(PART:"hotornot_area", "default", 0.0);
+         	set_state_val(PART:"hotornot_area", STATE_COLOR, 255, 255, 255, get_int(item_alpha));
+         	set_state(PART:"hotornot_area", "custom", 0.0);
+         	set_int(item_alpha, get_int(item_alpha) +10);
+         	timer(0.1, "alpha_change", 1);
+         }
+         
+         public y_position = 0;
+         
+         public scroll_down() {
+		       new x1;
+		       new Float: y1;
+		       new x2;
+		       new Float: y2;
+		       
+		       custom_state(PART:"scrolling_area", "default", 0.0);
+		       
+		       get_state_val(PART:"scrolling_area", STATE_REL1, x1, y1);
+		       get_state_val(PART:"scrolling_area", STATE_REL2, x2, y2);
+		       
+		       y1 = y1 + 0.01;
+		       y2 = y2 + 0.01;
+		       
+		       set_state_val(PART:"scrolling_area", STATE_REL1, x1, y1);
+		       set_state_val(PART:"scrolling_area", STATE_REL2, x2, y2);
+		       
+		       set_state(PART:"scrolling_area", "custom", 0.0);
+		       timer(0.1, "scroll_down", 1);
+         }
+      }
+
+      parts {
+         part {
+            name: "bg";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               image { normal: "bg.png"; }
+               fill {
+                  size {relative: 0 0;offset: 160 160;}
+               }
+            }
+         }
+         
+         part {
+         	name: "scrolling_area";
+         	type: RECT;
+         	mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               rel1 { relative: 0 0;}
+               rel2 { relative: 1 1;}
+               color: 0 0 0 0;
+            }
+         }
+
+#define ICON(part_name, pos, part_label)                         \
+         part {                                                         \
+            name: part_name"_area";                                     \
+            type: RECT;                                                 \
+            mouse_events: 0;                                            \
+            description {                                               \
+               state: "default" 0.0;                                    \
+               rel1 { relative: 0 0.25*pos; offset: 5 5; to: "scrolling_area"; }           \
+               rel2 { relative: 1 0.25*(pos+1); offset: -5 -5; to: "scrolling_area"; }           \
+               color: 255 255 255 128;                                          \
+            }                                                           \
+            description {                                               \
+               state: "up" 0.0; \
+               inherit: "default" 0.0;                                    \
+               color: 255 255 255 64;                                          \
+            }                                                           \
+         }                                                           \
+         part {                                                         \
+            name: part_name;                                            \
+            type: IMAGE;                                                \
+            mouse_events: 0;                                            \
+            description {                                               \
+               state: "default" 0.0;                                    \
+               aspect: 1.0 1.0;\
+               align: 0.0 0.0; \
+               rel1 { relative: 0 0.25*pos; offset: 10 10; to: "scrolling_area"; }           \
+               rel2 { relative: 0 0.25*(pos+1); offset: 0 -10; to: "scrolling_area"; }           \
+               image { normal: part_name".png"; }                       \
+            }                                                           \
+            description {                                               \
+               state: "up" 0.0;                                   \
+               inherit: "default" 0.0;                                  \
+               color: 255 255 255 128;                                  \
+            }                                                           \
+         }                                                              \
+         part {                                                         \
+            name: part_name"_label";                                    \
+            type: TEXT;                                                 \
+            effect: SHADOW;                                             \
+            mouse_events: 0;                                            \
+            description {                                               \
+               state: "default" 0.0;                                    \
+               rel1 { relative: 1 0; to: part_name; }          \
+               rel2 { relative: 1 0.25; to_y: part_name; to_x: "scrolling_area"; }          \
+               align: 0.0 0.0;                                          \
+               color: 255 255 255 255;                                  \
+               color2: 0 0 0 255;                                       \
+               color3: 0 0 0 255;                                       \
+               text {                                                   \
+                  font: "Sans";                                         \
+                  size: 18;                                             \
+                  text: part_label;                                     \
+                  min: 1 1;                                             \
+                  fit: 1 1;                                             \
+                  align: 0 0; \
+               }                                                        \
+            }                                                           \
+            description {                                               \
+               state: "up" 0.0;                                   \
+               inherit: "default" 0.0;                                  \
+               color: 255 255 255 255;                                  \
+               color2: 0 0 0 255;                                       \
+               color3: 0 0 0 255;                                       \
+            }                                                           \
+         }
+
+         ICON("hotornot", 0, "Hotornot")
+         ICON("location-off", 1, "GPS")
+         ICON("power", 2, "power mgmt")
+         ICON("phone-asleep", 3, "telefon")
+         
+         part {
+         	name: "up";
+         	type: RECT;
+         	mouse_events: 1;
+         	description {
+         	   state: "default" 0.0;
+         	   rel1 { relative: 0 0;}
+         	   rel2 { relative: 1 0.25;}
+         	   color: 0 0 0 0;
+         	}
+         }
+         part {
+         	name: "down";
+         	type: RECT;
+         	mouse_events: 1;
+         	description {
+         	   state: "default" 0.0;
+         	   rel1 { relative: 0 0.5;}
+         	   rel2 { relative: 1 0.75;}
+         	   color: 0 0 0 0;
+         	}
+         }
+         part {
+            name: "maybe";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               aspect: 1.0 1.0;
+               align: 0.5 0.0;
+               rel1 { relative: 0.125 0.78;}
+               rel2 { relative: 0.125 1;}
+               image { normal: "maybe.png"; }
+            }
+         }
+         part {
+            name: "yes";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               aspect: 1.0 1.0;
+               align: 0.5 0.0;
+               rel1 { relative: 0.625 0.78;}
+               rel2 { relative: 0.625 1;}
+               image { normal: "yes.png"; }
+            }
+         }
+         part {
+            name: "no";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               aspect: 1.0 1.0;
+               align: 0.5 0.0;
+               rel1 { relative: 0.875 0.78;}
+               rel2 { relative: 0.875 1;}
+               image { normal: "no.png"; }
+            }
+         }
+         part {
+            name: "Dinge";
+            type: TEXT;
+            effect: SHADOW;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               rel1 { relative: 0 0;}
+               rel2 { relative: 1 0.125;}
+               align: 0.0 0.0;
+               color: 255 187 0 255;
+               color2: 0 0 0 255;
+               color3: 0 0 0 255;
+               text {
+                  font: "Sans";
+                  size: 18;
+                  text: "Dinge";
+                  min: 1 1;
+                  fit: 1 1;
+                  align: 0.5 0;
+               }
+            }
+      }
+      
+      programs {
+         program {
+            name: "scrollup";
+            signal: "mouse,clicked,1";
+            source: "up";
+            action: STATE_SET up5 0.0;
+            target: "hotornot_area";
+            transition: LINEAR 0.2;  
+            script {
+            //	alpha_change();
+            /*
+		       new x1;
+		       new Float: y1;
+		       new x2;
+		       new Float: y2;
+		       
+		       custom_state(PART:"scrolling_area", "default", 0.0);
+		       
+		       get_state_val(PART:"scrolling_area", STATE_REL1, x1, y1);
+		       get_state_val(PART:"scrolling_area", STATE_REL2, x2, y2);
+		       
+		       y1 = y1 - 0.25;
+		       y2 = y2 - 0.25;
+		       
+		       set_state_val(PART:"scrolling_area", STATE_REL1, x1, y1);
+		       set_state_val(PART:"scrolling_area", STATE_REL2, x2, y2);
+		       
+		       set_state(PART:"scrolling_area", "custom", 0.0);*/
+            }
+         }
+         program {
+            name: "scrolldown";
+            signal: "mouse,clicked,1";
+            source: "down";
+            script {
+            	scroll_down();
+            }
+         }
+      }
+   }
+}
+
+
+
