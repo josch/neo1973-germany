@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=0.7
+Type=Application
+Name=SettingsGUI
+Comment=Settings Utility
+Categories=Utility
+Exec=settingsgui
+Icon=SettingsGUI-48.png
+Terminal=false
+SingleInstance=true
+
