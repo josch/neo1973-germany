@@ -32,42 +32,20 @@ import ecore.evas
 from dbus import SystemBus, Interface
 import time
 import math
-import urllib
-
-class Tile(evas.Image):
-    def __init__(self, canvas):
-        evas.Image.__init__(self,canvas)
-        self.pass_events = True
-        self.show()
-        #we need this to store the original position while the zoom animations
-        self.position = (0,0)
-
-    def set_position(self, x, y):
-        self.position = (x,y)
-        self.move(x,y)
-
-class Mark(evas.Image):
-    def __init__(self, canvas):
-        evas.Image.__init__(self,canvas)
-        self.pass_events = True
-        self.show()
-        #we need this to store the original position while the zoom animations
-        self.position = (0,0)
-
-    def set_position(self, x, y):
-        self.position = (x,y)
-        self.move(x,y)
+from urllib2 import build_opener
 
 class PylgrimMap(object):
+    def __init__(self):
+        self.opener = build_opener()
     def download(self, x,y,z):
         filename = "%d/%d/%d.png"%(z,x,y)
         print 'download', filename
         try:
             dirname = "%d/%d"%(z,x)
             if not os.path.exists(dirname):
-                    os.makedirs(dirname)
+                os.makedirs(dirname)
             localFile = open(filename, 'w')
-            webFile = urllib.urlopen("http://a.tile.openstreetmap.org/%d/%d/%d.png"%(z,x,y))
+            webFile = self.opener.open("http://a.tile.openstreetmap.org/%d/%d/%d.png"%(z,x,y))
             localFile.write(webFile.read())
             webFile.close()
             localFile.close()
@@ -76,9 +54,33 @@ class PylgrimMap(object):
             if os.path.exists(filename):
                 os.unlink(filename)
 
-
 class PylgrimView(edje.Edje, PylgrimMap):
+    class Tile(evas.Image):
+        def __init__(self, canvas):
+            evas.Image.__init__(self,canvas)
+            self.pass_events = True
+            self.show()
+            #we need this to store the original position while the zoom animations
+            self.position = (0,0)
+
+        def set_position(self, x, y):
+            self.position = (x,y)
+            self.move(x,y)
+
+    class Mark(evas.Image):
+        def __init__(self, canvas):
+            evas.Image.__init__(self,canvas)
+            self.pass_events = True
+            self.show()
+            #we need this to store the original position while the zoom animations
+            self.position = (0,0)
+
+        def set_position(self, x, y):
+            self.position = (x,y)
+            self.move(x,y)
+
     def __init__(self, evas_canvas, filename, initial_lat, initial_lon, initial_zoom=10, offline=False, use_overlay=True):
+        PylgrimMap.__init__(self)
         self.evas_canvas = evas_canvas
         self.offline = offline
         self.use_overlay = use_overlay
@@ -151,7 +153,7 @@ class PylgrimView(edje.Edje, PylgrimMap):
         self.set_current_tile(initial_lat, initial_lon, initial_zoom)
 
         '''
-        self.marker = Mark(self.evas_canvas.evas_obj.evas)
+        self.marker = PylgrimView.Mark(self.evas_canvas.evas_obj.evas)
         self.marker.file_set("blue-dot.png")
         self.marker.lat = 49.073866
         self.marker.lon = 8.184814
@@ -165,7 +167,7 @@ class PylgrimView(edje.Edje, PylgrimMap):
         self.marker.show()
         '''
 
-        ecore.timer_add(3, self.init_dbus)
+        #ecore.timer_add(3, self.init_dbus)
 
     def init_dbus(self):
         print 'LocationFeed init_dbus'
@@ -262,7 +264,7 @@ class PylgrimView(edje.Edje, PylgrimMap):
             self.icons = []
             #fill
             for i in xrange((2*self.border_x+1)*(2*self.border_y+1)):
-                self.icons.append(Tile(self.evas_canvas.evas_obj.evas))
+                self.icons.append(PylgrimView.Tile(self.evas_canvas.evas_obj.evas))
         if not self.offline:
             #add all tiles that are not yet downloaded to a list
             for i in xrange(2*self.border_x+1):
