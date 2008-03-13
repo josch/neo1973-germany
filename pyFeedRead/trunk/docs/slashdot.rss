@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/" xmlns:slash="http://purl.org/rss/1.0/modules/slash/" xmlns:taxo="http://purl.org/rss/1.0/modules/taxonomy/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:syn="http://purl.org/rss/1.0/modules/syndication/" xmlns:admin="http://webns.net/mvcb/" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0">
+
+<channel rdf:about="http://slashdot.org/">
+<title>Slashdot</title>
+<link>http://slashdot.org/</link>
+<description>News for nerds, stuff that matters</description>
+<dc:language>en-us</dc:language>
+<dc:rights>Copyright 1997-2006, OSTG - Open Source Technology Group, Inc.  All Rights Reserved.</dc:rights>
+<dc:date>2007-09-23T23:00:19+00:00</dc:date>
+<dc:publisher>OSTG</dc:publisher>
+<dc:creator>help@slashdot.org</dc:creator>
+<dc:subject>Technology</dc:subject>
+<syn:updatePeriod>hourly</syn:updatePeriod>
+<syn:updateFrequency>1</syn:updateFrequency>
+<syn:updateBase>1970-01-01T00:00+00:00</syn:updateBase>
+<items>
+ <rdf:Seq>
+  <rdf:li rdf:resource="http://hardware.slashdot.org/article.pl?sid=07/09/23/2055211&amp;from=rss" />
+  <rdf:li rdf:resource="http://slashdot.org/article.pl?sid=07/09/23/2049207&amp;from=rss" />
+  <rdf:li rdf:resource="http://hardware.slashdot.org/article.pl?sid=07/09/23/1639205&amp;from=rss" />
+  <rdf:li rdf:resource="http://slashdot.org/article.pl?sid=07/09/23/1633249&amp;from=rss" />
+  <rdf:li rdf:resource="http://science.slashdot.org/article.pl?sid=07/09/23/1627255&amp;from=rss" />
+  <rdf:li rdf:resource="http://it.slashdot.org/article.pl?sid=07/09/23/141225&amp;from=rss" />
+  <rdf:li rdf:resource="http://apple.slashdot.org/article.pl?sid=07/09/23/1359200&amp;from=rss" />
+  <rdf:li rdf:resource="http://slashdot.org/article.pl?sid=07/09/23/1340207&amp;from=rss" />
+  <rdf:li rdf:resource="http://developers.slashdot.org/article.pl?sid=07/09/23/1249235&amp;from=rss" />
+  <rdf:li rdf:resource="http://science.slashdot.org/article.pl?sid=07/09/23/0848226&amp;from=rss" />
+  <rdf:li rdf:resource="http://slashdot.org/article.pl?sid=07/09/23/0835233&amp;from=rss" />
+  <rdf:li rdf:resource="http://yro.slashdot.org/article.pl?sid=07/09/23/0823201&amp;from=rss" />
+  <rdf:li rdf:resource="http://developers.slashdot.org/article.pl?sid=07/09/23/0019224&amp;from=rss" />
+  <rdf:li rdf:resource="http://slashdot.org/article.pl?sid=07/09/23/0024219&amp;from=rss" />
+  <rdf:li rdf:resource="http://apple.slashdot.org/article.pl?sid=07/09/23/0017240&amp;from=rss" />
+ </rdf:Seq>
+</items>
+<image rdf:resource="http://images.slashdot.org/topics/topicslashdot.gif" />
+<textinput rdf:resource="http://slashdot.org/search.pl" />
+</channel>
+
+<image rdf:about="http://images.slashdot.org/topics/topicslashdot.gif">
+<title>Slashdot</title>
+<url>http://images.slashdot.org/topics/topicslashdot.gif</url>
+<link>http://slashdot.org/</link>
+</image>
+
+<item rdf:about="http://hardware.slashdot.org/article.pl?sid=07/09/23/2055211&amp;from=rss">
+<title>Intel Demos Core 2 Extreme QX9650 Quad-Core At IDF</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160366495/article.pl</link>
+<description>MojoKid writes "Intel demonstrated a dual socket gaming rig at IDF this week, based on their Skulltrail platform with the X38 chipset. The interesting thing about this machine wasn't just that it had 45nm quad-core CPUs in its sockets, as well as PCI Express 2.0 capable slots, but also that it was running a pair of NVIDIA graphics cards in SLI. That's right, SLI on an Intel chipset. No word whether or not X38 would officially be supported with SLI just yet. In fact, NVIDIA representatives noted Intel was buying NVIDIA nForce 100 SLI Southbridges just for this one Intel motherboard model."&lt;p&gt;&lt;a href="http://hardware.slashdot.org/article.pl?sid=07/09/23/2055211&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=Ja3k3j"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=Ja3k3j" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160366495" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T22:43:00+00:00</dc:date>
+<dc:subject>intel</dc:subject>
+<slash:department>kind-of-a-morbid-name</slash:department>
+<slash:section>hardware</slash:section>
+<slash:comments>6</slash:comments>
+<slash:hit_parade>6,6,5,5,1,0,0</slash:hit_parade>
+<feedburner:origLink>http://hardware.slashdot.org/article.pl?sid=07/09/23/2055211&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://slashdot.org/article.pl?sid=07/09/23/2049207&amp;from=rss">
+<title>New Version of Gmail Being Tested</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160366496/article.pl</link>
+<description>Keith writes "Gmail was launched on April 1, 2004, and has revolutionized the way many of us use email. The interface has remained largely untouched since it launched, but get ready, it's soon to undergo a change in what they describe as a 'New Version'. Only a select few people have access to use the new interface &amp;mdash; mainly employees and trusted people outside the company called 'Trusted Testers'. From the ZDNet blog entry: 'Google lets every-day users who are fluent in both English and another language translate small snippets of English text into the language of their choice. This is how they can offer services in several languages without spending a dime on professional translators. Unfortunately, exposing sensitive information in this manner makes it hard to keep a secret. One of my readers, who wishes to remain anonymous, stumbled across an interesting snippet of text (which I confirmed exists) spilling the beans on a new version of Gmail that is either currently being tested, or about to be released to testing in short order.'"&lt;p&gt;&lt;a href="http://slashdot.org/article.pl?sid=07/09/23/2049207&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=ISqm63"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=ISqm63" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160366496" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T21:13:00+00:00</dc:date>
+<dc:subject>google</dc:subject>
+<slash:department>every-solid-companion</slash:department>
+<slash:section>mainpage</slash:section>
+<slash:comments>75</slash:comments>
+<slash:hit_parade>75,69,57,38,8,4,1</slash:hit_parade>
+<feedburner:origLink>http://slashdot.org/article.pl?sid=07/09/23/2049207&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://hardware.slashdot.org/article.pl?sid=07/09/23/1639205&amp;from=rss">
+<title>Method for $1/Watt Solar Panels Will Soon See Commercial Use</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160366497/article.pl</link>
+<description>An anonymous reader writes "A method developed at Colorado State University for crafting solar panels has been developed to the point where they are nearly ready for mass production. Professor W.S. Sampath's technique has resulted in a low-cost, high-efficiency process for creating the panels, which will soon be fabricated by a commercial interest. 'Produced at less than $1 per watt, the panels will dramatically reduce the cost of generating solar electricity and could power homes and businesses around the globe with clean energy for roughly the same cost as traditionally generated electricity. Sampath has developed a continuous, automated manufacturing process for solar panels using glass coating with a cadmium telluride thin film instead of the standard high-cost crystalline silicon. Because the process produces high efficiency devices (ranging from 11% to 13%) at a very high rate and yield, it can be done much more cheaply than with existing technologies.'"&lt;p&gt;&lt;a href="http://hardware.slashdot.org/article.pl?sid=07/09/23/1639205&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=AOylTS"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=AOylTS" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160366497" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T19:22:00+00:00</dc:date>
+<dc:subject>power</dc:subject>
+<slash:department>i'll-take-five</slash:department>
+<slash:section>hardware</slash:section>
+<slash:comments>195</slash:comments>
+<slash:hit_parade>195,194,162,128,38,23,11</slash:hit_parade>
+<feedburner:origLink>http://hardware.slashdot.org/article.pl?sid=07/09/23/1639205&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://slashdot.org/article.pl?sid=07/09/23/1633249&amp;from=rss">
+<title>Intel Releases Mashups for the Masses</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160304862/article.pl</link>
+<description>News_and_info writes "Intel has released an online tool called Mash Maker with the intent of allowing anyone to create mashups. They offer some training on how to use it, but the tool is fairly easy to use out of the gate. I see it more as a rudimentary semantic browser. From the article: 'Mashups have still not really penetrated the mainstream. My mother is not using mashup sites, and she is definitely not creating them. Even if there was a mashup out there that did exactly what she wanted, the chances are that she wouldn't know it existed, and would be confused by it if she tried to use it ... With Mash Maker, mashups are part of the normal browsing experience. As you browse the web, the Mash Maker toolbar displays buttons representing mashups that Mash Maker thinks you might want to apply to your current page.'"&lt;p&gt;&lt;a href="http://slashdot.org/article.pl?sid=07/09/23/1633249&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=QROvKH"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=QROvKH" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160304862" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T18:19:00+00:00</dc:date>
+<dc:subject>internet</dc:subject>
+<slash:department>applying-data-to-the-situation-for-the-win</slash:department>
+<slash:section>mainpage</slash:section>
+<slash:comments>95</slash:comments>
+<slash:hit_parade>95,95,82,54,22,12,10</slash:hit_parade>
+<feedburner:origLink>http://slashdot.org/article.pl?sid=07/09/23/1633249&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://science.slashdot.org/article.pl?sid=07/09/23/1627255&amp;from=rss">
+<title>The Gradual Public Awareness of the Might of Algorithms</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160281557/article.pl</link>
+<description>Soylent Mauve writes "The trend toward data- and algorithm-driven tuning of business operations has gotten a lot of attention recently &amp;mdash; check out the recent articles in the New York Times and the Economist. It looks like computer scientists, especially those with machine learning training, are getting their day in the sun. From the NYT piece: 'It was the Internet that stripped the word of its innocence. Algorithms, as closely guarded as state secrets, buy and sell stocks and mortgage-backed securities, sometimes with a dispassionate zeal that crashes markets. Algorithms promise to find the news that fits you, and even your perfect mate. You can't visit Amazon without being confronted with a list of books and other products that the Great Algoritmi recommends. Its intuitions, of course, are just calculations -- given enough time they could be carried out with stones. But when so much data is processed so rapidly, the effect is oracular and almost opaque.'"&lt;p&gt;&lt;a href="http://science.slashdot.org/article.pl?sid=07/09/23/1627255&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=WHm1Mm"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=WHm1Mm" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160281557" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T17:27:00+00:00</dc:date>
+<dc:subject>software</dc:subject>
+<slash:department>interlocking-gears</slash:department>
+<slash:section>science</slash:section>
+<slash:comments>105</slash:comments>
+<slash:hit_parade>105,102,82,57,19,11,7</slash:hit_parade>
+<feedburner:origLink>http://science.slashdot.org/article.pl?sid=07/09/23/1627255&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://it.slashdot.org/article.pl?sid=07/09/23/141225&amp;from=rss">
+<title>Homeland Security's Tech Wonders</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160269236/article.pl</link>
+<description>Lucas123 writes "The multi-billion dollar budget of the Department of Homeland Security has spawned a myriad of new, whiz-bang technology that includes things like keychain-size, remote-controlled aerial vehicles designed to collect and transmit data for military and homeland security uses. It also includes infrared cameras that capture license plate images to match them in milliseconds to police records. "Seventy percent of all criminal activity can be tied to a vehicle," says Mark Windover, president of Remington ELSAG Law Enforcement Systems, which is marketing its product to 250 U.S. police agencies."&lt;p&gt;&lt;a href="http://it.slashdot.org/article.pl?sid=07/09/23/141225&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=hU3wuj"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=hU3wuj" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160269236" height="1" width="1"/&gt;</description>
+<dc:creator>CmdrTaco</dc:creator>
+<dc:date>2007-09-23T16:49:00+00:00</dc:date>
+<dc:subject>security</dc:subject>
+<slash:department>segways-and-calculator-watches</slash:department>
+<slash:section>it</slash:section>
+<slash:comments>79</slash:comments>
+<slash:hit_parade>79,77,57,41,17,12,8</slash:hit_parade>
+<feedburner:origLink>http://it.slashdot.org/article.pl?sid=07/09/23/141225&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://apple.slashdot.org/article.pl?sid=07/09/23/1359200&amp;from=rss">
+<title>Apple Platform Lock-Ins,  A 3rd Party Dev's Opinion</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160269237/article.pl</link>
+<description>Iftekhar writes "Wil Shipley, of Delicious Monster fame, has written a very candid essay on what he perceives as Apple's growing trend toward platform lock-ins. He writes: 'Why is the iPhone locked to a single carrier, so I can't travel internationally with it? There's really only one viable reason: Apple wanted a share of the carrier's profits, which meant giving AT&amp;amp;T an exclusive deal. Which meant, we get screwed so Apple can make more money. It's that simple. [...] As Apple gets more and more of its revenue from non-Mac devices, they are also getting more and more of their revenue from devices that simply exclude third parties. Consumers suffer from this. We suffer from increased prices and decreased competition and innovation. We suffer so Apple can make a few more bucks, when Apple is clearly not hurting for money.'"&lt;p&gt;&lt;a href="http://apple.slashdot.org/article.pl?sid=07/09/23/1359200&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=ZKxo0Q"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=ZKxo0Q" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160269237" height="1" width="1"/&gt;</description>
+<dc:creator>CmdrTaco</dc:creator>
+<dc:date>2007-09-23T15:38:00+00:00</dc:date>
+<dc:subject>apple</dc:subject>
+<slash:department>no-sir-i-don't-like-it</slash:department>
+<slash:section>apple</slash:section>
+<slash:comments>230</slash:comments>
+<slash:hit_parade>230,222,180,143,53,29,18</slash:hit_parade>
+<feedburner:origLink>http://apple.slashdot.org/article.pl?sid=07/09/23/1359200&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://slashdot.org/article.pl?sid=07/09/23/1340207&amp;from=rss">
+<title>Wikipedia 2.0, Now With Trust?</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160229642/article.pl</link>
+<description>USB EVDO writes "The online encyclopedia is set to trial two systems aimed at boosting readers' confidence in its accuracy. Over the past few years, a series of measures aimed at reducing the threat of vandalism and boosting public confidence in Wikipedia have been developed. Last month a project designed independently of Wikipedia, called WikiScanner, allowed people to work out what the motivations behind certain entries might be by revealing which people or organisations the contributions were made by . Meanwhile the Wikimedia Foundation, the charity that oversees the online encyclopedia, now says it is poised to trial a host of new trust-based capabilities."&lt;p&gt;&lt;a href="http://slashdot.org/article.pl?sid=07/09/23/1340207&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=FSI6CV"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=FSI6CV" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160229642" height="1" width="1"/&gt;</description>
+<dc:creator>CmdrTaco</dc:creator>
+<dc:date>2007-09-23T14:29:00+00:00</dc:date>
+<dc:subject>internet</dc:subject>
+<slash:department>something-to-think-about</slash:department>
+<slash:section>mainpage</slash:section>
+<slash:comments>149</slash:comments>
+<slash:hit_parade>149,145,130,98,43,22,13</slash:hit_parade>
+<feedburner:origLink>http://slashdot.org/article.pl?sid=07/09/23/1340207&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://developers.slashdot.org/article.pl?sid=07/09/23/1249235&amp;from=rss">
+<title>Thinking about Rails? Think Again</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160229643/article.pl</link>
+<description>wolfeon writes "In 2005, Derek Sivers of CD Baby wanted to scrap his site and perform a rewrite in Rails. He hired Jeremy Kemper, also known as bitsweat on Freenode, to help on the project. Two years later, through blood and sweat, the project was then canceled because of limitations of Rails. Rails just wasn't meant to do everything since it is very much "canned" project. Mr. Sivers has written an entry in the O'Reilly blog: 7 reasons I switched back to PHP."&lt;p&gt;&lt;a href="http://developers.slashdot.org/article.pl?sid=07/09/23/1249235&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=2JfhMJ"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=2JfhMJ" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160229643" height="1" width="1"/&gt;</description>
+<dc:creator>CmdrTaco</dc:creator>
+<dc:date>2007-09-23T13:18:00+00:00</dc:date>
+<dc:subject>programming</dc:subject>
+<slash:department>or-not-at-all</slash:department>
+<slash:section>developers</slash:section>
+<slash:comments>310</slash:comments>
+<slash:hit_parade>310,303,251,190,44,23,8</slash:hit_parade>
+<feedburner:origLink>http://developers.slashdot.org/article.pl?sid=07/09/23/1249235&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://science.slashdot.org/article.pl?sid=07/09/23/0848226&amp;from=rss">
+<title>Happiness Is A Warm Electrode</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160229644/article.pl</link>
+<description>sufijazz writes "A story by Gregory Mone on the Popular Science website talks about trials to use deep brain stimulation to cure chronic depression. It's a deeper exploration of the 'brain pacemaker' discussed here on the site before, and a practical application of research discussed even earlier. Why the pulses affect mood is still unclear, but scientists believe that they may facilitate chemical communication between brain cells, possibly by forcing ions through nerve fibers called axons. In turn, this may trigger the release of mood-regulating chemicals like serotonin and norepinephrine. Similar trials are being conducted in other places. Exact numbers are hard to ascertain, but it's estimated that fewer than 50 patients in North America are walking around with wires in their brain."&lt;p&gt;&lt;a href="http://science.slashdot.org/article.pl?sid=07/09/23/0848226&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=28ZgvU"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=28ZgvU" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160229644" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T11:14:00+00:00</dc:date>
+<dc:subject>biotech</dc:subject>
+<slash:department>everything-looks-so-vivid</slash:department>
+<slash:section>science</slash:section>
+<slash:comments>137</slash:comments>
+<slash:hit_parade>137,135,108,82,24,12,9</slash:hit_parade>
+<feedburner:origLink>http://science.slashdot.org/article.pl?sid=07/09/23/0848226&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://slashdot.org/article.pl?sid=07/09/23/0835233&amp;from=rss">
+<title>Google Experiences EU Antitrust Friction Over Doubleclick</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160170458/article.pl</link>
+<description>An anonymous reader writes "Here in the US, the Google purchase of Doubleclick is old news. Despite a few hiccups, the news of April and May seems well in the past. In the European Union, though, the discussion begins anew again as Google seeks permission from EU antitrust regulators. From the article: 'The European Commission said it had set a review deadline of October 26, when it could approve the deal, give a two-week extension or open an in-depth, four-month investigation ... The Commission has already sent questionnaires asking competitors and customers what they think about the deal. Google has already filed with the U.S. Federal Trade Commission and with the Australian competition regulator.'"&lt;p&gt;&lt;a href="http://slashdot.org/article.pl?sid=07/09/23/0835233&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=3PYtmc"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=3PYtmc" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160170458" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T10:31:00+00:00</dc:date>
+<dc:subject>google</dc:subject>
+<slash:department>it's-tough-trying-to-take-over-the-world</slash:department>
+<slash:section>mainpage</slash:section>
+<slash:comments>57</slash:comments>
+<slash:hit_parade>57,55,40,23,7,5,1</slash:hit_parade>
+<feedburner:origLink>http://slashdot.org/article.pl?sid=07/09/23/0835233&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://yro.slashdot.org/article.pl?sid=07/09/23/0823201&amp;from=rss">
+<title>New Attorneys Fee Decision Against RIAA</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160147211/article.pl</link>
+<description>NewYorkCountryLawyer writes "The RIAA has gotten slammed again, this time in Oregon, as the Magistrate Judge in Atlantic v. Andersen has ruled that Tanya Andersen's motion for attorneys fees should be granted. The Magistrate, in his 15-page decision, noted that, despite extensive pretrial discovery proceedings, 'when plaintiffs dismissed their claims in June 2007, they apparently had no more material evidence to support their claims than they did when they first contacted defendant in February 2005.....' and concluded that 'Copyright holders generally, and these plaintiffs specifically, should be deterred from prosecuting infringement claims as plaintiffs did in this case.' This is the same case in which (a) the RIAA insisted on interrogating Ms. Andersen's 10-year-old girl at a face-to-face deposition, (b) the defendant filed RICO counterclaims against the record companies, and (c) the defendant recently converted her RICO case into a class action"&lt;p&gt;&lt;a href="http://yro.slashdot.org/article.pl?sid=07/09/23/0823201&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=4m2MlP"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=4m2MlP" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160147211" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T08:20:00+00:00</dc:date>
+<dc:subject>court</dc:subject>
+<slash:department>maybe-you-should-reconsider-your-strategy</slash:department>
+<slash:section>yro</slash:section>
+<slash:comments>94</slash:comments>
+<slash:hit_parade>94,90,78,64,32,16,11</slash:hit_parade>
+<feedburner:origLink>http://yro.slashdot.org/article.pl?sid=07/09/23/0823201&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://developers.slashdot.org/article.pl?sid=07/09/23/0019224&amp;from=rss">
+<title>Eclipse Makes Java Development on the Mac Easier</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160147212/article.pl</link>
+<description>An anonymous reader writes "While the Java development environment is fully integrated into Mac OS X, the Eclipse developer IDE brings a fully integrated Java development environment to Mac OS X that provides a more consistent and easier to develop cross-platform experience. This article shows you how quickly you can be up and running with Eclipse and Java development on the Mac. 'Whether you're a Mac OS X Java developer working on cross-platform Java projects, a Linux developer switching to Mac OS X because of its UNIX-based core, or a general Java developer looking to develop applications targeted to Mac OS X, you'll want to look at the Eclipse IDE because it provides a solution to each of these development needs. While Mac OS X provides Xcode as its primary Java development IDE, Eclipse provides a more robust cross-platform development environment, with application frameworks for reporting, database access, communications, graphics, and more, and a rich-client platform framework for building applications.'"&lt;p&gt;&lt;a href="http://developers.slashdot.org/article.pl?sid=07/09/23/0019224&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=JmAVfm"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=JmAVfm" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160147212" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T05:07:00+00:00</dc:date>
+<dc:subject>java</dc:subject>
+<slash:department>something-thoughtful-for-saturday-night</slash:department>
+<slash:section>developers</slash:section>
+<slash:comments>178</slash:comments>
+<slash:hit_parade>178,177,130,85,30,18,9</slash:hit_parade>
+<feedburner:origLink>http://developers.slashdot.org/article.pl?sid=07/09/23/0019224&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://slashdot.org/article.pl?sid=07/09/23/0024219&amp;from=rss">
+<title>The Journey of Radios From Hardware to Software</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160086749/article.pl</link>
+<description>An anonymous reader writes "The New York Times is carrying a story all about the process of replacing radios with software. The article tells the tale of Vanu Bose, son of the man who started the Bose company, and his quest to bring software to what was previously a hardware-only enterprise. He met a lot of resistance in the 90s to his ideas, because processor technology was not up to the task. Now that technology has caught up with Vanu, his software (and other products like it) are increasingly replacing now-outdated hardware components. 'Well-established companies like Motorola and Ericsson now use elements of software-defined radio for their base stations. But Mr. Bose was the first to come to market with software that could handle multiple networks with the same equipment. Software radio appears to offer an elegant solution to what has been a vexing problem: how to have a single handset, like a cellphone, communicate across multiple networks. For instance, the G.S.M. standard, for global system for mobile communications, is used broadly in Europe, and most notably in the United States by AT&amp;amp;T.'"&lt;p&gt;&lt;a href="http://slashdot.org/article.pl?sid=07/09/23/0024219&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=rFYdRq"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=rFYdRq" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160086749" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T03:15:00+00:00</dc:date>
+<dc:subject>software</dc:subject>
+<slash:department>wave-of-the-future</slash:department>
+<slash:section>mainpage</slash:section>
+<slash:comments>97</slash:comments>
+<slash:hit_parade>97,95,81,69,21,12,5</slash:hit_parade>
+<feedburner:origLink>http://slashdot.org/article.pl?sid=07/09/23/0024219&amp;from=rss</feedburner:origLink></item>
+
+<item rdf:about="http://apple.slashdot.org/article.pl?sid=07/09/23/0017240&amp;from=rss">
+<title>Crazy Stevie's iPhone Prices are Insaaane!</title>
+<link>http://rss.slashdot.org/~r/Slashdot/slashdot/~3/160086750/article.pl</link>
+<description>theodp writes "Slate takes a look at the alarming lesson of the iPhone price cut and ponders the long-term effects of a Fire-Sale Nation mentality, especially when companies go all Crazy Eddie slashing prices on products like homes and cars that have active secondary markets. 'High-profile price-chopping tends to occur whenever companies freak out about the vicious combination of a slowing consumer economy and the prospect of getting stuck with big inventories of unsold goods. The tactic often works in the short term. The hype over insanely low prices functions as a form of free advertising, and the lower prices tend to attract buyers. Apple announced on Sept. 10 that it had sold its 1 millionth iPhone.'"&lt;p&gt;&lt;a href="http://apple.slashdot.org/article.pl?sid=07/09/23/0017240&amp;from=rss"&gt;Read more of this story&lt;/a&gt; at Slashdot.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://rss.slashdot.org/~a/Slashdot/slashdot?a=un83xL"&gt;&lt;img src="http://rss.slashdot.org/~a/Slashdot/slashdot?i=un83xL" border="0"&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&lt;img src="http://rss.slashdot.org/~r/Slashdot/slashdot/~4/160086750" height="1" width="1"/&gt;</description>
+<dc:creator>Zonk</dc:creator>
+<dc:date>2007-09-23T01:05:00+00:00</dc:date>
+<dc:subject>money</dc:subject>
+<slash:department>come-on-down</slash:department>
+<slash:section>apple</slash:section>
+<slash:comments>307</slash:comments>
+<slash:hit_parade>307,303,262,215,45,21,17</slash:hit_parade>
+<feedburner:origLink>http://apple.slashdot.org/article.pl?sid=07/09/23/0017240&amp;from=rss</feedburner:origLink></item>
+
+<textinput rdf:about="http://slashdot.org/search.pl">
+<title>Search Slashdot</title>
+<description>Search Slashdot stories</description>
+<name>query</name>
+<link>http://slashdot.org/search.pl</link>
+</textinput>
+
+</rdf:RDF>
