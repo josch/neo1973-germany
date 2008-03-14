@@ -1,6 +1,6 @@
 ==Unitc==
 
-Unitc is a small unit converter written in Python. You can choose between different categorys and then list the available units where you can convert from one unit in an other.
+Unitc is a small unit converter written in Python. You can choose between different categories, list the available units and then convert from one unit into another.
 
 I hope you can help me to improve unitc :)
 
