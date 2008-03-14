@@ -2,7 +2,7 @@
  * GlobalConfiguration.py - SettingsGUI - 
  *   Settings and default config files
  *
- * (C) 2007 by Kristian Mueller <kristian-m@kristian-m.de>
+ * (C) 2007, 2008 by Kristian Mueller <kristian-m@kristian-m.de>
  * All Rights Reserved
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,22 +20,35 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+
+################################################################################
+#################################### GUI #######################################
+################################################################################
 NOTEBK_PADDING = 6
 GSM_Panel_Instance = None
 
-## used in Screen Panel
+################################################################################
+############################# used in Screen Panel #############################
+################################################################################
 SYSFS_ENTRY_BACKLIGHT_BRIGHTNESS = "/sys/class/backlight/gta01-bl/brightness"
 SYSFS_ENTRY_BACKLIGHT_POWER = "/sys/class/backlight/gta01-bl/power" # reverse
 
-## used in Bluetooth Panel
+
+################################################################################
+############################ used in Bluetooth Panel ###########################
+################################################################################
 SYSFS_ENTRY_BLUETOOTH_POWER = "/sys/bus/platform/devices/gta01-pm-bt.0/power_on"
 HCICONFIG_CMD = "hciconfig"             ## using $PATH
 #HCICONFIG_CMD = "/sbin/hciconfig"      ## openembedded
 #HCICONFIG_CMD = "/usr/sbin/hciconfig"  ## ubuntu
-HCITOOL_CMD = "hcitool"             ## using $PATH
+HCITOOL_CMD = "hcitool"                 ## using $PATH
 BLUETOOTH_DEVICE = "hci0"
+BLUETOOTH_UPDATE_INTERVAL = 3           ## scan for Bluetooth Peers every 3 secs
 
-## used in Audio Panel
+
+################################################################################
+############################# used in Audio Panel ##############################
+################################################################################
 ALSA_STATES_DIR = "/etc/"
 
 ALSA_ENTRYS = {
@@ -55,7 +68,9 @@ ALSA_CHANNEL_RIGHT = 87
 ALSA_CHANNEL_MONO = 88
 
 
-## PPP Settings and config files
+################################################################################
+######################### PPP Settings and config files ########################
+################################################################################
 
 DEFAULT_NAMESERVER = "208.67.222.222"     # from the OpenDNS project (2007-09-05)
 

@@ -43,7 +43,7 @@ class BluetoothScanner(threading.Thread):
         while (self.keep_running):
             if self.scan_active:
                 self.update_callback(self.update_list())
-                time.sleep(3)   # scan every 3 seconds, when running
+                time.sleep(BLUETOOTH_UPDATE_INTERVAL)   # scan every x seconds
             else:
                 time.sleep(1)   # check again if we are active in a second
 
