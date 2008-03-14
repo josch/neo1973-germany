@@ -2,11 +2,11 @@
  * ProcessInterface.py - SettingsGUI - 
  *   Interface to interactive userspace processes
  *
- * Based on code from Jens Diemer <- ToDo - License
+ * Based on code from Jens Diemer
  *
  * Using libgsm_tool until there is a python bindung available
  *
- * (C) 2007 by Kristian Mueller <kristian-m@kristian-m.de>
+ * (C) 2008 by Kristian Mueller <kristian-m@kristian-m.de>
  * All Rights Reserved
  *
  * This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,8 @@ class error_poller(threading.Thread):
         while self.keep_going:
             self.error_stream.flush()
             line = self.error_stream.readline()
-            if line == "": break
+            if line == "": 
+                break
             self.out_data.append(line)
 
     def stop(self):
@@ -85,28 +86,12 @@ class async_process(threading.Thread):
         self.keep_going = True
         
         self.killed = False
+        self.closed = False
         self.out_data = [] # output buffer <- ToDo use a list - for now '\n's
         self.events = []
 
         threading.Thread.__init__(self)
-        
-#        print "COMMAND was >>%s<<" % self.command
         self.start()
-        
-        """
-        if timeout > 0:
-            self.join( self.timeout )
-        else:
-            self.keep_going = True
-            while self.keep_going == True:
-                time.sleep(1)
-                
-        self.join()
-        self.stop()
-        
-        """
-        # provide return code
-        #self.returncode = self.process.returncode
 
     def run(self):
         print "Executes subprocess [%s]" % " ".join([self.command] + self.options)
@@ -127,21 +112,31 @@ class async_process(threading.Thread):
             self.process = 0
             self.process_created_error = True
             
+
         self.process_created = True
         # save output
         line = ""
         while self.keep_going:
             char = ""
             while char == "":
-                char = self.process.stdout.read(1)
-                if char == "":
-                    ## nonblocking? okay let's take a nap
-                    time.sleep(0.5)
+                if not isinstance(self.process, int):
+                    char = self.process.stdout.read(1)
+                    if char == "":
+                        # print "[2]: %s" % self.closed
+                        self.closed = True
+                        #print "process [%s] finished" % \
+                        #                " ".join([self.command] + self.options)
+                        return
+                else:
+                    # print "[1]: %s" % self.closed
+                    self.closed = True
+                    #print "process [%s] finished" % \
+                    #                    " ".join([self.command] + self.options)
+                    return
                     
             line = line + char
             if line[-1] == "\n":
                 self.out_data.append(line)
-                
                 for event in self.events:
                     if line.find(event[0]) >= 0:
                         event[1](line)
@@ -160,6 +155,7 @@ class async_process(threading.Thread):
         """
         if self.process.poll() != None:
             print " already killed"
+            self.closed = True
             return
 
         print "trying to kill"
@@ -170,21 +166,61 @@ class async_process(threading.Thread):
         ## have to kill - as readline is blocking.
         os.kill( self.process.pid, signal.SIGKILL )
 
+
 class ProcessInterface:
     def __init__(self, command):
         self.command = command.split()[0]
         self.options = [command.split()[x] for x in range(1,len(command.split()))]
+        
+        #"""
+        ## ugly - handle options with spaces
+        new_options = []
+        new_option = ""
+        is_escaped = False
+        for option in self.options:
+            if option.find("\"") >= 0: 
+                if not new_option == "":
+                    new_option = "".join([new_option, " ", option])
+                    new_options.append(new_option.strip().strip("\""))
+#                    new_options.append(new_option)
+                    new_option = ""
+                    is_escaped = True
+                else:
+                    new_option = option
+                    is_escaped = True
+            
+            if new_option == "" and not is_escaped:
+                ## found something escaped string
+                new_options.append(option)
+            if new_option != "" and not is_escaped:
+                new_option = "".join([new_option, " ", option])
+
+            if len(option.split("\"")) >= 3:
+                new_options.append(option.strip().strip("\""))
+
+            is_escaped = False
+
+        self.options = new_options
+        #print "Options are: ---->%s<----" % self.options
+        # end ugly 
+        #"""
+
         self.process = async_process(self.command, self.options, "/", timeout = 0)
+
 
         while self.process.process_created == False:
             if self.process.process_created_error:
+                self.process.closed = True
                 return -1
             time.sleep(0.1)
         self.error_poller = error_poller(self.process.process.stderr)
 
     ## write string to buffer - new line is attached string
     def write_to_process(self, string):
-        ## find out if process is still running before wire
+        ## find out if process is still running before writing
+        if self.process.closed:
+            return False
+
         if self.process.process.poll() == None:     # was ==
             self.process.process.stdin.write("%s\n" % string)
             self.process.process.stdin.flush()
@@ -229,12 +265,19 @@ class ProcessInterface:
     def register_event_handler(self, event_name, function, args = [], kwargs = {}):
         self.process.register_event_handler(event_name, function, args, kwargs)
 
+    def close(self):
+        self.close_process()
+
     def close_process(self):
-        print "trying to kill process"
         self.process.keep_going = False
+        if not self.process.closed:
+            print "trying to kill process"
+            self.process.stop()
         self.process.join(1)
-        self.process.stop()
-        self.process.join(1)
+
+    def process_finished(self):
+        return self.process.closed
+
 
 
 class test:
@@ -259,8 +302,20 @@ class test:
         bash.close_process()
         print "halllooo"
 
+    
+    def finished_app_test(self):
+        ls = ProcessInterface("hcitool scan hci0")
+
+        while not ls.process_finished():
+            time.sleep(0.1)   ## wait for command to compute
+        print "output of ls was [%s]" % ls.read_from_process()
+
+
         # ToDo remove    
         ##         self.process = subprocess.Popen(self.command, cwd = self.cwd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, stdin = subprocess.PIPE)
 
 #test = test()
 #test.do_test()
+
+
+
