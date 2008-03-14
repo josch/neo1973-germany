@@ -304,7 +304,7 @@ class test:
 
     
     def finished_app_test(self):
-        ls = ProcessInterface("hcitool scan hci0")
+        ls = ProcessInterface("ls")
 
         while not ls.process_finished():
             time.sleep(0.1)   ## wait for command to compute
