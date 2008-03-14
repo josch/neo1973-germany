@@ -29,6 +29,7 @@ from GlobalConfiguration import *
 from SysFSAccess import *
 from ProcessInterface import *
 
+
 class BluetoothScanner(threading.Thread):
     def __init__(self, update_callback):
         threading.Thread.__init__(self)
@@ -40,13 +41,10 @@ class BluetoothScanner(threading.Thread):
 
     def run(self):
         while (self.keep_running):
-            print "RUN"
             if self.scan_active:
-                print "SCAN"
                 self.update_callback(self.update_list())
                 time.sleep(3)   # scan every 3 seconds, when running
             else:
-                print "WAIT"
                 time.sleep(1)   # check again if we are active in a second
 
 
@@ -251,11 +249,9 @@ class BluetoothPanel(gtk.VBox):
     def update_from_scanner(self, data):
         (visible_peers, connected_peers) = data
 
-        print "enter critical section"
         self.update_ui_condition.acquire()  # <- critical section
         self.peer_list = []                 # to be handled in critical section!
 
-        print "entry loop"
         for entry in visible_peers:
             ## see if entry can be found in conneced list
             found = False
@@ -265,13 +261,9 @@ class BluetoothPanel(gtk.VBox):
                     found = True
             ## add to list als (Name, Address, Found)
             self.peer_list.append((entry[0], entry[1], found))
-            print "added entry"
-
-        print "entry loop left"
 
         self.async_updated = True           # to be handled in critical section!
         self.update_ui_condition.release()  # -> critical section
-        print "leaving critical section"
 
 ################################################################################
 ####################### Callbacks from GUI #####################################
