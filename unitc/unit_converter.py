@@ -284,22 +284,7 @@ class unitconvert(object):
         self.clearbutton.connect('clicked', self.clear)
 
 # Display all elements
-        self.box.show()
-        self.catbox.show()
-        self.catcombo.show()
-        self.catframe.show()
-        self.fromentry.show()
-        self.fromcombo.show()
-        self.fromframe.show()
-        self.frombox.show()
-        self.toentry.show()
-        self.tocombo.show()
-        self.toframe.show()
-        self.tobox.show()
-        self.sendbox.show()
-        self.clearbutton.show()
-        self.gobutton.show() 
-        self.window.show()
+        self.window.show_all()
 
 def main():
     gtk.main()
