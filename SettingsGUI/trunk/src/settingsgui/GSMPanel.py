@@ -104,16 +104,6 @@ class GSMPanel(gtk.VBox):
         return False
 
 
-    def check_pppd_running(self):
-        if not os.path.exists("/proc"):
-            return False
-        for key in os.listdir("/proc"):
-            if key.replace("/proc/", ""):
-                if key.isdigit():
-                    fd = open(os.path.join("/proc/", key, "cmdline"))
-                    if fd.read().find("pppd") >= 0:
-                        return True
-        return False
 
 ################################################################################
 ######### Callbacks from libgsmd-tool subprocess output - as callbacks #########
@@ -329,7 +319,7 @@ class GSMPanel(gtk.VBox):
 
     def start_gsmd(self, widget):
         # restart not working yet - using stop and start
-        if self.check_pppd_running():
+        if process_running("pppd"):
             mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_YES_NO, 
                         "There seems to be a GPRS connection runnung.\nDo you want to close it?")
             response = mbox.run()
