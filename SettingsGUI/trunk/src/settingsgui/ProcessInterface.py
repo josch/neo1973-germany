@@ -280,6 +280,19 @@ class ProcessInterface:
 
 
 
+
+def process_running(name):
+    if not os.path.exists("/proc"):
+        return False
+    for key in os.listdir("/proc"):
+        if key.replace("/proc/", ""):
+            if key.isdigit():
+                fd = open(os.path.join("/proc/", key, "cmdline"))
+                if fd.read().find(name) >= 0:
+                    return True
+    return False
+
+
 class test:
     def do_test(self):
         print "Test interface"
@@ -309,6 +322,21 @@ class test:
         while not ls.process_finished():
             time.sleep(0.1)   ## wait for command to compute
         print "output of ls was [%s]" % ls.read_from_process()
+
+    
+    def process_running_test(self): 
+        print "Testing if process by name \"python\" is running... ",
+        if process_running("python"):
+            print "yes [OKAY]"
+        else:
+            print "no [ERROR?!]"
+
+        print "Testing if process by name \"ononenamesitso\" is running... ",
+        if process_running("ononenamesitso"):
+            print "yes [ERROR?!]"
+        else:
+            print "no [OKAY]"
+
 
 
         # ToDo remove    
