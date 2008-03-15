@@ -282,6 +282,13 @@ class ProcessInterface:
 
 
 def process_running(name):
+    '''
+    name can be any string from the commandline to hit.
+    Parameters are seperated using the '\0' caracter.
+    
+    Example: to search for 'su -' use:
+        process_running("su\0-")
+    '''
     if not os.path.exists("/proc"):
         return False
     for key in os.listdir("/proc"):
