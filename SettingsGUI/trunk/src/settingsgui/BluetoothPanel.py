@@ -45,7 +45,7 @@ class BluetoothScanner(threading.Thread):
                 self.update_callback(self.update_list())
                 time.sleep(BLUETOOTH_UPDATE_INTERVAL)   # scan every x seconds
             else:
-                time.sleep(1)   # check again if we are active in a second
+                time.sleep(2)   # check again if we are active in a second
 
 
     def set_active(self, active):
@@ -96,6 +96,8 @@ class BluetoothPanel(gtk.VBox):
         self.update_ui_condition = threading.Condition()
         self.scan_for_bt_peers = True       # to be handled in critical section!
         self.async_updated = False          # to be handled in critical section!
+        self.visible_peers_backup = []
+        self.connected_peers_backup = []
 
         # creating backgroundscanner - not active by default
         self.bluetooth_scanner = BluetoothScanner(self.update_from_scanner)
@@ -110,6 +112,7 @@ class BluetoothPanel(gtk.VBox):
             self.visible_state_cbtn.set_active(True)
             self.update_btn.set_active(True)
             self.list_store1.append(("Scanning for ", "Peers", False))
+            self.pand_state_cbtn.set_active(self.get_pand_state())
             self.update_infos()
         else:
             self.power_state_cbtn.set_active(False)
@@ -123,7 +126,7 @@ class BluetoothPanel(gtk.VBox):
         ## Power State of Bluetooth Module
         cell_frame = gtk.Frame("Bluetooth State")
         upper_box = gtk.HBox()
-        upper_box.set_border_width(15)
+        upper_box.set_border_width(10)
 
         # power 
         self.power_state_cbtn = gtk.CheckButton("Powered")
@@ -156,9 +159,12 @@ class BluetoothPanel(gtk.VBox):
         ## Info on BT state
         info_frame = gtk.Frame("Bluetooth Informations")
         info_box = gtk.VBox()
-        info_box.set_border_width(15)
-        self.address_label = gtk.Label("Bluetooth Address: %s" % self.get_address())
-        self.ip_address_label = gtk.Label("IP Address: %s" % self.get_ip_address())
+        info_box.set_border_width(10)
+
+        self.name_label = gtk.Label("Visible Name: %s" % self.get_name())
+        self.address_label = gtk.Label("Address: %s" % self.get_address())
+        self.ip_address_label = gtk.Label("IP: %s" % self.get_ip_address())
+        info_box.add(self.name_label)
         info_box.add(self.address_label)
         info_box.add(self.ip_address_label)
         info_frame.add(info_box)
@@ -167,10 +173,10 @@ class BluetoothPanel(gtk.VBox):
 
         scan_frame = gtk.Frame("Devices in range")
         scan_frame_box = gtk.VBox()
-        scan_frame_box.set_border_width(15)
+        scan_frame_box.set_border_width(10)
         (scroll_win, self.tree_view1, self.list_store1) = \
                             self.make_list_view(3, \
-                                            ["Name", "Address", "PAN Link"], \
+                                            ["Name", "Address", "Link"], \
                                                     ["text", "text", "toggle"])
         scan_frame_box.pack_start(scroll_win, True, True, 0)
 
@@ -233,6 +239,8 @@ class BluetoothPanel(gtk.VBox):
         if not self.async_updated:          # to be handled in critical section!
             self.update_ui_condition.release()  # -> critical section
             return True                     # Do nothing, keep going
+        else:
+            self.async_updated = False
 
         self.list_store1.clear()
         # access the peer_list (which is written to by the scan thread)
@@ -249,13 +257,23 @@ class BluetoothPanel(gtk.VBox):
     def update_from_scanner(self, data):
         (visible_peers, connected_peers) = data
 
+        ## this does not need synchronisation yet - only one thread calling
+        ## find out if anything has changed since last update
+        if self.visible_peers_backup == visible_peers and \
+                self.connected_peers_backup == connected_peers:
+            return  ## nothing to be done
+
+        self.visible_peers_backup = visible_peers
+        self.connected_peers_backup = connected_peers
+
+
         self.update_ui_condition.acquire()  # <- critical section
         self.peer_list = []                 # to be handled in critical section!
 
         for entry in visible_peers:
             ## see if entry can be found in conneced list
             found = False
-            for conneted in connected_peers:
+            for connected in connected_peers:
                 print "."
                 if entry[1] == connected:
                     found = True
@@ -298,6 +316,13 @@ class BluetoothPanel(gtk.VBox):
  
     def toggle_listen_pand(self, event):
         if self.pand_state_cbtn.get_active():
+
+#            IP_address = "%s.%s" % (BLUETOOTH_IP_MASK, \
+#                                        int(self.address.split(":")[-1], 16))
+#            print "setting IP address to [%s]" % IP_address
+            
+
+
             print "Starting pand [pand -s]"
             os.system("pand -s")
         else:
@@ -321,6 +346,13 @@ class BluetoothPanel(gtk.VBox):
         return False
 
 
+    def get_pand_state(self):
+        if process_running("pand\0-s") or process_running("pand\0--listen"):
+            return True
+        else:
+            return False
+
+
     def connect_to_peer(self, event):
         
         def call_cmd(string):
@@ -335,15 +367,11 @@ class BluetoothPanel(gtk.VBox):
             name = model.get_value(model_iter, 0)  # column is first (name)
             addr = model.get_value(model_iter, 1)  # column is second (adr)
             call_cmd("pand -c %s" % addr)
+            time.sleep(1)   ## time needed to create bnap device
             ## convert last number of addr to decimal and user as last ip number
-            call_cmd("ip a add 10.0.0.%s/24 dev bnep0" % \
-                                    int(self.address.split(":")[-1], 16))
-            ## set main ip of bnep0 (in case a different ip was set)
-            call_cmd("ifconfig bnep0 10.0.0.%s" % \
-                                    int(self.address.split(":")[-1], 16))
-            ## set 10.0.0.1 to default GW - won't work if GW is set already
-            call_cmd("ip r add default via 10.0.0.1")
-            time.sleep(1)
+            call_cmd("ifconfig bnep0 %s%s" % (BLUETOOTH_IP_MASK, \
+                                        int(self.address.split(":")[-1], 16)))
+            time.sleep(1)   ## time needed to set ip
             self.update_infos()
 
 
@@ -359,53 +387,33 @@ class BluetoothPanel(gtk.VBox):
                 found = True ## we've had no exception
             except:
                 found = False
-            print ("append: [%s,%s,%s]" % (string.strip().split("\t")[1], \
-                                        string.strip().split("\t")[0], found))
+
             self.list_store1.append((string.strip().split("\t")[1], \
                                         string.strip().split("\t")[0], found))
-
-    def ip_address_changed(self, string):
-        # print "output of get_ip_address: [%s]" % string
-        if len(string.split("inet addr:")) > 1:
-            self.address_label.set_text("Bluetooth Address: %s" % \
-                            string.split("inet addr:")[1].split(" ")[0].strip())
-
-
-    def bt_address_changed(self, string):
-        # print "output of get_address: [%s]" % string
-        if string.find("BD Address: "):
-            if len(string.split("BD Address: ")) > 1 and \
-                    len(string.split("BD Address: ")[1].split(" ")) > 1:
-                self.address = string.split("BD Address: ")[1].split(" ")[0]
-                self.ip_address_label.set_text("Address: %s" % \
-                                string.split("BD Address: ")[1].split(" ")[0])
-            else:
-                self.ip_address_label.set_text("Address: offline")
-        self.ip_address_label.set_text("Address: unknown")
-
 
 
 ################################################################################
 ####################### Interface to bluez tools ###############################
 ################################################################################
     def update_infos(self):
-        self.address_label.set_text("Bluetooth Address: %s" % self.get_address())
-        self.ip_address_label = gtk.Label("IP Address: %s" % self.get_ip_address())
+        self.name_label.set_text("Visible Name: %s" % self.get_name())
+        self.address_label.set_text("Address: %s" % self.get_address())
+        self.ip_address_label.set_text("IP: %s" % self.get_ip_address())
 
-    def get_ip_address(self):
-        if len(self.address) <= 0:
-            return "none"
-        else:    ## todo mind more than one device
-            ifconfig = ProcessInterface("ifconfig bnep0")
-            time.sleep(1)   ## wait for command to compute
-            output = ifconfig.read_from_process()
-            # print "output of get_ip_address: [%s]" % output
-            if len(output.split("inet addr:")) > 1:
-                return output.split("inet addr:")[1].split(" ")[0].strip()
+    def get_name(self):
+        hciconfig = ProcessInterface("hciconfig hci0 name")
+        while not hciconfig.process_finished():
+            time.sleep(0.1)   ## wait for command to compute
+        output = hciconfig.read_from_process()
+        if output.find("Name:") >= 0:
+            return output.split("Name:")[1].split("'")[1]
+        return "down"
+
 
     def get_address(self):
         hciconfig = ProcessInterface("%s %s" % (HCICONFIG_CMD, BLUETOOTH_DEVICE))
-        time.sleep(1)   ## wait for command to compute
+        while not hciconfig.process_finished():
+            time.sleep(0.1)   ## wait for command to compute
         output = hciconfig.read_from_process()
 
         # print "output of get_address: [%s]" % output
@@ -418,6 +426,19 @@ class BluetoothPanel(gtk.VBox):
             else:
                 return "offline"
         return "unknown"
+
+
+    def get_ip_address(self):
+        if len(self.address) <= 0:
+            return "none"
+        else:    ## todo mind more than one device
+            ifconfig = ProcessInterface("ifconfig bnep0")
+            while not ifconfig.process_finished():
+                time.sleep(0.1)   ## wait for command to compute
+            output = ifconfig.read_from_process()
+            # print "output of get_ip_address: [%s]" % output
+            if len(output.split("inet addr:")) > 1:
+                return output.split("inet addr:")[1].split(" ")[0].strip()
 
     def get_features(self):
         """using the hciconfig tool to get the list of supported features"""
