@@ -399,52 +399,54 @@ class pyPenNotes:
 
         data_file_name = os.path.expanduser(DATA_FILE)
 
-        if not os.path.exists(data_file_name):
-            print "No notebook file found - using an empty one."
-            return
-
-        file_fd = open(data_file_name, 'r')
-        try:
-            for line in file_fd.read().split('\n'):
-                comma_values = line.split(",")
-                if len(comma_values) >= 2:  ## at least 1 coord
-                    fg_color = int(comma_values[0])
-                    bg_color = int(comma_values[1])
-                    self.current_note.bg_color = bg_color
-                    thickness = int(comma_values[2].split(";")[0])
-                    if len(line.split(";")[1].rstrip()) <= 0:
-                        continue
-                    new_stroke = True
-                    for coord in line.split("; ")[1].split(" "):
-                        coords = coord.split(",")
-                        if len(coords) <= 1:
+        if os.path.exists(data_file_name):
+            file_fd = open(data_file_name, 'r')
+            try:
+                for line in file_fd.read().split('\n'):
+                    comma_values = line.split(",")
+                    if len(comma_values) >= 2:  ## at least 1 coord
+                        fg_color = int(comma_values[0])
+                        bg_color = int(comma_values[1])
+                        self.current_note.bg_color = bg_color
+                        thickness = int(comma_values[2].split(";")[0])
+                        if len(line.split(";")[1].rstrip()) <= 0:
                             continue
-                        ## first point
-                        if new_stroke:
-                            self.current_note.append_new_point((int(coords[0]), \
-                                                int(coords[1])), fg_color, thickness)
+                        new_stroke = True
+                        for coord in line.split("; ")[1].split(" "):
+                            coords = coord.split(",")
+                            if len(coords) <= 1:
+                                continue
+                            ## first point
+                            if new_stroke:
+                                self.current_note.append_new_point((int(coords[0]), \
+                                                    int(coords[1])), fg_color, thickness)
 
-#                        self.current_note.strokes_list.append(int(coords[0]), \
-#                                                                    int(coords[1])))
+#                            self.current_note.strokes_list.append(int(coords[0]), \
+#                                                                        int(coords[1])))
 
-                        self.current_note.append_point_to_stroke((int(coords[0]), \
-                                                int(coords[1])))
+                            self.current_note.append_point_to_stroke((int(coords[0]), \
+                                                    int(coords[1])))
 
-                        new_stroke = False
-                else:
-                    if len(line) >= 1:
-                        count += 1
-                        self.current_note = PenNote()
-                        self.pen_notes.append(self.current_note)
-        finally:
-            file_fd.close()
+                            new_stroke = False
+                    else:
+                        if len(line) >= 1:
+                            count += 1
+                            self.current_note = PenNote()
+                            self.pen_notes.append(self.current_note)
+            finally:
+                file_fd.close()
+        else:
+            print "No notebook file found - using an empty one."
+            count += 1
+            self.current_note = PenNote()
+            self.pen_notes.append(self.current_note)
 
         print "count: %s, current: %s" %(count, self.current_note_number)
         if count <= self.current_note_number:
-            print "Sorry there is no note %4.4d left bringing you to note 0001"
+            print "Sorry there is no note %4.4d left bringing you to note 0001" % (count + 1) # Count is zero-indexed, while what is displayed to the user is not
             self.current_note_number = 0
-            self.next_note(None)
-            self.prev_note(None)
+            self.next_note(None) # Update the note number box
+            self.prev_note(None) #
 
         self.current_note = self.pen_notes[self.current_note_number]
         self.redraw()
