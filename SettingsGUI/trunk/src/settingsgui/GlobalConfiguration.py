@@ -43,7 +43,7 @@ HCICONFIG_CMD = "hciconfig"             ## using $PATH
 #HCICONFIG_CMD = "/usr/sbin/hciconfig"  ## ubuntu
 HCITOOL_CMD = "hcitool"                 ## using $PATH
 BLUETOOTH_DEVICE = "hci0"
-BLUETOOTH_UPDATE_INTERVAL = 10          ## scan for Bluetooth Peers every 3 secs
+BLUETOOTH_UPDATE_INTERVAL = 10          ## scan for Bluetooth Peers every x secs
 BLUETOOTH_IP_MASK = "10.0.0."           ## last number will be added from BT-MAC
 
 
