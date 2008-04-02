@@ -2,7 +2,7 @@
 """
  * pyPenNotes.py - pyPenNotes - initialize GUI
  *
- * (C) 2007 by Kristian Mueller <kristian-m@kristian-m.de>
+ * (C) 2008 by Kristian Mueller <kristian-m@kristian-m.de>
  * All Rights Reserved
  *
  * This program is free software; you can redistribute it and/or modify
@@ -105,29 +105,27 @@ class pyPenNotes:
     ## asynchronous - so we can have a faster start up
     def create_window(self):
         vbox = gtk.VBox()
-        toolbar = gtk.Toolbar()
-        self.toolbar2 = gtk.Toolbar()
+        main_toolbar = gtk.Toolbar()
+        main_toolbar.set_style(gtk.TOOLBAR_ICONS);
+        self.sub_toolbar = gtk.Toolbar()
+        self.sub_toolbar.set_style(gtk.TOOLBAR_ICONS);
         self.area = gtk.DrawingArea()
-        self.area.set_size_request(400, 300)
-        self.pangolayout = self.area.create_pango_layout("")
-        self.sw = gtk.ScrolledWindow()
-        self.sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.sw.add_with_viewport(self.area)
         self.table = gtk.Table(2,2)
         self.hruler = gtk.HRuler()
         self.vruler = gtk.VRuler()
-        self.hruler.set_range(0, 400, 0, 400)
-        self.vruler.set_range(0, 300, 0, 300)
+        self.hruler.set_range(0, 400, 0, 400) #todo
+        self.vruler.set_range(0, 300, 0, 300) #todo
         self.table.attach(self.hruler, 1, 2, 0, 1, yoptions=0)
         self.table.attach(self.vruler, 0, 1, 1, 2, xoptions=0)
-        self.table.attach(self.sw, 1, 2, 1, 2)
+        self.table.attach(self.area, 1, 2, 1, 2)
 
         size_evnt_box = gtk.EventBox()
         self.size_number_entry = gtk.Label()
         size_evnt_box.add(self.size_number_entry)
         self.size_number_entry.set_text("%2.2dpx" % self.size_num)
         self.size_number_entry.modify_fg(gtk.STATE_NORMAL, \
-                    self.size_number_entry.get_colormap().alloc_color(COLOR_LIST[self.fg_color]))
+                    self.size_number_entry.get_colormap().alloc_color(\
+                                                    COLOR_LIST[self.fg_color]))
         self.size_number_entry.set_width_chars(4) # max: "99 px"
         size_evnt_box.set_events(gtk.gdk.BUTTON_PRESS_MASK)
         size_evnt_box.connect("button_press_event", self.fg_color_select)
@@ -146,60 +144,64 @@ class pyPenNotes:
         #######################################################################
         ## fill in toolbar items ##############################################
         #######################################################################
+        
+        def create_toolbutton(stock, callback, expand = False):
+            btn = gtk.ToolButton(stock);
+            btn.connect("clicked", callback);
+            if(expand):
+                btn.set_expand(True)
+            return btn
+
         ## size <
-        toolbar.insert(self.create_toolbar_item("", "gtk-media-play-ltr", \
-                                                            self.prev_size), 0)
+        main_toolbar.insert(create_toolbutton("gtk-go-back", self.prev_size), -1)
         ## size ??px
         size_item = gtk.ToolItem()
         size_item.add(size_evnt_box)
-        toolbar.insert(size_item, 1)
+        main_toolbar.insert(size_item, -1)
         ## size >
-        toolbar.insert(self.create_toolbar_item("", "gtk-media-play-rtl", self.next_size), 2)
-        toolbar.insert(gtk.SeparatorToolItem(), 3)
+        main_toolbar.insert(create_toolbutton("gtk-go-forward", self.next_size), -1)
+        main_toolbar.insert(gtk.SeparatorToolItem(), -1)
+
         ## cls
-        more_item = self.create_toolbar_item("", "gtk-go-down", self.more_options, type="toggle")
-        more_item.set_expand(True)
-        toolbar.insert(more_item, 4)
-        toolbar.insert(gtk.SeparatorToolItem(), 5)
+        self.more_btn = gtk.ToggleToolButton("gtk-go-down");
+        self.more_btn.connect("toggled", self.more_options);
+        self.more_btn.set_expand(True);
+        main_toolbar.insert(self.more_btn, -1)
+        
+        main_toolbar.insert(gtk.SeparatorToolItem(), -1)
+
         ## note <
-        toolbar.insert(self.create_toolbar_item("", "gtk-media-play-ltr", self.prev_note), 6)
+        main_toolbar.insert(create_toolbutton("gtk-go-back", self.prev_note), -1)
         ## note ????
         note_item = gtk.ToolItem()
         note_item.add(note_evnt_box)
-        toolbar.insert(note_item, 7)
+        main_toolbar.insert(note_item, -1)
         ## note >
-        toolbar.insert(self.create_toolbar_item("", "gtk-media-play-rtl", self.next_note), 8)
-
-        clear_item = self.create_toolbar_item("", "gtk-clear", self.clear_note)
-        clear_item.set_expand(True)
-        self.toolbar2.insert(clear_item, 0)
-        
-        undo_item = self.create_toolbar_item("", "gtk-undo-ltr", self.undo)
-        undo_item.set_expand(True)
-        self.toolbar2.insert(undo_item, 1)
-        
-        undo_item = self.create_toolbar_item("", "gtk-revert-to-saved-ltr", self.print_list_sub_number)
-#        undo_item = self.create_toolbar_item("", "gtk-revert-to-saved-ltr", self.load)
-        undo_item.set_expand(True)
-        self.toolbar2.insert(undo_item, 2)
-        
-        undo_item = self.create_toolbar_item("", "gtk-revert-to-saved-ltr", self.print_list_number)
-#        undo_item = self.create_toolbar_item("", "gtk-revert-to-saved-ltr", self.load)
-        undo_item.set_expand(True)
-        self.toolbar2.insert(undo_item, 2)
-
-        
-        undo_item = self.create_toolbar_item("", "gtk-save", self.save)
-        undo_item.set_expand(True)
-        self.toolbar2.insert(undo_item, 3)
-        
-        quit_item = self.create_toolbar_item("", "gtk-quit", self.end_program)
-        quit_item.set_expand(True)
-        self.toolbar2.insert(quit_item, 4)
+        main_toolbar.insert(create_toolbutton("gtk-go-forward", self.next_note), -1)
 
 
-        vbox.pack_start(toolbar, False, False, 0)
-        vbox.pack_start(self.toolbar2, False, False, 0)
+        # Fill in the sub toolbar:
+        
+        # Clear
+        self.sub_toolbar.insert(create_toolbutton("gtk-clear", self.clear_note, True), -1)
+        # Undo
+        self.sub_toolbar.insert(create_toolbutton("gtk-undo", self.undo, True), -1)
+        # Revert to saved
+        self.sub_toolbar.insert(create_toolbutton("gtk-revert-to-saved", self.load, True), -1)
+        # Save
+        self.sub_toolbar.insert(create_toolbutton("gtk-save",self.save, True),-1)
+        # Quit
+        self.sub_toolbar.insert(create_toolbutton("gtk-quit", self.end_program, True), -1)
+        
+        #Experimental:
+#        self.sub_toolbar.insert(create_toolbutton(\
+#              "gtk-revert-to-saved-ltr", self.print_list_sub_number, True), -1)
+#        self.sub_toolbar.insert(create_toolbutton(\
+#                  "gtk-revert-to-saved-ltr", self.print_list_number, True), -1)
+
+
+        vbox.pack_start(main_toolbar, False, False, 0)
+        vbox.pack_start(self.sub_toolbar, False, False, 0)
         vbox.add(self.table);
         self.window.add(vbox)
         self.area.set_events(gtk.gdk.POINTER_MOTION_MASK |
@@ -212,10 +214,12 @@ class pyPenNotes:
         def add_pixel(widget, event):
             if self.clicked:
                 pos = widget.get_pointer()
-                # print "blub <%s/%s>" % (widget.get_pointer()[0], widget.get_pointer()[1])
+                # print "blub <%s/%s>" % (widget.get_pointer()[0], \
+                #                                    widget.get_pointer()[1])
                 backup_fb = self.gc.foreground
                 try:
-                    self.gc.foreground = widget.window.get_colormap().alloc_color(COLOR_LIST[self.fg_color])
+                    self.gc.foreground = widget.window.get_colormap().alloc_color(\
+                                                    COLOR_LIST[self.fg_color])
 
                     if self.last == (0, 0):
                         self.last = pos
@@ -252,21 +256,6 @@ class pyPenNotes:
         self.area.connect("button-release-event", unclick)
         self.area.connect("motion-notify-event", add_pixel)
 
-
-        self.hadj = self.sw.get_hadjustment()
-        self.vadj = self.sw.get_vadjustment()
-        def val_cb(adj, ruler, horiz):
-            if horiz:
-                span = self.sw.get_allocation()[3]
-            else:
-                span = self.sw.get_allocation()[2]
-            l,u,p,m = ruler.get_range()
-            v = adj.value
-            ruler.set_range(v, v+span, p, m)
-            while gtk.events_pending():
-                gtk.main_iteration()
-        self.hadj.connect('value-changed', val_cb, self.hruler, True)
-        self.vadj.connect('value-changed', val_cb, self.vruler, False)
         def size_allocate_cb(wid, allocation):
             x, y, w, h = allocation
             l,u,p,m = self.hruler.get_range()
@@ -275,9 +264,12 @@ class pyPenNotes:
             l,u,p,m = self.vruler.get_range()
             m = max(m, h)
             self.vruler.set_range(l, l+h, p, m)
-        self.sw.connect('size-allocate', size_allocate_cb)
+        self.area.connect('size-allocate', size_allocate_cb)
         self.window.show_all()
-        self.toolbar2.hide()    ## Hide to make space on screen
+        self.sub_toolbar.hide()    ## Hide to make space on screen
+        self.hruler.hide()
+        self.vruler.hide()
+
 
         ## lets update the screen so our load can redraw to something
         self.area_expose_cb(self.area, None)
@@ -291,25 +283,8 @@ class pyPenNotes:
         self.save(None)
         gtk.main_quit()
         return False
-
-
-    ###########################################################################
-    ## GUI Helper     #########################################################
-    ###########################################################################
-    def create_toolbar_item(self, text, icon, callback, type = "tool"):
-        btn_image = gtk.Image()
-        btn_image.set_from_icon_name(icon, gtk.ICON_SIZE_SMALL_TOOLBAR)
-        if type == "toggle":
-            btn = gtk.ToggleButton("V")
-            self.more_btn = btn
-        else:
-            btn = gtk.ToolButton(btn_image, text)
-        btn.connect("clicked", callback)
-        item = gtk.ToolItem()
-        item.add(btn)
-        return item
-
-
+        
+        
     ###########################################################################
     ## callbacks    ###########################################################
     ###########################################################################
@@ -319,12 +294,14 @@ class pyPenNotes:
         for i in range(len(self.pen_notes)):
             for j in range(len(self.pen_notes)):
                 print ""
-                notesList.pearson_correlation(self.pen_notes, i, j, "number", "sub_number")
+                notesList.pearson_correlation(self.pen_notes, i, j, "number", \
+                                                                "sub_number")
         #notesList.pearson_corr(self.pen_notes, 0, 1, "number")
 
     ## debug correlation of notes list 
     def print_list_sub_number(self, event):
-        notesList.pearson_correlation(self.pen_notes, 0, 1, "sub_number", "number")
+        notesList.pearson_correlation(self.pen_notes, 0, 1, "sub_number", \
+                                                                    "number")
         #notesList.pearson_corr(self.pen_notes, 0, 1, "sub_number")
 
     ## change brush size--
@@ -348,7 +325,7 @@ class pyPenNotes:
     def prev_note(self, event):
         if self.current_note_number > 0:
             self.current_note_number -= 1
-            self.note_number_entry.set_text("%4.4d" % (self.current_note_number+1))
+            self.note_number_entry.set_text("%4.4d"%(self.current_note_number+1))
             self.current_note = self.pen_notes[self.current_note_number]
             self.redraw()
 
@@ -367,12 +344,15 @@ class pyPenNotes:
 
     ## show more options (a second toolbar)
     def more_options(self, event):
-        self.more_btn.toggled()
         if self.more_options_visible:
-            self.toolbar2.hide()
+            self.sub_toolbar.hide()
+            self.hruler.hide()
+            self.vruler.hide()
             self.more_options_visible = False
         else:
-            self.toolbar2.show()
+            self.sub_toolbar.show()
+            self.hruler.show()
+            self.vruler.show()
             self.more_options_visible = True
 
     def undo(self, event):
@@ -418,14 +398,15 @@ class pyPenNotes:
                                 continue
                             ## first point
                             if new_stroke:
-                                self.current_note.append_new_point((int(coords[0]), \
-                                                    int(coords[1])), fg_color, thickness)
+                                self.current_note.append_new_point(\
+                                                            (int(coords[0]), \
+                                        int(coords[1])), fg_color, thickness)
 
-#                            self.current_note.strokes_list.append(int(coords[0]), \
-#                                                                        int(coords[1])))
+#                            self.current_note.strokes_list.append(\
+#                                               int(coords[0]), int(coords[1])))
 
-                            self.current_note.append_point_to_stroke((int(coords[0]), \
-                                                    int(coords[1])))
+                            self.current_note.append_point_to_stroke(\
+                                            (int(coords[0]), int(coords[1])))
 
                             new_stroke = False
                     else:
@@ -443,7 +424,9 @@ class pyPenNotes:
 
         print "count: %s, current: %s" %(count, self.current_note_number)
         if count <= self.current_note_number:
-            print "Sorry there is no note %4.4d left bringing you to note 0001" % (count + 1) # Count is zero-indexed, while what is displayed to the user is not
+            print "Sorry there is no note %4.4d left bringing you to note 0001"\
+                                                                % (count + 1) 
+            # Count is zero-indexed, while what is displayed to the user is not
             self.current_note_number = 0
             self.next_note(None) # Update the note number box
             self.prev_note(None) #
@@ -558,7 +541,7 @@ class pyPenNotes:
 
 
 def main():
-    gobject.timeout_add(500, pyPenNotes.update_ui, py_pen_notes) # every 1/2 second
+    gobject.timeout_add(500, pyPenNotes.update_ui, py_pen_notes) # every 1/2 sec
     try:
         if gtk.gtk_version[0] == 2:
             gtk.gdk.threads_init()
