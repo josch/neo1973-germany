@@ -126,7 +126,7 @@ class BluetoothPanel(gtk.VBox):
         ## Power State of Bluetooth Module
         cell_frame = gtk.Frame("Bluetooth State")
         upper_box = gtk.HBox()
-        upper_box.set_border_width(10)
+        upper_box.set_border_width(5)
 
         # power 
         self.power_state_cbtn = gtk.CheckButton("Powered")
