@@ -401,7 +401,7 @@ class BluetoothPanel(gtk.VBox):
         self.ip_address_label.set_text("IP: %s" % self.get_ip_address())
 
     def get_name(self):
-        hciconfig = ProcessInterface("hciconfig hci0 name")
+        hciconfig = ProcessInterface("%s hci0 name" % HCICONFIG_CMD) 
         while not hciconfig.process_finished():
             time.sleep(0.1)   ## wait for command to compute
         output = hciconfig.read_from_process()
