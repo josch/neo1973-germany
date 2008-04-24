@@ -21,77 +21,32 @@
 """
 import gtk
 import gobject ## for multithreading
-import sys ## exit
-import os ## file handling
 
 import notesList
+from UserDrawingArea import UserDrawingArea
+import SaveRestore
 
-COLOR_LIST = ["#0000FF", "#FF0000", "#00FF00", "#FFFF00", "#FFFFFF", "#000000"]
+COLOR_LIST = ["#00000000ffff", "#ffff00000000", "#0000ffff0000", "#ffffffff0000", "#ffffffffffff", "#000000000000"]
 DEFAULT_BG = 5 ## Black
 DEFAULT_FG = 0 ## Blue
 DEFAULT_SIZE = 4 ## Diameter 4 Pixel
 DATA_FILE = "~/.penNotes.strokes_data"
-
-## A note is defined by its strokes a background and the line thickness.
-## Strokes of the same color and thickness are combined in a strokes_list.
-## The order of strokes will stay the same.
-class PenNote:
-    def __init__(self):
-        self.bg_color = DEFAULT_BG
-        self.last_fg_color = 0
-        self.last_line_thickness = DEFAULT_SIZE
-        self.last_stroke = (0, 0)
-        self.strokes_list = []   # current list of strokes from 
-                                 # the same color or thickness
-                                 # strokes are tuples of src and dest
-        self.image_list = []     # list of (color, thickness, strokes_list)
-        self.image_list.append((self.last_fg_color, self.last_line_thickness,
-                                                            self.strokes_list))
-
-    def add_stroke(self, src, dest, color, line_thickness):
-        if (color != self.last_fg_color) or \
-                (self.last_line_thickness != line_thickness) \
-                or self.last_stroke != src:
-            self.strokes_list = []
-            self.strokes_list.append((src[0], src[1]))
-            self.image_list.append((color, line_thickness, self.strokes_list))
-            self.last_fg_color = color
-            self.last_line_thickness = line_thickness
-
-        self.strokes_list.append((dest[0], dest[1]))
-        self.last_stroke = dest
-
-    def append_point_to_stroke(self, coord):
-        self.strokes_list.append(coord)
-
-    def append_new_point(self, coord, color, thickness):
-        self.strokes_list = []
-        self.strokes_list.append(coord)
-        self.image_list.append((color, thickness, self.strokes_list))
-        self.last_fg_color = color
-        self.last_line_thickness = thickness
-
-    def clear(self):
-        self.__init__()
+QUALITY_LOSS = 5 ## Quality loss when removing unneeded points. Measured in pixels.
 
 class pyPenNotes:
     ## init the class
     def __init__(self):
         self.state = "pre-init"
         self.current_note_number = 0
-        self.size_num = DEFAULT_SIZE
-        self.fg_color = DEFAULT_FG
-        self.bg_color = DEFAULT_BG
-        self.pen_notes = []
-        self.current_note = PenNote()
-        self.pen_notes.append(self.current_note)
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_default_size(480, 640)
         self.window.set_title("pyPenNotes")
-        self.window.connect("destroy", lambda w: gtk.main_quit())
+        self.window.connect("destroy", self.end_program)
         self.window.show()
         self.more_options_visible = False
         self.state = "init-done"
+        self.save_restore = SaveRestore.BasicFile(DATA_FILE)
+        self.save_restore.quality_loss = QUALITY_LOSS
 
     def update_ui(self):
         if self.state == "init-done":
@@ -109,7 +64,8 @@ class pyPenNotes:
         main_toolbar.set_style(gtk.TOOLBAR_ICONS);
         self.sub_toolbar = gtk.Toolbar()
         self.sub_toolbar.set_style(gtk.TOOLBAR_ICONS);
-        self.area = gtk.DrawingArea()
+        self.area = UserDrawingArea()
+        self.area.line_width = DEFAULT_SIZE
         self.table = gtk.Table(2,2)
         self.hruler = gtk.HRuler()
         self.vruler = gtk.VRuler()
@@ -122,10 +78,10 @@ class pyPenNotes:
         size_evnt_box = gtk.EventBox()
         self.size_number_entry = gtk.Label()
         size_evnt_box.add(self.size_number_entry)
-        self.size_number_entry.set_text("%2.2dpx" % self.size_num)
+        self.size_number_entry.set_text("%2.2dpx" % DEFAULT_SIZE)
         self.size_number_entry.modify_fg(gtk.STATE_NORMAL, \
                     self.size_number_entry.get_colormap().alloc_color(\
-                                                    COLOR_LIST[self.fg_color]))
+                                                    COLOR_LIST[DEFAULT_FG]))
         self.size_number_entry.set_width_chars(4) # max: "99 px"
         size_evnt_box.set_events(gtk.gdk.BUTTON_PRESS_MASK)
         size_evnt_box.connect("button_press_event", self.fg_color_select)
@@ -136,7 +92,7 @@ class pyPenNotes:
         self.note_number_entry.set_text("%4.4d" % (self.current_note_number+1))
         self.note_number_entry.modify_fg(gtk.STATE_NORMAL, \
                                     self.size_number_entry.get_colormap().\
-                                    alloc_color(COLOR_LIST[self.bg_color]))
+                                    alloc_color(COLOR_LIST[DEFAULT_BG]))
         self.note_number_entry.set_width_chars(4)
         note_evnt_box.set_events(gtk.gdk.BUTTON_PRESS_MASK)
         note_evnt_box.connect("button_press_event", self.bg_color_select)
@@ -187,9 +143,9 @@ class pyPenNotes:
         # Undo
         self.sub_toolbar.insert(create_toolbutton("gtk-undo", self.undo, True), -1)
         # Revert to saved
-        self.sub_toolbar.insert(create_toolbutton("gtk-revert-to-saved", self.load, True), -1)
+        self.sub_toolbar.insert(create_toolbutton("gtk-revert-to-saved", self.revert_to_saved, True), -1)
         # Save
-        self.sub_toolbar.insert(create_toolbutton("gtk-save",self.save, True),-1)
+        self.sub_toolbar.insert(create_toolbutton("gtk-save", self.save, True),-1)
         # Quit
         self.sub_toolbar.insert(create_toolbutton("gtk-quit", self.end_program, True), -1)
         
@@ -204,57 +160,14 @@ class pyPenNotes:
         vbox.pack_start(self.sub_toolbar, False, False, 0)
         vbox.add(self.table);
         self.window.add(vbox)
-        self.area.set_events(gtk.gdk.POINTER_MOTION_MASK |
-                             gtk.gdk.POINTER_MOTION_HINT_MASK )
-        self.area.connect("expose-event", self.area_expose_cb)
-
         def motion_notify(ruler, event):
             return ruler.emit("motion_notify_event", event)
-
-        def add_pixel(widget, event):
-            if self.clicked:
-                pos = widget.get_pointer()
-                # print "blub <%s/%s>" % (widget.get_pointer()[0], \
-                #                                    widget.get_pointer()[1])
-                backup_fb = self.gc.foreground
-                try:
-                    self.gc.foreground = widget.window.get_colormap().alloc_color(\
-                                                    COLOR_LIST[self.fg_color])
-
-                    if self.last == (0, 0):
-                        self.last = pos
-                    self.gc.set_line_attributes(self.size_num, \
-                            gtk.gdk.LINE_SOLID, gtk.gdk.CAP_ROUND, \
-                            gtk.gdk.CAP_ROUND)
-                    widget.window.draw_line(self.gc, self.last[0], \
-                            self.last[1], pos[0], pos[1])
-                finally:
-                    self.gc.foreground = backup_fb
-                self.current_note.add_stroke((self.last[0], self.last[1]),
-                                (pos[0], pos[1]), self.fg_color, self.size_num)
-                self.last = pos
-
+        self.area.add_events(gtk.gdk.POINTER_MOTION_MASK |
+                             gtk.gdk.POINTER_MOTION_HINT_MASK )
         self.area.connect_object("motion_notify_event", motion_notify,
                                  self.hruler)
         self.area.connect_object("motion_notify_event", motion_notify,
                                  self.vruler)
-
-        self.clicked = False
-        self.last = (0, 0)
-        def click(widget, event):
-            self.clicked = True
-            add_pixel(widget, event)
-
-        def unclick(widget, event):
-            self.last = (0, 0);
-            self.clicked = False
-
-        self.area.add_events(gtk.gdk.BUTTON_MOTION_MASK | \
-            gtk.gdk.BUTTON_PRESS_MASK | \
-            gtk.gdk.BUTTON_RELEASE_MASK)
-        self.area.connect("button-press-event", click)
-        self.area.connect("button-release-event", unclick)
-        self.area.connect("motion-notify-event", add_pixel)
 
         def size_allocate_cb(wid, allocation):
             x, y, w, h = allocation
@@ -270,19 +183,8 @@ class pyPenNotes:
         self.hruler.hide()
         self.vruler.hide()
 
+        self.update_area()
 
-        ## lets update the screen so our load can redraw to something
-        self.area_expose_cb(self.area, None)
-        self.load(None)
-
-
-    ###########################################################################
-    ## GTK stuff ##############################################################
-    ###########################################################################
-    def delete_event(self, widget, event, data=None):
-        self.save(None)
-        gtk.main_quit()
-        return False
         
         
     ###########################################################################
@@ -306,44 +208,52 @@ class pyPenNotes:
 
     ## change brush size--
     def prev_size(self, event):
-        self.size_num /= 2
-        if self.size_num <= 0:
-            self.size_num = 1
-        self.size_number_entry.set_text("%2.2d px" % self.size_num)
+        self.area.line_width /= 2
+        if self.area.line_width <= 0:
+            self.area.line_width = 1
+        self.size_number_entry.set_text("%2.2d px" % self.area.line_width)
 
 
     ## change brush size++
     def next_size(self, event):
-        self.size_num *= 2
-        if self.size_num > 99:
-            self.size_num = 99
-        self.size_number_entry.set_text("%2.2d px" % self.size_num)
+        self.area.line_width *= 2
+        if self.area.line_width > 99:
+            self.area.line_width = 99
+        self.size_number_entry.set_text("%2.2d px" % self.area.line_width)
 
+    def load_changes_from_area(self):
+        """Load changes made to the area, so that they can be saved."""
+        self.save_restore.set_note(self.current_note_number, \
+            SaveRestore.PenNote(self.area.get_bg_color(), self.area.get_strokes()))
+    
+    def update_area(self):
+        """Load notes with self.current_note_number and display them on the UserDrawingArea"""
+        note = self.save_restore.get_note(self.current_note_number)
+        self.area.set_bg_color(note.bg_color)
+        self.area.set_strokes(note.strokes)
+        
+        self.note_number_entry.modify_fg(gtk.STATE_NORMAL, \
+                                self.size_number_entry.get_colormap().\
+                                alloc_color(self.area.get_bg_color()))
 
-
-    ## prev note
     def prev_note(self, event):
+        """Select the previous note."""
+        self.load_changes_from_area()
         if self.current_note_number > 0:
             self.current_note_number -= 1
             self.note_number_entry.set_text("%4.4d"%(self.current_note_number+1))
-            self.current_note = self.pen_notes[self.current_note_number]
-            self.redraw()
-
-    ## new or next note
+        self.update_area()
+         
     def next_note(self, event):
+        """Select the next or a new note."""
+        self.load_changes_from_area()
         self.current_note_number += 1
         self.note_number_entry.set_text("%4.4d" % (self.current_note_number+1))
-        if len(self.pen_notes) <= self.current_note_number:
-            print "creating a new Note..."
-            self.current_note = PenNote()
-            self.current_note.bg_color = self.bg_color
-            self.pen_notes.append(self.current_note)
-        self.current_note = self.pen_notes[self.current_note_number]
-        self.redraw()
+        self.update_area()
 
 
-    ## show more options (a second toolbar)
     def more_options(self, event):
+        """Show more options. (A second toolbar and the rulers.)"""
         if self.more_options_visible:
             self.sub_toolbar.hide()
             self.hruler.hide()
@@ -356,107 +266,19 @@ class pyPenNotes:
             self.more_options_visible = True
 
     def undo(self, event):
-        if len(self.current_note.image_list) >= 1:
-            self.current_note.image_list.pop()
-            self.redraw()
+        self.area.undo()
+    
+    def revert_to_saved(self, event):
+        self.save_restore.revert_changes()
+        self.update_area()
+    
+    def save(self, event):
+        self.load_changes_from_area()
+        self.save_restore.save()
 
     def end_program(self, event):
         self.save(None)
-        sys.exit()
-
-    ###########################################################################
-    ## save and restore - as kind-of-CSV-file #################################
-    ###########################################################################
-
-
-    ## load from file - format is:
-    ## fg, bg, thickness; x,y x,y x,y
-    ## every line not containing at last two ',' declare a new note
-    def load(self, event):
-        ## throw away the old stuff :-(
-        self.pen_notes = []
-        count = 0 
-
-        data_file_name = os.path.expanduser(DATA_FILE)
-
-        if os.path.exists(data_file_name):
-            file_fd = open(data_file_name, 'r')
-            try:
-                for line in file_fd.read().split('\n'):
-                    comma_values = line.split(",")
-                    if len(comma_values) >= 2:  ## at least 1 coord
-                        fg_color = int(comma_values[0])
-                        bg_color = int(comma_values[1])
-                        self.current_note.bg_color = bg_color
-                        thickness = int(comma_values[2].split(";")[0])
-                        if len(line.split(";")[1].rstrip()) <= 0:
-                            continue
-                        new_stroke = True
-                        for coord in line.split("; ")[1].split(" "):
-                            coords = coord.split(",")
-                            if len(coords) <= 1:
-                                continue
-                            ## first point
-                            if new_stroke:
-                                self.current_note.append_new_point(\
-                                                            (int(coords[0]), \
-                                        int(coords[1])), fg_color, thickness)
-
-#                            self.current_note.strokes_list.append(\
-#                                               int(coords[0]), int(coords[1])))
-
-                            self.current_note.append_point_to_stroke(\
-                                            (int(coords[0]), int(coords[1])))
-
-                            new_stroke = False
-                    else:
-                        if len(line) >= 1:
-                            count += 1
-                            self.current_note = PenNote()
-                            self.pen_notes.append(self.current_note)
-            finally:
-                file_fd.close()
-        else:
-            print "No notebook file found - using an empty one."
-            count += 1
-            self.current_note = PenNote()
-            self.pen_notes.append(self.current_note)
-
-        print "count: %s, current: %s" %(count, self.current_note_number)
-        if count <= self.current_note_number:
-            print "Sorry there is no note %4.4d left bringing you to note 0001"\
-                                                                % (count + 1) 
-            # Count is zero-indexed, while what is displayed to the user is not
-            self.current_note_number = 0
-            self.next_note(None) # Update the note number box
-            self.prev_note(None) #
-
-        self.current_note = self.pen_notes[self.current_note_number]
-        self.redraw()
-
-    ## save to file - format is:
-    ## fg, bg, thickness; x,y x,y x,y
-    def save(self, event):
-        file_fd = open(os.path.expanduser(DATA_FILE), 'w')
-        count = 0
-
-        for note in self.pen_notes:
-            bg_color = note.bg_color
-            count += 1
-            file_fd.write("Note %4.4d\n" %count)
-
-            for piece in note.image_list:
-                fg_color = piece[0]
-                thickness = piece[1]
-                line = "%d, %d, %d; " %(fg_color, bg_color, thickness)
-                if len(piece[2]) >= 1:
-                    for coord in piece[2]:
-                        line += "%d,%d " % coord
-                file_fd.write("%s\n" %line)
-
-
-
-
+        gtk.main_quit()
 
 
 
@@ -466,78 +288,32 @@ class pyPenNotes:
 
     ## increment foreground color - select new pen color
     def fg_color_select(self, event, blub):
-        self.fg_color += 1
-        if self.fg_color >= len(COLOR_LIST):
-            self.fg_color = 0   ## cycle around
+        index = COLOR_LIST.index(self.area.get_fg_color())
+        index += 1
+        if index >= len(COLOR_LIST):
+            index = 0   ## cycle around
+        self.area.set_fg_color(COLOR_LIST[index]);
         self.size_number_entry.modify_fg(gtk.STATE_NORMAL, \
                                         self.size_number_entry.get_colormap().\
-                                        alloc_color(COLOR_LIST[self.fg_color]))
+                                        alloc_color(COLOR_LIST[index]))
 
 
-    ## increment background color and redraw screen using the new one
+    ## increment background color
     def bg_color_select(self, event, blub):
-        self.bg_color += 1
-        if self.bg_color >= len(COLOR_LIST):
-            self.bg_color = 0   ## cycle around
+        index = COLOR_LIST.index(self.area.get_bg_color())
+        index += 1
+        if index >= len(COLOR_LIST):
+            index = 0   ## cycle around
+        self.area.set_bg_color(COLOR_LIST[index]);
         ## show color as fontcolor for note number
         self.note_number_entry.modify_fg(gtk.STATE_NORMAL, \
                                 self.size_number_entry.get_colormap().\
-                                alloc_color(COLOR_LIST[self.bg_color]))
-        self.current_note.bg_color = self.bg_color
-        self.redraw()
-
-
-    ## overdraw the screen using background color
-    def clear_draw_screen(self, event):
-        fg_backup = self.gc.foreground
-        self.gc.foreground = self.area.window.get_colormap()\
-                        .alloc_color(COLOR_LIST[self.current_note.bg_color])
-        self.area.window.draw_rectangle(self.gc, True, 0, 0, -1, -1)
-        self.gc.foreground = fg_backup
+                                alloc_color(COLOR_LIST[index]))
 
 
     ## trow away the content of the note
     def clear_note(self, event):
-        self.current_note.clear()
-        self.current_note.bg_color = self.bg_color
-        self.redraw()
-
-
-    ## redraw screen using the notes content
-    def redraw(self):
-        ## step 1 - clear screen <-- will cause a flicker!
-        bg = self.current_note.bg_color
-        self.clear_draw_screen(None)
-
-        fg_backup = self.gc.foreground
-        self.gc.foreground = self.area.window.get_colormap().\
-                                                    alloc_color(COLOR_LIST[bg])
-        self.gc.foreground = fg_backup
-
-        ## step 2 - paint all pieces of the same color
-        for piece in self.current_note.image_list:
-            color = piece[0]
-            line_thickness = piece[1]
-            ## step 3 - draw all lines of one color
-            if len(piece[2]) >= 1:
-                fg_backup = self.gc.foreground
-                self.gc.foreground = self.area.window.get_colormap().\
-                                                alloc_color(COLOR_LIST[color])
-                self.gc.set_line_attributes(line_thickness, \
-                                gtk.gdk.LINE_SOLID, gtk.gdk.CAP_ROUND, \
-                                gtk.gdk.CAP_ROUND)
-                self.area.window.draw_lines(self.gc, piece[2])
-                self.gc.foreground = fg_backup
-
-
-    ## is called when ever a redraw is needed
-    def area_expose_cb(self, area, event):
-        self.style = self.area.get_style()
-        self.gc = self.style.fg_gc[gtk.STATE_NORMAL]
-        self.redraw()
-        #self.gc.set_background(gtk.gdk.color_parse("#000000"))
-        #self.gc.set_foreground(gtk.gdk.color_parse("#FFFFFF"))
-        return True
+        self.area.clear()
 
 
 def main():

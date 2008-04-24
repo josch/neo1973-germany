@@ -30,5 +30,5 @@ setup(name='pyPenNotes',
         url='http://wiki.openmoko.org/wiki/PyPenNotes',
         version='0.3b',
         license='GPL_v2',
-        scripts=['pyPenNotes.py'],
+        scripts=['pyPenNotes.py', 'SaveRestore.py', 'UserDrawingArea.py'],
     )
