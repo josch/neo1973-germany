@@ -39,16 +39,16 @@ window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 window.set_title("2D Slider Test Program")
 window.connect("delete_event", delete_event)
 window.set_border_width(0)
-window.set_default_size(450, 335)
+window.set_default_size(450, 200)
 
 value_x_label = gtk.Label("Value X: none")
 value_y_label = gtk.Label("Value Y: none")
 
 init_box = gtk.VBox()
-init_box.set_border_width(35)
+init_box.set_border_width(10)
 
 slider_2d = slider_2d.slider_2d(\
-                    x_range = (0, 20), y_range = (0, 15))
+                    x_range = (0, 30), y_range = (0, 10))
 
 slider_2d.connect('x_value_changed_event', x_changed_callback)
 slider_2d.connect('y_value_changed_event', y_changed_callback)
