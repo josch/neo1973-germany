@@ -1,6 +1,6 @@
 """
- * 2d_slider.py - Project TVMagnet 
- *  - widget to allow for 2D selection of values
+ * 2d_slider.py
+ *  widget to allow for 2D selection of values
  *
  * (C) 2008 by Kristian Mueller <kristian-m@kristian-m.de>
  * All Rights Reserved
@@ -23,7 +23,7 @@
 import os
 import gtk
 
-IMAGE_DIRECTORY = os.path.join(os.path.realpath(os.path.curdir), "../images")
+IMAGE_DIRECTORY = os.path.join(os.path.realpath(os.path.curdir), "./")
 POINT_IMAGE = os.path.join(IMAGE_DIRECTORY, "point.png")
 POINT_INV_IMAGE = os.path.join(IMAGE_DIRECTORY, "point_inv.png")
 IMAGE_SIZE_X = 10

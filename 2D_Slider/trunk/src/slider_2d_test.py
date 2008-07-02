@@ -1,6 +1,6 @@
 """
- * 2d_slider_test.py - Project TVMagnet 
- *  test 2D slider widget
+ * 2d_slider_test.py
+ *  2D slider widget - test program
  *
  * (C) 2008 by Kristian Mueller <kristian-m@kristian-m.de>
  * All Rights Reserved
@@ -21,7 +21,7 @@
 """
 
 import gtk
-import playlistmanager.slider_2d
+import slider_2d
 
 def delete_event(widget, event, data=None):
     print("closing")
@@ -47,7 +47,7 @@ value_y_label = gtk.Label("Value Y: none")
 init_box = gtk.VBox()
 init_box.set_border_width(35)
 
-slider_2d = playlistmanager.slider_2d.slider_2d(\
+slider_2d = slider_2d.slider_2d(\
                     x_range = (0, 20), y_range = (0, 15))
 
 slider_2d.connect('x_value_changed_event', x_changed_callback)
@@ -61,6 +61,3 @@ window.add(init_box)
 window.show_all()
 
 gtk.main()
-
-
-
