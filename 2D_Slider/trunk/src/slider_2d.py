@@ -46,6 +46,9 @@ class slider_2d(gtk.HBox):
         self.bg_color = bg_color
         self.fg_color = fg_color
 
+        self.mark_color = "#AAAAAA"
+        self.hover_color = "#555588"
+
         self.x_value = int(x_range[1] - x_range[0] / 2)
         self.y_value = int(x_range[1] - x_range[0] / 2)
         self.mouse_x_position = -1
@@ -53,7 +56,7 @@ class slider_2d(gtk.HBox):
         self.clicked = False
 
         self.area = gtk.DrawingArea()
-        self.area.set_size_request(400, 300)
+        # self.area.set_size_request(400, 300)
         style = self.area.get_style()
         self.gc = style.fg_gc[gtk.STATE_NORMAL]
         self.area.set_events(gtk.gdk.POINTER_MOTION_MASK |
@@ -201,28 +204,77 @@ class slider_2d(gtk.HBox):
             # 1) clear screen
             self.area.window.draw_rectangle(self.gc, True, 0, 0, -1, -1)
             self.gc.foreground = fg_backup
-
-            backup_fb = self.gc.foreground
-            try:
-                self.gc.foreground = self.area.window.get_colormap()\
-                                                .alloc_color(self.fg_color)
-                self.gc.set_line_attributes(1, \
-                        gtk.gdk.LINE_SOLID, gtk.gdk.CAP_ROUND, \
-                        gtk.gdk.CAP_ROUND)
-
-                # 2) draw grid
-                x_max = self.width * 1.0 -1
-                y_max = self.height * 1.0 -1
-                x_spacing = x_max / self.x_resolution
-                y_spacing = y_max / self.y_resolution
-                for i in range(self.x_resolution+2):
-                    self.area.window.draw_line(self.gc, int(x_spacing * i), 0, int(x_spacing * i), int(y_max))
-
-                for i in range(self.y_resolution+2):
-                    self.area.window.draw_line(self.gc, 0, int(y_spacing * i), int(x_max), int(y_spacing * i))
-            finally:
-                self.gc.foreground = backup_fb
+            self.draw_grid()
             self.show_point(self.x_value, self.y_value)
+
+
+    def draw_grid(self):
+        backup_fb = self.gc.foreground
+        try:
+            self.set_color(self.fg_color)
+            self.gc.set_line_attributes(1, \
+                    gtk.gdk.LINE_SOLID, gtk.gdk.CAP_ROUND, \
+                    gtk.gdk.CAP_ROUND)
+            # 2) draw grid
+            x_max = self.width * 1.0 -1
+            y_max = self.height * 1.0 -1
+            x_spacing = x_max / self.x_resolution
+            y_spacing = y_max / self.y_resolution
+            for i in range(self.x_resolution+2):
+                if i == self.x_value:
+                    self.set_color(self.mark_color)
+                    self.area.window.draw_line(self.gc, int(x_spacing * i),\
+                                        0, int(x_spacing * i), int(y_max))
+                    self.set_color(self.fg_color)
+                elif i == self.mouse_x_position:
+                    self.set_color(self.hover_color)
+                    self.area.window.draw_line(self.gc, int(x_spacing * i),\
+                                        0, int(x_spacing * i), int(y_max))
+                    self.set_color(self.fg_color)
+                else:
+                    self.area.window.draw_line(self.gc, int(x_spacing * i),\
+                                        0, int(x_spacing * i), int(y_max))
+
+            for i in range(self.y_resolution+2):
+                if i == self.y_value:
+                    self.set_color(self.mark_color)
+                    self.area.window.draw_line(self.gc, 0, \
+                        int(y_spacing * i), int(x_max), int(y_spacing * i))
+                    self.set_color(self.fg_color)
+                elif i == self.mouse_y_position:
+                    self.set_color(self.hover_color)
+                    self.area.window.draw_line(self.gc, 0, \
+                        int(y_spacing * i), int(x_max), int(y_spacing * i))
+                    self.set_color(self.fg_color)
+                else:
+                    self.area.window.draw_line(self.gc, 0, \
+                        int(y_spacing * i), int(x_max), int(y_spacing * i))
+
+            # redraw hover (was overdrawn my other lines)
+            self.set_color(self.hover_color)
+            self.area.window.draw_line(self.gc, \
+                                    int(x_spacing * self.mouse_x_position),\
+                        0, int(x_spacing * self.mouse_x_position), int(y_max))
+            self.area.window.draw_line(self.gc, 0, \
+                int(y_spacing * self.mouse_y_position), int(x_max), \
+                                    int(y_spacing * self.mouse_y_position))
+
+            # redraw value (was overdrawn my other lines)
+            self.set_color(self.mark_color)
+            self.area.window.draw_line(self.gc, \
+                                    int(x_spacing * self.x_value),\
+                        0, int(x_spacing * self.x_value), int(y_max))
+            self.area.window.draw_line(self.gc, 0, \
+                int(y_spacing * self.y_value), int(x_max), \
+                                    int(y_spacing * self.y_value))
+
+        finally:
+            self.gc.foreground = backup_fb
+
+    def set_color(self, color_string):
+        self.gc.foreground = self.area.window.get_colormap()\
+                                                .alloc_color(color_string)
+
 
     def draw_pixmap(self, x, y, img):
         """ 
@@ -255,6 +307,8 @@ class slider_2d(gtk.HBox):
         x_spacing = x_max / self.x_resolution
         y_spacing = y_max / self.y_resolution
 
+        self.draw_grid()
+        self.show_point(self.x_value, self.y_value)
         self.draw_pixmap(x_spacing * int(x_value), y_spacing * int(y_value),\
                                                                 POINT_INV_IMAGE)
 
@@ -278,8 +332,12 @@ class slider_2d(gtk.HBox):
         self.area.window.draw_rectangle(self.gc, True, \
                                 start_x, start_y, IMAGE_SIZE_X, IMAGE_SIZE_Y)
         self.gc.foreground = fg_backup
+        
 
         # easyest way for now: redraw all lines
+        self.draw_grid()
+
+        """
         backup_fb = self.gc.foreground
         try:
             self.gc.foreground = self.area.window.get_colormap()\
@@ -299,5 +357,5 @@ class slider_2d(gtk.HBox):
                 self.area.window.draw_line(self.gc, 0, int(y_spacing * i), int(x_max), int(y_spacing * i))
         finally:
             self.gc.foreground = backup_fb
-
+        """
         self.show_point(self.x_value, self.y_value)
