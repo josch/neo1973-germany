@@ -53,7 +53,12 @@ class MofiPanel(gtk.VBox):
             wifi = Wireless(ifname)
             essid = wifi.getEssid()
             
-            wifi.scan()
+            try:
+                wifi.scan()
+            except(RuntimeError):
+                print "could not scan for WiFi networks, may need root permission"
+                return []
+
             for results in wifi.scan():
                 
                 enc_type = "unknown"
