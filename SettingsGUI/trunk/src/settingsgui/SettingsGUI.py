@@ -89,6 +89,7 @@ class SettingsGUI:
         from GSMPanel import GSMPanel
         from GPRSPanel import GPRSPanel
         from BluetoothPanel import BluetoothPanel
+        from MofiPanel import MofiPanel
 
 
         print "0.3: %s" %(time.time() - start_time)
@@ -113,13 +114,15 @@ class SettingsGUI:
         print "5: %s" %(time.time() - start_time)
         self.add_notebook_page(BluetoothPanel(), "gtk-connect")
         print "6: %s" %(time.time() - start_time)
+        self.add_notebook_page(MofiPanel(), "gtk-network")
+        print "7: %s" %(time.time() - start_time)
 
         ## expand page selectors to full width
         for child in self.notebook.get_children():
             self.notebook.child_set_property(child, "tab_expand", True)
         self.notebook.show()
         
-        print "7: %s" %(time.time() - start_time)
+        print "8: %s" %(time.time() - start_time)
 
         #self.main_panel.add(self.notebook)
 
