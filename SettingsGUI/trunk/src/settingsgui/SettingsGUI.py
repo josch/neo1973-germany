@@ -27,6 +27,9 @@ import threading
 #from settingsgui.GlobalConfiguration import * 
 from GlobalConfiguration import * 
 
+
+battery_image_dir = "/usr/share/settingsgui/battery/"
+
 class ToggleInterface(threading.Thread):
     def __init__(self, settings_gui):
         self.settings_gui = settings_gui
@@ -90,6 +93,7 @@ class SettingsGUI:
         from GPRSPanel import GPRSPanel
         from BluetoothPanel import BluetoothPanel
         from MofiPanel import MofiPanel
+        from BatteryPanel import BatteryPanel
 
 
         print "0.3: %s" %(time.time() - start_time)
@@ -117,12 +121,17 @@ class SettingsGUI:
         self.add_notebook_page(MofiPanel(), "gtk-network")
         print "7: %s" %(time.time() - start_time)
 
+        #battery_image = gtk.Image()
+        #battery_image.set_from_file(battery_image_dir + "battery.png")
+        self.add_notebook_page(BatteryPanel(), "gtk-disconnect")
+        print "8: %s" %(time.time() - start_time)
+
         ## expand page selectors to full width
         for child in self.notebook.get_children():
             self.notebook.child_set_property(child, "tab_expand", True)
         self.notebook.show()
         
-        print "8: %s" %(time.time() - start_time)
+        print "9: %s" %(time.time() - start_time)
 
         #self.main_panel.add(self.notebook)
 
