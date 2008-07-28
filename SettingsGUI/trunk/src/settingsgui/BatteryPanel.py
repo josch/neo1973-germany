@@ -75,7 +75,7 @@ class BatteryPanel(gtk.VBox):
             self.q = self.f.readline().rstrip('\n')
         except(IOError):
             print "ERROR: could not read capacity!"
-            self.q = "0"
+            # self.q = "0"
         finally:
             self.f.close()
         return (int(self.q))
@@ -85,12 +85,12 @@ class BatteryPanel(gtk.VBox):
         try:
             self.f = open(self.voltage, 'r')
             self.q = float(self.f.readline().rstrip('\n'))
+            self.v = int(self.q)/1000000;
         except(IOError):
             print "ERROR: could not read voltage!"
-            self.q = "0"
+            # self.q = "0"
         finally:
             self.f.close()
-            self.v = int(self.q)/1000000;
         return (self.v)
 
     # Check current status (Charging/Discharging)
@@ -141,13 +141,16 @@ class BatteryPanel(gtk.VBox):
     # Gtk GUI
     def __init__(self):
         # init main window
-        self.win = self
         #self.win.connect("delete_event", self.delete_event)
+        gtk.VBox.__init__(self, False, 0)
+
+        self.v = 0;
+        self.q = 0;
+
 
         # add a VBox
         self.vbox = gtk.VBox(homogeneous=False, spacing=5)
-        self.win.add(self.vbox)
-        self.vbox.show()
+        self.add(self.vbox)
 
         # add a HBox
         self.hbox0 = gtk.HBox()
@@ -207,4 +210,4 @@ class BatteryPanel(gtk.VBox):
         self.button_1000.show()
 
         # show main window
-        self.win.show()
+        self.show_all()
