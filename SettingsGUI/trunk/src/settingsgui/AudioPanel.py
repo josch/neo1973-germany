@@ -95,8 +95,12 @@ class AudioPanel(gtk.VBox):
         amix_out = amix_ostream.readline()
         amix_out = amix_ostream.readline()
         amix_out = amix_ostream.readline()
-        if amix_out.find("value") >= 0:
-            return int(amix_out.split('=')[1])
+        if amix_out.find("INTEGER") >=0:
+            amix_out = amix_ostream.readline()
+            if amix_out.find("value") >= 0:                  
+                return int((amix_out.split('=')[1]).split(',')[0])
+                #return int(amix_out.split('=')[1])
+            return 0;
         return 0;
     
     def get_max_volume(self, chan_id):
