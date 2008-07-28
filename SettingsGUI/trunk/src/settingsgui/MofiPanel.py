@@ -23,6 +23,7 @@
 
 import sys
 import os
+import time
 import gtk
 
 from settingsgui.pythonwifi.iwlibs import Wireless, getNICnames
@@ -43,7 +44,6 @@ class MofiPanel(gtk.VBox):
         self.create_notebook_page()
         
     def get_aps(self):
-        
         found_aps = {}
         
         # search for accesspoints the interfaces can access..
@@ -200,7 +200,8 @@ network={
         button_save.connect("clicked", on_save)
         self.passbox.add(button_save)
             
-        
+    
+
         def connect_selected(caller):
             for essid in self.ap_ui:
                 if self.ap_ui[essid].get_active():
@@ -221,10 +222,12 @@ network={
                     self.generate_wpa_supplicant([essid])
                     
                     # call our connection shell script and capture the output..
-                    proc = subprocess.Popen([r"sh", "./connect.sh"], stdout=subprocess.PIPE)
-                    proc.wait()
-                    output = proc.stdout.read()
+                    #proc = subprocess.Popen([r"sh", "./connect.sh"], stdout=subprocess.PIPE)
+                    #proc.wait()
+                    #output = proc.stdout.read()
                     
+                    self.connect_ip(essid)
+
                     print "out: "+output
                     l.set_text(output)
                     
@@ -246,5 +249,33 @@ network={
         
         self.show_all()
         self.passbox.hide()
+
+    def connect_ip(self, essid):
+        """
+        Code to replace the shellscript:
+            rm /var/run/wpa_supplicant/eth0
+
+            ifconfig usb0 down
+            ifconfig eth0 up
+            wpa_supplicant -ieth0 -c/home/root/mofi_wpa_supplicant.conf -B
+            sleep 10
+            udhcpc eth0
+            #iwconfig eth0
+        """
+        if os.path.exists("/var/run/wpa_supplicant/eth0"):
+            try:
+                #os.remove("/var/run/wpa_supplicant/eth0")   
+                None
+            except(OSError):
+                print "ERROR: could not delete /var/run/wpa_supplicant/eth0"
         
-        
+        # os.system("ifconfig usb0 down") ## nogo!
+        print "connecting to %s" % essid
+        os.system("iwconfig eth0 essid \"%s\"" % essid)
+        print "enabling eth0"
+        os.system("ifconfig eth0 up")
+ #       os.system("wpa_supplicant -ieth0 -c/home/root/mofi_wpa_supplicant.conf -B")
+ #       time.sleep(10)
+        print "requesting DHCP"
+        os.system("udhcpc eth0")
+
