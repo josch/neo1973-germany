@@ -34,6 +34,11 @@ def main():
     gtk.gdk.threads_leave()
 
 if (__name__ == '__main__'):
+    #print "reparsing GTK theme"
+    #print gtk.rc_parse('/usr/share/themes/Moko/gtk-2.0/gtkrc')
+    #print gtk.rc_reparse_all()
+    #print "done."
+
     gtk.gdk.threads_init()
     gtk.gdk.threads_enter()
 
