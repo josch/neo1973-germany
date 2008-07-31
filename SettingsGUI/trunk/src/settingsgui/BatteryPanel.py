@@ -75,9 +75,11 @@ class BatteryPanel(gtk.VBox):
             self.q = self.f.readline().rstrip('\n')
         except(IOError):
             print "ERROR: could not read capacity!"
-            # self.q = "0"
+            self.q = "0"
         finally:
             self.f.close()
+
+        # print "q was %s" % self.q
         return (int(self.q))
 
     # Check current battery voltage
@@ -145,7 +147,7 @@ class BatteryPanel(gtk.VBox):
         gtk.VBox.__init__(self, False, 0)
 
         self.v = 0;
-        self.q = 0;
+        #self.q = 0;
 
 
         # add a VBox
