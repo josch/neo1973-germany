@@ -296,12 +296,24 @@ class BluetoothPanel(gtk.VBox):
     def toggle_power(self, event):
         print "Toggleing Power state!"
         if not self.get_power_state():
-            set_sysfs_value(SYSFS_ENTRY_BLUETOOTH_POWER, 1)
+            """ power off """
+            if detect_device_type() == "GTA01" and detect_revision() == "":
+                set_sysfs_value(SYSFS_ENTRY_BLUETOOTH_POWER_GTA01, 1)
+            else:
+                # invers, bugreport filed under #1703
+                set_sysfs_value(SYSFS_ENTRY_BLUETOOTH_POWER_GTA02, 0)
+
             self.list_store1.clear()
             self.list_store1.append(("Scanning for ", "Peers...", False))
             self.update_btn.set_active(True)
         else:
-            set_sysfs_value(SYSFS_ENTRY_BLUETOOTH_POWER, 0)
+            """ power on (and reset) """
+            if detect_device_type() == "GTA01" and detect_revision() == "":
+                set_sysfs_value(SYSFS_ENTRY_BLUETOOTH_POWER_GTA01, 0)
+            else:
+                # invers, bugreport filed under #1703
+                set_sysfs_value(SYSFS_ENTRY_BLUETOOTH_POWER_GTA02, 1)
+                set_sysfs_value(SYSFS_ENTRY_BLUETOOTH_RESET_GTA02, 0)
         
         self.power_state_cbtn.set_active(self.get_power_state())
 
@@ -332,7 +344,10 @@ class BluetoothPanel(gtk.VBox):
 
 
     def get_power_state(self):
-        power_value = get_sysfs_value(SYSFS_ENTRY_BLUETOOTH_POWER)
+        if detect_device_type() == "GTA01" and detect_revision() == "":
+            power_value = get_sysfs_value(SYSFS_ENTRY_BLUETOOTH_POWER_GTA01)
+        else:
+            power_value = get_sysfs_value(SYSFS_ENTRY_BLUETOOTH_POWER_GTA02)
         
         ## value will be empty if sysfs entry does not exist
         if len(power_value) > 0:

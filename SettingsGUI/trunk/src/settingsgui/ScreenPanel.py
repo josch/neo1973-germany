@@ -37,13 +37,22 @@ class ScreenPanel(gtk.VBox):
 
     def toggle_backlight(self, widget):
         print "trying to toggle the backlight"
-        value = get_sysfs_value(SYSFS_ENTRY_BACKLIGHT_POWER)
-        if value.find("1") != -1:
-            set_sysfs_value(SYSFS_ENTRY_BACKLIGHT_POWER, 0)
-            value = "1"
-        else:
-            set_sysfs_value(SYSFS_ENTRY_BACKLIGHT_POWER, 1)
-            value = "0"
+        if detect_device_type() == "GTA01":
+            value = get_sysfs_value(SYSFS_ENTRY_BACKLIGHT_POWER_GTA01)
+            if value.find("1") != -1:
+                set_sysfs_value(SYSFS_ENTRY_BACKLIGHT_POWER_GTA01, 0)
+                value = "1"
+            else:
+                set_sysfs_value(SYSFS_ENTRY_BACKLIGHT_POWER_GTA01, 1)
+                value = "0"
+        else:  
+            value = get_sysfs_value(SYSFS_ENTRY_BACKLIGHT_POWER_GTA02)
+            if value.find("1") != -1:
+                set_sysfs_value(SYSFS_ENTRY_BACKLIGHT_POWER_GTA02, 0)
+                value = "1"
+            else:
+                set_sysfs_value(SYSFS_ENTRY_BACKLIGHT_POWER_GTA02, 1)
+                value = "0"
 
     def toggle_orientation(self, widget):
         print "trying to toggle screen orientation"
@@ -67,10 +76,15 @@ class ScreenPanel(gtk.VBox):
 
 
     def bl_level_changed(self, widget):
-        tmp_value = widget.value
-        tmp_value = tmp_value * 50
-        print "trying to set backlight to %s" % tmp_value
-        set_sysfs_value(SYSFS_ENTRY_BACKLIGHT_BRIGHTNESS, tmp_value)
+        print "trying to set backlight to %s" % widget.value
+        if detect_device_type() == "GTA01":
+            tmp_value = widget.value
+            tmp_value = tmp_value * 50
+            set_sysfs_value(SYSFS_ENTRY_BACKLIGHT_BRIGHTNESS_GTA01, tmp_value)
+        else:
+            tmp_value = widget.value
+            tmp_value = int((tmp_value/100.0) * 64)
+            set_sysfs_value(SYSFS_ENTRY_BACKLIGHT_BRIGHTNESS_GTA02, tmp_value)
 
     def create_notebook_page(self):
         self.set_border_width(0)
@@ -80,11 +94,19 @@ class ScreenPanel(gtk.VBox):
         level_box = gtk.VBox(False, 0)
         level_box.set_border_width(15)
 
-        init_value = get_sysfs_value(SYSFS_ENTRY_BACKLIGHT_BRIGHTNESS)
-        if len(init_value) > 0:
-            init_value = float(init_value) / 50
+        if detect_device_type() == "GTA01":
+            init_value = get_sysfs_value(SYSFS_ENTRY_BACKLIGHT_BRIGHTNESS_GTA01)
+            if len(init_value) > 0:
+                init_value = float(init_value) / 50
+            else:
+                init_value = 50
         else:
-            init_value = 50
+            init_value = get_sysfs_value(SYSFS_ENTRY_BACKLIGHT_BRIGHTNESS_GTA02)
+            if len(init_value) > 0:
+                init_value = int((float(init_value) / 64.0) * 100)
+            else:
+                init_value = 0.5
+
         
 
         ## scale to set backlight level

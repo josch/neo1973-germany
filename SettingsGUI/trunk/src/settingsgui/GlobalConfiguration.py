@@ -20,6 +20,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+################################################################################
+############################ platform detection ################################
+################################################################################
+def detect_device_type():
+    cpuinfo = open("/proc/cpuinfo").read(1024)
+    if "GTA02" in cpuinfo:
+        return "GTA02"
+    else:
+        return "GTA01"
+
+def detect_revision():
+    cpuinfo = open("/proc/cpuinfo").read(1024)
+    if "Revision\t: 0240" in cpuinfo:
+        return "0240"
+    else:
+        return ""
+
 
 ################################################################################
 #################################### GUI #######################################
@@ -31,14 +48,20 @@ GSM_Panel_Instance = None
 ################################################################################
 ############################# used in Screen Panel #############################
 ################################################################################
-SYSFS_ENTRY_BACKLIGHT_BRIGHTNESS = "/sys/class/backlight/gta01-bl/brightness"
-SYSFS_ENTRY_BACKLIGHT_POWER = "/sys/class/backlight/gta01-bl/power" # reverse
+SYSFS_ENTRY_BACKLIGHT_BRIGHTNESS_GTA01 = "/sys/class/backlight/gta01-bl/brightness"
+SYSFS_ENTRY_BACKLIGHT_POWER_GTA01 = "/sys/class/backlight/gta01-bl/power" # reverse
 
+SYSFS_ENTRY_BACKLIGHT_BRIGHTNESS_GTA02 = "/sys/class/backlight/pcf50633-bl/brightness"
+SYSFS_ENTRY_BACKLIGHT_POWER_GTA02 = "/sys/class/backlight/pcf50633-bl/bl_power"
 
 ################################################################################
 ############################ used in Bluetooth Panel ###########################
 ################################################################################
-SYSFS_ENTRY_BLUETOOTH_POWER = "/sys/bus/platform/devices/gta01-pm-bt.0/power_on"
+SYSFS_ENTRY_BLUETOOTH_POWER_GTA01 = "/sys/bus/platform/devices/gta01-pm-bt.0/power_on"
+
+SYSFS_ENTRY_BLUETOOTH_POWER_GTA02 = "/sys/bus/platform/devices/neo1973-pm-bt.0/power_on"
+SYSFS_ENTRY_BLUETOOTH_RESET_GTA02 = "/sys/bus/platform/devices/neo1973-pm-bt.0/reset"
+
 HCICONFIG_CMD = "hciconfig"             ## using $PATH
 #HCICONFIG_CMD = "/sbin/hciconfig"      ## openembedded
 #HCICONFIG_CMD = "/usr/sbin/hciconfig"  ## ubuntu
