@@ -29,6 +29,7 @@ from pyneo.sys_support import pr_set_name
 from ConfigParser import SafeConfigParser
 from os.path import exists
 import time
+from time import sleep
 
 #import sqlite3
 
@@ -58,7 +59,7 @@ class dialer_main(edje_group):
 
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
 		self.system_bus = SystemBus(mainloop=dbus_ml)
-		self.init_dbus()
+		ecore.timer_add(5, self.init_dbus)
 
 	def init_dbus(self):
 		try:
@@ -112,6 +113,7 @@ class dialer_main(edje_group):
 			self.wireless.Register(dbus_interface=DIN_WIRELESS)
 			self.nw_res = dedbusmap(self.wireless.GetStatus(dbus_interface=DIN_WIRELESS))
 		else:
+			self.part_text_set("numberdisplay_text", "please dial")
 			print '---', 'already registered'
 
 	@edje.decorators.signal_callback("dialer_send", "*")
@@ -141,7 +143,12 @@ class dialer_main(edje_group):
 				self.part_text_set("numberdisplay_text", "".join(self.text))
 			elif source == "dial":
 				print '---', 'dial number'
-				self.part_text_set("numberdisplay_text", "register ...")
+				self.part_text_set("numberdisplay_text", "calling ...")
+				system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
+				name = self.wireless.Initiate(''.join(self.text), dbus_interface=DIN_VOICE_CALL_INITIATOR, timeout=200, )
+				sleep(20)
+				call = object_by_url(name)
+				call.Hangup(dbus_interface=DIN_CALL)
 
 class TestView(object):
 	def __init__(self):
