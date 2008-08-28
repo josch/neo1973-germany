@@ -147,7 +147,7 @@ class dialer_main(edje_group):
 class TestView(object):
 	def __init__(self):
 		edje.frametime_set(FRAMETIME)
-		self.evas_canvas = EvasCanvas(fullscreen=FULLSCREEN, engine="x11-16", size="480x640")
+		self.evas_canvas = EvasCanvas(FULLSCREEN, "x11-16")
 		
 		self.groups = {}
 		self.groups[EDJE_GROUP_NAME] = dialer_main(self)
@@ -156,24 +156,24 @@ class TestView(object):
 		self.groups[EDJE_GROUP_NAME].part_text_set("numberdisplay_text", "wait ...")
 
 class EvasCanvas(object):
-	def __init__(self, fullscreen, engine, size):
-		if engine == "x11":
-			f = ecore.evas.SoftwareX11
-#		elif engine == "x11-16":
+	def __init__(self, fullscreen, engine_name):
+		if engine_name == "x11":
+			engine = ecore.evas.SoftwareX11
+#		elif engine_name == "x11-16":
 #			if ecore.evas.engine_type_supported_get("software_x11_16"):
-#				f = ecore.evas.SoftwareX11_16
+#				engine = ecore.evas.SoftwareX11_16
 		else:
-			print "warning: x11-16 is not supported, fallback to x11"
-			f = ecore.evas.SoftwareX11
+			print "warning: x11-16 is not supported, falling back to x11"
+			engine = ecore.evas.SoftwareX11
 		
-		self.evas_obj = f(w=WIDTH, h=HEIGHT)
+		self.evas_obj = engine(w=WIDTH, h=HEIGHT)
 		self.evas_obj.callback_delete_request = self.on_delete_request
 		self.evas_obj.callback_resize = self.on_resize
 		
 		self.evas_obj.title = TITLE
 		self.evas_obj.name_class = WM_INFO
 		self.evas_obj.fullscreen = fullscreen
-#		self.evas_obj.size = size
+#		self.evas_obj.size = str(WIDTH) + 'x' + str(HEIGHT)
 		self.evas_obj.show()
 
 	def on_resize(self, evas_obj):
