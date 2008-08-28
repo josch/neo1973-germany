@@ -7,7 +7,7 @@ __license__ = "GPL3"
 
 WIDTH = 480
 HEIGHT = 640
-FS = True
+FULLSCREEN = True
 TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
 
@@ -153,7 +153,7 @@ class dialer_main(edje_group):
 class TestView(object):
 	def __init__(self):
 		edje.frametime_set(1.0 / 20)
-		self.evas_canvas = EvasCanvas(fullscreen=FS, engine="x11-16", size="480x640")
+		self.evas_canvas = EvasCanvas(fullscreen=FULLSCREEN, engine="x11-16", size="480x640")
 		
 		self.groups = {}
 		self.groups["pyneo/dialer/main"] = dialer_main(self)
@@ -178,7 +178,7 @@ class EvasCanvas(object):
 
 		self.evas_obj.title = TITLE
 		self.evas_obj.name_class = WM_INFO
-		self.evas_obj.fullscreen = FS
+		self.evas_obj.fullscreen = fullscreen
 #		self.evas_obj.size = size
 		self.evas_obj.show()
 
