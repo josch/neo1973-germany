@@ -10,6 +10,7 @@ HEIGHT = 640
 FULLSCREEN = True
 TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
+EDJE_GROUP_NAME = "pyneo/dialer/main"
 
 import os
 import sys
@@ -54,7 +55,7 @@ class edje_group(edje.Edje):
 		
 class dialer_main(edje_group):
 	def __init__(self, main):
-		edje_group.__init__(self, main, "pyneo/dialer/main")
+		edje_group.__init__(self, main, EDJE_GROUP_NAME)
 		self.text = []
 
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -156,10 +157,10 @@ class TestView(object):
 		self.evas_canvas = EvasCanvas(fullscreen=FULLSCREEN, engine="x11-16", size="480x640")
 		
 		self.groups = {}
-		self.groups["pyneo/dialer/main"] = dialer_main(self)
-        	self.evas_canvas.evas_obj.data["pyneo/dialer/main"] = self.groups["pyneo/dialer/main"]
-		self.groups["pyneo/dialer/main"].show()
-		self.groups["pyneo/dialer/main"].part_text_set("numberdisplay_text", "wait ...")
+		self.groups[EDJE_GROUP_NAME] = dialer_main(self)
+        	self.evas_canvas.evas_obj.data[EDJE_GROUP_NAME] = self.groups[EDJE_GROUP_NAME]
+		self.groups[EDJE_GROUP_NAME].show()
+		self.groups[EDJE_GROUP_NAME].part_text_set("numberdisplay_text", "wait ...")
 
 class EvasCanvas(object):
 	def __init__(self, fullscreen, engine, size):
