@@ -7,6 +7,7 @@ __license__ = "GPL3"
 
 WIDTH = 480
 HEIGHT = 640
+FRAMETIME = 1.0 / 20
 FULLSCREEN = True
 TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
@@ -145,7 +146,7 @@ class dialer_main(edje_group):
 
 class TestView(object):
 	def __init__(self):
-		edje.frametime_set(1.0 / 20)
+		edje.frametime_set(FRAMETIME)
 		self.evas_canvas = EvasCanvas(fullscreen=FULLSCREEN, engine="x11-16", size="480x640")
 		
 		self.groups = {}
@@ -165,7 +166,7 @@ class EvasCanvas(object):
 			print "warning: x11-16 is not supported, fallback to x11"
 			f = ecore.evas.SoftwareX11
 		
-		self.evas_obj = f(w=480, h=640)
+		self.evas_obj = f(w=WIDTH, h=HEIGHT)
 		self.evas_obj.callback_delete_request = self.on_delete_request
 		self.evas_obj.callback_resize = self.on_resize
 		
