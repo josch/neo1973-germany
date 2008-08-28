@@ -11,6 +11,7 @@ FULLSCREEN = True
 TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
 EDJE_GROUP_NAME = "pyneo/dialer/main"
+EDJE_FILE_NAME = "data/themes/dialer.edj"
 
 import os
 import sys
@@ -34,21 +35,15 @@ from time import sleep
 
 #import sqlite3
 
-for i in "data/themes/dialer.edj".split():
-	if os.path.exists( i ):
-		global edjepath
-		edjepath = i
-		break
-else:
-	raise "Edje not found"
-	
 class edje_group(edje.Edje):
 	def __init__(self, main, group):
 		self.main = main
-		global edjepath
-		f = edjepath
+		
+		if not os.path.exists(EDJE_FILE_NAME):
+			raise IOError("Edje theme file not found: " + EDJE_FILE_NAME)
+		
 		try:
-			edje.Edje.__init__(self, self.main.evas_canvas.evas_obj.evas, file=f, group=group)
+			edje.Edje.__init__(self, self.main.evas_canvas.evas_obj.evas, file=EDJE_FILE_NAME, group=group)
 		except edje.EdjeLoadError, e:
 			raise SystemExit("error loading %s: %s" % (f, e))
 		self.size = self.main.evas_canvas.evas_obj.evas.size
