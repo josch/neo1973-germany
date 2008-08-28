@@ -13,31 +13,28 @@ WM_INFO = ("epydial", "epydial")
 EDJE_GROUP_NAME = "pyneo/dialer/main"
 EDJE_FILE_NAME = "data/themes/dialer.edj"
 
+from datetime import datetime
+from dbus import SystemBus
 import os
 import sys
+import time
+
+import e_dbus
 import ecore
 import ecore.evas
-import evas.decorators
 import edje.decorators
 import edje
-from dbus import SystemBus
-from e_dbus import DBusEcoreMainLoop
-import e_dbus
-from datetime import datetime
-from os import system # alsactl is used with a sytem call
+import evas.decorators
+
 from pyneo.dbus_support import *
 from pyneo.sys_support import pr_set_name
 
 from ConfigParser import SafeConfigParser
-from os.path import exists
-import time
-from time import sleep
-
-#import sqlite3
 
 class edje_group(edje.Edje):
 	def __init__(self, main, group):
 		self.main = main
+		self.size = self.main.evas_canvas.evas_obj.evas.size
 		
 		if not os.path.exists(EDJE_FILE_NAME):
 			raise IOError("Edje theme file not found: " + EDJE_FILE_NAME)
@@ -45,16 +42,16 @@ class edje_group(edje.Edje):
 		try:
 			edje.Edje.__init__(self, self.main.evas_canvas.evas_obj.evas, file=EDJE_FILE_NAME, group=group)
 		except edje.EdjeLoadError, e:
-			raise SystemExit("error loading %s: %s" % (f, e))
-		self.size = self.main.evas_canvas.evas_obj.evas.size
-		
+			raise SystemExit("Error loading %s: %s" % (f, e))
+
 class dialer_main(edje_group):
 	def __init__(self, main):
 		edje_group.__init__(self, main, EDJE_GROUP_NAME)
 		self.text = []
-
+		
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
 		self.system_bus = SystemBus(mainloop=dbus_ml)
+		
 		ecore.timer_add(5, self.init_dbus)
 
 	def init_dbus(self):
@@ -68,7 +65,7 @@ class dialer_main(edje_group):
 			#	self.dbus_timer = ecore.timer_add(2, self.init_dbus)
 			# We had an error, keep the timer running
 			#return True
-
+		
 		# No error, all went well
 		#if self.dbus_timer: self.dbus_timer.stop()
 		# D-Bus is ready, let's init GSM
@@ -94,17 +91,17 @@ class dialer_main(edje_group):
 
 	def sim_pin(self):
 		self.res = dedbusmap(self.keyring.GetOpened(dbus_interface=DIN_KEYRING))
-		if self.res['code'] != 'READY': # TODO unify!
+		if self.res['code'] != 'READY':
 			print '---', 'opening keyring'
 			self.part_text_set("numberdisplay_text", "Enter " + self.res['code'])
 			self.res = dedbusmap(self.keyring.GetOpened(dbus_interface=DIN_KEYRING))
 		else:
 			print '---', 'already authorized'
 			self.nw_register()
-			
+
 	def nw_register(self):
 		self.nw_res = dedbusmap(self.wireless.GetStatus(dbus_interface=DIN_WIRELESS))
-		if not self.nw_res['stat'] in (1, 5, ): # TODO unify!
+		if not self.nw_res['stat'] in (1, 5, ):
 			print '---', 'registering to gsm network'
 			self.wireless.Register(dbus_interface=DIN_WIRELESS)
 			self.nw_res = dedbusmap(self.wireless.GetStatus(dbus_interface=DIN_WIRELESS))
@@ -142,7 +139,7 @@ class dialer_main(edje_group):
 				self.part_text_set("numberdisplay_text", "calling ...")
 				system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
 				name = self.wireless.Initiate(''.join(self.text), dbus_interface=DIN_VOICE_CALL_INITIATOR, timeout=200, )
-				sleep(20)
+				time.sleep(20)
 				call = object_by_url(name)
 				call.Hangup(dbus_interface=DIN_CALL)
 
@@ -153,7 +150,7 @@ class TestView(object):
 		
 		self.groups = {}
 		self.groups[EDJE_GROUP_NAME] = dialer_main(self)
-        	self.evas_canvas.evas_obj.data[EDJE_GROUP_NAME] = self.groups[EDJE_GROUP_NAME]
+		self.evas_canvas.evas_obj.data[EDJE_GROUP_NAME] = self.groups[EDJE_GROUP_NAME]
 		self.groups[EDJE_GROUP_NAME].show()
 		self.groups[EDJE_GROUP_NAME].part_text_set("numberdisplay_text", "wait ...")
 
@@ -167,11 +164,11 @@ class EvasCanvas(object):
 		else:
 			print "warning: x11-16 is not supported, fallback to x11"
 			f = ecore.evas.SoftwareX11
-
+		
 		self.evas_obj = f(w=480, h=640)
 		self.evas_obj.callback_delete_request = self.on_delete_request
 		self.evas_obj.callback_resize = self.on_resize
-
+		
 		self.evas_obj.title = TITLE
 		self.evas_obj.name_class = WM_INFO
 		self.evas_obj.fullscreen = fullscreen
@@ -191,7 +188,7 @@ if __name__ == "__main__":
 	TestView()
 	ecore.main_loop_begin()
 
-'''	
+'''
 export LDFLAGS="$LDFLAGS -L/opt/e17/lib"
 export PKG_CONFIG_PATH="/opt/e17/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PATH="$PATH:/opt/e17/bin"
