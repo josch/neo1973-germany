@@ -114,7 +114,7 @@ class MainScreen(EdjeGroup):
 	@edje.decorators.signal_callback("dialer_send", "*")
 	def on_edje_signal_numberkey_triggered(self, emission, source):
 		if self.res['code'] != 'READY':
-			if source in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "#", "*", ):
+			if source in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ):
 				self.text.append(source)
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", "".join(self.text))
