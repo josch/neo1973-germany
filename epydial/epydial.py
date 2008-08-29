@@ -35,7 +35,6 @@ from ConfigParser import SafeConfigParser
 class EdjeGroup(edje.Edje):
 	def __init__(self, main, group):
 		self.main = main
-		self.size = self.main.evas_canvas.evas_obj.evas.size
 		
 		if not os.path.exists(EDJE_FILE_NAME):
 			raise IOError("Edje theme file not found: " + EDJE_FILE_NAME)
@@ -44,6 +43,8 @@ class EdjeGroup(edje.Edje):
 			edje.Edje.__init__(self, self.main.evas_canvas.evas_obj.evas, file=EDJE_FILE_NAME, group=group)
 		except edje.EdjeLoadError, e:
 			raise SystemExit("Error loading %s: %s" % (f, e))
+		
+		self.size = self.main.evas_canvas.evas_obj.evas.size
 
 class MainScreen(EdjeGroup):
 	def __init__(self, main):
@@ -138,7 +139,7 @@ class MainScreen(EdjeGroup):
 			elif source == "dial":
 				print '---', 'dial number'
 				self.part_text_set("numberdisplay_text", "calling ...")
-				system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
+				os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
 				name = self.wireless.Initiate(''.join(self.text), dbus_interface=DIN_VOICE_CALL_INITIATOR, timeout=200, )
 				time.sleep(20)
 				call = object_by_url(name)
