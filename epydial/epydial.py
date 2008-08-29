@@ -50,6 +50,7 @@ class MainScreen(EdjeGroup):
 	def __init__(self, main):
 		EdjeGroup.__init__(self, main, EDJE_GROUP_NAME)
 		self.text = []
+		self.pin_count = []
 		
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
 		self.system_bus = SystemBus(mainloop=dbus_ml)
@@ -114,18 +115,20 @@ class MainScreen(EdjeGroup):
 	@edje.decorators.signal_callback("dialer_send", "*")
 	def on_edje_signal_numberkey_triggered(self, emission, source):
 		if self.res['code'] != 'READY':
-			if source in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ):
+			if (len(self.text) < 4) and (source in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")):
 				self.text.append(source)
+				self.pin_count.append("*")
 				print ''.join(self.text)
-				self.part_text_set("numberdisplay_text", "".join(self.text))
+				self.part_text_set("numberdisplay_text", "".join(self.pin_count))
 			elif source == "backspace":
 				self.text = self.text[:-1]
+				self.pin_count = self.pin_count[:-1]
 				print ''.join(self.text)
-				self.part_text_set("numberdisplay_text", "".join(self.text))
+				self.part_text_set("numberdisplay_text", "".join(self.pin_count))
 			elif source == "dial":
 				print '---', 'send pin'
-				self.keyring.Open(''.join(self.text), dbus_interface=DIN_KEYRING, )
 				self.part_text_set("numberdisplay_text", "register ...")
+				self.keyring.Open(''.join(self.text), dbus_interface=DIN_KEYRING, )
 				self.nw_register()
 		else:
 			if source in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "#", "*", ):
