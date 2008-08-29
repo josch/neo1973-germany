@@ -32,7 +32,7 @@ from pyneo.sys_support import pr_set_name
 
 from ConfigParser import SafeConfigParser
 
-class edje_group(edje.Edje):
+class EdjeGroup(edje.Edje):
 	def __init__(self, main, group):
 		self.main = main
 		self.size = self.main.evas_canvas.evas_obj.evas.size
@@ -45,9 +45,9 @@ class edje_group(edje.Edje):
 		except edje.EdjeLoadError, e:
 			raise SystemExit("Error loading %s: %s" % (f, e))
 
-class dialer_main(edje_group):
+class MainScreen(EdjeGroup):
 	def __init__(self, main):
-		edje_group.__init__(self, main, EDJE_GROUP_NAME)
+		EdjeGroup.__init__(self, main, EDJE_GROUP_NAME)
 		self.text = []
 		
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -150,7 +150,7 @@ class TestView(object):
 		self.evas_canvas = EvasCanvas(FULLSCREEN, "x11-16")
 		
 		self.groups = {}
-		self.groups[EDJE_GROUP_NAME] = dialer_main(self)
+		self.groups[EDJE_GROUP_NAME] = MainScreen(self)
 		self.evas_canvas.evas_obj.data[EDJE_GROUP_NAME] = self.groups[EDJE_GROUP_NAME]
 		self.groups[EDJE_GROUP_NAME].show()
 		self.groups[EDJE_GROUP_NAME].part_text_set("numberdisplay_text", "wait ...")
