@@ -114,7 +114,7 @@ class MainScreen(EdjeGroup):
 	@edje.decorators.signal_callback("dialer_send", "*")
 	def on_edje_signal_numberkey_triggered(self, emission, source):
 		if self.res['code'] != 'READY':
-			if len(self.text) < 4 and '0'.isdigit():
+			if len(self.text) < 4 and source in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"):
 				self.text.append(source)
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", '*' * len(self.text))
@@ -127,8 +127,11 @@ class MainScreen(EdjeGroup):
 				self.part_text_set("numberdisplay_text", "register ...")
 				self.keyring.Open(''.join(self.text), dbus_interface=DIN_KEYRING, )
 				self.nw_register()
-		else:
-			if source in '0'.isdigit():
+				self.res = dedbusmap(self.keyring.GetOpened(dbus_interface=DIN_KEYRING))
+				self.part_text_set("numberdisplay_text", "please dial")
+				self.text = []
+		else:	
+			if source in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "#", "*"):
 				self.text.append(source)
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", "".join(self.text))

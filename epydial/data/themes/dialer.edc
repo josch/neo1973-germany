@@ -272,9 +272,9 @@ collections {
 					}
 					text {
 						text: "testmode";
-						size: 18;
+						size: 28;
 						font: "Sans:style=Bold,Edje-Vera";
-						fit: 1 1;
+						fit: 0 0;
 					}
 				}	
 			}
