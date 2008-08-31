@@ -2,8 +2,22 @@
 
 cd data/themes
 
-for filename in *.edc
+for theme in *
 do
-	/opt/e17/bin/edje_cc -id ../images -fd ../fonts $filename
-done
+	if [[ ! -d "$theme" ]]
+	then
+		continue
+	fi
 
+	echo "Compiling theme $theme"
+
+	cd $theme
+	data_path="../../themes_data/"$theme"/"
+
+	for filename in *.edc
+	do
+		/opt/e17/bin/edje_cc -id $data_path/images -fd $data_path/fonts $filename
+	done
+
+	cd ..
+done
