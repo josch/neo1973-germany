@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd data/themes
+
+for filename in *.edc
+do
+	/opt/e17/bin/edje_cc -id ../images -fd ../fonts $filename
+done
+

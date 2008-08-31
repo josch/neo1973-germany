@@ -11,8 +11,11 @@ FRAMETIME = 1.0 / 20
 FULLSCREEN = True
 TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
-EDJE_GROUP_NAME = "pyneo/dialer/main"
-EDJE_FILE_NAME = "data/themes/dialer.edj"
+
+EDJE_FILE_PATH = "data/themes/"
+
+MAIN_GROUP_NAME = "pyneo/dialer/main"
+INCALL_GROUP_NAME = "pyneo/dialer/incall"
 
 from datetime import datetime
 from dbus import SystemBus
@@ -36,19 +39,29 @@ class EdjeGroup(edje.Edje):
 	def __init__(self, main, group):
 		self.main = main
 		
-		if not os.path.exists(EDJE_FILE_NAME):
-			raise IOError("Edje theme file not found: " + EDJE_FILE_NAME)
+		# Theme file name is formed as follows:
+		# Last two group name parts, combined by underscore
+		# pyneo/dialer/main -> dialer_main.edj
+		group_parts = group.split("/")
+		file_name = EDJE_FILE_PATH + group_parts[-2] + "_" + group_parts[-1] + ".edj"
+		
+		if not os.path.exists(file_name):
+			raise IOError("Edje theme file for group %s not found: %s" % (group, file_name))
 		
 		try:
-			edje.Edje.__init__(self, self.main.evas_canvas.evas_obj.evas, file=EDJE_FILE_NAME, group=group)
+			edje.Edje.__init__(self, self.main.evas_canvas.evas_obj.evas, file=file_name, group=group)
 		except edje.EdjeLoadError, e:
-			raise SystemExit("Error loading %s: %s" % (f, e))
+			raise SystemExit("Error loading %s: %s" % (file_name, e))
 		
 		self.size = self.main.evas_canvas.evas_obj.evas.size
 
+class InCallScreen(EdjeGroup):
+	def __init__(self, main):
+		EdjeGroup.__init__(self, main, INCALL_GROUP_NAME)
+
 class MainScreen(EdjeGroup):
 	def __init__(self, main):
-		EdjeGroup.__init__(self, main, EDJE_GROUP_NAME)
+		EdjeGroup.__init__(self, main, MAIN_GROUP_NAME)
 		self.text = []
 		
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -154,10 +167,16 @@ class TestView(object):
 		self.evas_canvas = EvasCanvas(FULLSCREEN, "x11-16")
 		
 		self.groups = {}
-		self.groups[EDJE_GROUP_NAME] = MainScreen(self)
-		self.evas_canvas.evas_obj.data[EDJE_GROUP_NAME] = self.groups[EDJE_GROUP_NAME]
-		self.groups[EDJE_GROUP_NAME].show()
-		self.groups[EDJE_GROUP_NAME].part_text_set("numberdisplay_text", "wait ...")
+		
+		self.init_group(MAIN_GROUP_NAME, MainScreen(self))
+		self.init_group(INCALL_GROUP_NAME, InCallScreen(self))
+		
+		self.groups[MAIN_GROUP_NAME].part_text_set("numberdisplay_text", "wait ...")
+		self.groups[MAIN_GROUP_NAME].show()
+
+	def init_group(self, name, instance):
+		self.groups[name] = instance
+		self.evas_canvas.evas_obj.data[name] = instance
 
 class EvasCanvas(object):
 	def __init__(self, fullscreen, engine_name):
