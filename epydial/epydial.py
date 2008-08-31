@@ -14,8 +14,8 @@ WM_INFO = ("epydial", "epydial")
 
 EDJE_FILE_PATH = "data/themes/"
 
-MAIN_GROUP_NAME = "pyneo/dialer/main"
-INCALL_GROUP_NAME = "pyneo/dialer/incall"
+MAIN_SCREEN_NAME = "pyneo/dialer/main"
+INCALL_SCREEN_NAME = "pyneo/dialer/incall"
 
 from datetime import datetime
 from dbus import SystemBus
@@ -57,11 +57,11 @@ class EdjeGroup(edje.Edje):
 
 class InCallScreen(EdjeGroup):
 	def __init__(self, main):
-		EdjeGroup.__init__(self, main, INCALL_GROUP_NAME)
+		EdjeGroup.__init__(self, main, INCALL_SCREEN_NAME)
 
 class MainScreen(EdjeGroup):
 	def __init__(self, main):
-		EdjeGroup.__init__(self, main, MAIN_GROUP_NAME)
+		EdjeGroup.__init__(self, main, MAIN_SCREEN_NAME)
 		self.text = []
 		
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -161,22 +161,30 @@ class MainScreen(EdjeGroup):
 				call = object_by_url(name)
 				call.Hangup(dbus_interface=DIN_CALL)
 
-class TestView(object):
+class Dialer(object):
 	def __init__(self):
 		edje.frametime_set(FRAMETIME)
 		self.evas_canvas = EvasCanvas(FULLSCREEN, "x11-16")
 		
-		self.groups = {}
+		self.screens = {}
 		
-		self.init_group(MAIN_GROUP_NAME, MainScreen(self))
-		self.init_group(INCALL_GROUP_NAME, InCallScreen(self))
+		self.init_screen(MAIN_SCREEN_NAME, MainScreen(self))
+		self.init_screen(INCALL_SCREEN_NAME, InCallScreen(self))
 		
-		self.groups[MAIN_GROUP_NAME].part_text_set("numberdisplay_text", "wait ...")
-		self.groups[MAIN_GROUP_NAME].show()
+		self.screens[MAIN_SCREEN_NAME].part_text_set("numberdisplay_text", "wait ...")
+		
+		self.show_screen(MAIN_SCREEN_NAME)
 
-	def init_group(self, name, instance):
-		self.groups[name] = instance
-		self.evas_canvas.evas_obj.data[name] = instance
+	def init_screen(self, screen_name, instance):
+		self.screens[screen_name] = instance
+		self.evas_canvas.evas_obj.data[screen_name] = instance
+
+	def show_screen(self, screen_name):
+		for (name, screen) in self.screens.items():
+			if name == screen_name:
+				screen.show()
+			else:
+				screen.hide()
 
 class EvasCanvas(object):
 	def __init__(self, fullscreen, engine_name):
@@ -209,7 +217,7 @@ class EvasCanvas(object):
 		ecore.main_loop_quit()
 
 if __name__ == "__main__":
-	TestView()
+	Dialer()
 	ecore.main_loop_begin()
 
 '''
