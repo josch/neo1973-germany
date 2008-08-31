@@ -36,8 +36,7 @@ from pyneo.sys_support import pr_set_name
 from ConfigParser import SafeConfigParser
 
 class EdjeGroup(edje.Edje):
-	def __init__(self, main, group):
-		self.main = main
+	def __init__(self, group_manager, group):
 		
 		# Theme file name is formed as follows:
 		# Last two group name parts, combined by underscore
@@ -49,19 +48,19 @@ class EdjeGroup(edje.Edje):
 			raise IOError("Edje theme file for group %s not found: %s" % (group, file_name))
 		
 		try:
-			edje.Edje.__init__(self, self.main.evas_canvas.evas_obj.evas, file=file_name, group=group)
+			edje.Edje.__init__(self, group_manager.get_evas(), file=file_name, group=group)
 		except edje.EdjeLoadError, e:
 			raise SystemExit("Error loading %s: %s" % (file_name, e))
 		
-		self.size = self.main.evas_canvas.evas_obj.evas.size
+		self.size = group_manager.get_evas().size
 
 class InCallScreen(EdjeGroup):
-	def __init__(self, main):
-		EdjeGroup.__init__(self, main, INCALL_SCREEN_NAME)
+	def __init__(self, screen_manager):
+		EdjeGroup.__init__(self, screen_manager, INCALL_SCREEN_NAME)
 
 class MainScreen(EdjeGroup):
-	def __init__(self, main):
-		EdjeGroup.__init__(self, main, MAIN_SCREEN_NAME)
+	def __init__(self, screen_manager):
+		EdjeGroup.__init__(self, screen_manager, MAIN_SCREEN_NAME)
 		self.text = []
 		
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -185,6 +184,9 @@ class Dialer(object):
 				screen.show()
 			else:
 				screen.hide()
+
+	def get_evas(self):
+		return self.evas_canvas.evas_obj.evas
 
 class EvasCanvas(object):
 	def __init__(self, fullscreen, engine_name):
