@@ -135,7 +135,7 @@ class MainScreen(EdjeGroup):
 class PyneoController(object):
 	_dbus_timer = None
 	_gsm_timer = None
-	_callbacks = None
+	_callbacks = {}
 	
 	gsm = None
 	gsm_wireless = None
@@ -153,10 +153,6 @@ class PyneoController(object):
 		except KeyError:
 			# _callbacks[callback_name] undefined
 			class_._callbacks[event_name] = [callback]
-		
-		except TypeError:
-			# _callbacks undefined and thus can't be subscripted
-			class_._callbacks = {event_name: [callback]}
 
 	@classmethod
 	def notify_callbacks(class_, event_name):
@@ -164,9 +160,6 @@ class PyneoController(object):
 			for cb in class_._callbacks[event_name]:
 				cb()
 		
-		except TypeError:
-			# Is raised when _callbacks is none and thus can't be subscripted
-			pass
 		except KeyError:
 			pass
 
