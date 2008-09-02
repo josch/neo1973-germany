@@ -175,7 +175,6 @@ class PyneoController(object):
 		try:
 			class_.gsm = object_by_url('dbus:///org/pyneo/GsmDevice')
 			class_.gsm_wireless = object_by_url(class_.gsm.GetDevice('wireless'))
-			class_.gsm_keyring = object_by_url(class_.gsm_wireless.GetKeyring())
 		
 		except Exception, e:
 			print "XXXXXXX1 " + str(e)
@@ -190,13 +189,24 @@ class PyneoController(object):
 		
 		# Register our own D-Bus callbacks
 		class_.gsm_wireless.connect_to_signal("Status", class_.on_gsm_wireless_status, dbus_interface=DIN_WIRELESS)
-		class_.gsm_keyring.connect_to_signal("Opened", class_.on_gsm_keyring_status, dbus_interface=DIN_KEYRING)
 		
 		# Notify all screens that the interfaces are here so that they can connect their signal callbacks
 		class_.notify_callbacks("init")
 		
 		# D-Bus is ready, let's power up GSM
 		class_.power_up_gsm()
+		
+		try:
+			class_.gsm_keyring = object_by_url(class_.gsm_wireless.GetKeyring())
+			
+		except Exception, e:
+			print "XXXSIM " + str(e)
+
+		class_.gsm_keyring.connect_to_signal("Opened", class_.on_gsm_keyring_status, dbus_interface=DIN_KEYRING)
+					
+		# Inquire SIM status and act accordingly to the initial state
+		status = class_.gsm_keyring.GetOpened(dbus_interface=DIN_KEYRING)
+		class_.on_gsm_keyring_status(status)
 
 	@classmethod
 	def power_up_gsm(class_):
@@ -218,9 +228,6 @@ class PyneoController(object):
 		# No error (anymore)
 		if class_._gsm_timer: class_._gsm_timer.stop()
 		
-		# Inquire SIM status and act accordingly to the initial state
-		status = class_.gsm_keyring.GetOpened(dbus_interface=DIN_KEYRING)
-		class_.on_gsm_keyring_status(status)
 
 	@classmethod
 	def gsm_sim_locked(class_):
@@ -246,18 +253,19 @@ class PyneoController(object):
 		class_.gsm_net_status = status
 		print "GSM NET Status: " + str(status)
 		
-		nw_status = status["stat"]
+		if status.has_key('stat'): 
+			nw_status = status['stat']
 		
-		if nw_status == 0:
-			class_.notify_callbacks("gsm_unregistered")
-		if nw_status in (1, 5):
-			class_.notify_callbacks("gsm_registered")
-		if nw_status == 2:
-			class_.notify_callbacks("gsm_registering")
-		if nw_status == 3:
-			class_.notify_callbacks("gsm_reg_denied")
-		if nw_status == 4:
-			raise NotImplementedError("GSM registration has unknown state")
+			if nw_status == 0:
+				class_.notify_callbacks("gsm_unregistered")
+			if nw_status in (1, 5):
+				class_.notify_callbacks("gsm_registered")
+			if nw_status == 2:
+				class_.notify_callbacks("gsm_registering")
+			if nw_status == 3:
+				class_.notify_callbacks("gsm_reg_denied")
+			if nw_status == 4:
+				raise NotImplementedError("GSM registration has unknown state")
 
 	@classmethod
 	def on_gsm_keyring_status(class_, status_map):
