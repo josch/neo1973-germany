@@ -61,11 +61,7 @@ class InCallScreen(EdjeGroup):
 		EdjeGroup.__init__(self, screen_manager, INCALL_SCREEN_NAME)
 
 	def register_pyneo_callbacks(self):
-		PyneoController.register_callback("init", self.on_dbus_initialized)
-
-	def on_dbus_initialized(self):
-		print "Dbus is ready, says InCallScreen"
-
+		pass
 
 class MainScreen(EdjeGroup):
 	text = None
@@ -75,15 +71,11 @@ class MainScreen(EdjeGroup):
 		self.text = []
 
 	def register_pyneo_callbacks(self):
-		PyneoController.register_callback("init", self.on_dbus_initialized)
 		PyneoController.register_callback("sim_key_required", self.on_sim_key_required)
 		PyneoController.register_callback("sim_ready", self.on_sim_ready)
 		PyneoController.register_callback("gsm_registering", self.on_gsm_registering)
 		PyneoController.register_callback("gsm_registered", self.on_gsm_registered)
 		PyneoController.register_callback("gsm_dialing", self.on_gsm_dialing)
-
-	def on_dbus_initialized(self):
-		print "Dbus is ready, says MainScreen"
 
 	def on_sim_key_required(self):
 		print '---', 'opening keyring'
@@ -182,9 +174,6 @@ class PyneoController(object):
 		
 		# Register our own D-Bus callbacks
 		class_.gsm_wireless.connect_to_signal("Status", class_.on_gsm_wireless_status, dbus_interface=DIN_WIRELESS)
-		
-		# Notify all screens that the interfaces are here so that they can connect their signal callbacks
-		class_.notify_callbacks("init")
 		
 		# D-Bus is ready, let's power up GSM
 		class_.power_up_gsm()
