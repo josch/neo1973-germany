@@ -129,6 +129,7 @@ class PyneoController(object):
 	_gsm_timer = None
 	_keyring_timer = None
 	_callbacks = {}
+	_calls = {}
 	
 	gsm = None
 	gsm_wireless = None
@@ -235,12 +236,27 @@ class PyneoController(object):
 	@classmethod
 	def gsm_dial(class_, number):
 		os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
-		name = class_.gsm_wireless.Initiate(number, dbus_interface=DIN_VOICE_CALL_INITIATOR, timeout=200)
-		class_.notify_callbacks("gsm_dialing")
 		
-		time.sleep(20)
+		name = class_.gsm_wireless.Initiate(number, dbus_interface=DIN_VOICE_CALL_INITIATOR, timeout=200)
 		call = object_by_url(name)
-		call.Hangup(dbus_interface=DIN_CALL)
+		
+		# Initialize "active call" counter
+		class_._calls[call] = 1
+		
+		class_.notify_callbacks("gsm_dialing")
+
+	@classmethod
+	def gsm_hangup(class_, number):
+		# Find call with highest "active call" counter - it'll be the one currently active
+		call = None
+		highest = 0
+		
+		for (call_obj, counter) in class_._calls.items():
+			if counter > highest:
+				highest = counter
+				call = call_obj
+		
+		if call: call.Hangup(dbus_interface=DIN_CALL)
 
 	@classmethod
 	def on_gsm_wireless_status(class_, status_map):
@@ -248,7 +264,7 @@ class PyneoController(object):
 		class_.gsm_net_status = status
 		print "GSM NET Status: " + str(status)
 		
-		if status.has_key('stat'): 
+		if status.has_key('stat'):
 			nw_status = status['stat']
 		
 			if nw_status == 0:
