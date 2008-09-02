@@ -60,6 +60,9 @@ class InCallScreen(EdjeGroup):
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, INCALL_SCREEN_NAME)
 
+	def register_pyneo_callbacks(self):
+		PyneoController.register_callback("init", self.on_dbus_initialized)
+
 	def on_dbus_initialized(self):
 		print "Dbus is ready, says InCallScreen"
 
@@ -71,18 +74,39 @@ class MainScreen(EdjeGroup):
 		EdjeGroup.__init__(self, screen_manager, MAIN_SCREEN_NAME)
 		self.text = []
 
+	def register_pyneo_callbacks(self):
+		PyneoController.register_callback("init", self.on_dbus_initialized)
+		PyneoController.register_callback("sim_key_required", self.on_sim_key_required)
+		PyneoController.register_callback("sim_ready", self.on_sim_ready)
+		PyneoController.register_callback("gsm_registering", self.on_gsm_registering)
+		PyneoController.register_callback("gsm_registered", self.on_gsm_registered)
+		PyneoController.register_callback("gsm_dialing", self.on_gsm_dialing)
+
 	def on_dbus_initialized(self):
 		print "Dbus is ready, says MainScreen"
 
-	def on_sim_pin_required(self):
-		print "SIM REQUIRED"
+	def on_sim_key_required(self):
+		print '---', 'opening keyring'
+		self.part_text_set("numberdisplay_text", "Enter " + PyneoController.gsm_keyring_status['code'])
 
-	def on_gsm_ready(self):
-		print "GSM READY"
+	def on_sim_ready(self):
+		print '---', 'SIM unlocked'
+		self.part_text_set("numberdisplay_text", "SIM unlocked")
+		self.text = []
+
+	def on_gsm_registering(self):
+		self.part_text_set("numberdisplay_text", "Registering ...")
+
+	def on_gsm_registered(self):
+		self.part_text_set("numberdisplay_text", "Dial when ready")
+
+	def on_gsm_dialing(self):
+		print '---', 'dial number'
+		self.part_text_set("numberdisplay_text", "Dialing ...")
 
 	@edje.decorators.signal_callback("dialer_send", "*")
 	def on_edje_signal_numberkey_triggered(self, emission, source):
-		if self.res['code'] != 'READY':
+		if PyneoController.gsm_sim_locked():
 			if len(self.text) < 4 and source.isdigit():
 				self.text.append(source)
 				print ''.join(self.text)
@@ -93,13 +117,9 @@ class MainScreen(EdjeGroup):
 				self.part_text_set("numberdisplay_text", '*' * len(self.text))
 			elif source == "dial":
 				print '---', 'send pin'
-				self.part_text_set("numberdisplay_text", "register ...")
-				self.keyring.Open(''.join(self.text), dbus_interface=DIN_KEYRING, )
-				self.nw_register()
-				self.res = dedbusmap(self.keyring.GetOpened(dbus_interface=DIN_KEYRING))
-				self.part_text_set("numberdisplay_text", "please dial")
-				self.text = []
-		else:	
+				self.part_text_set("numberdisplay_text", "Verifying ...")
+				PyneoController.gsm_unlock_sim(''.join(self.text))
+		else:
 			if source.isdigit() or source in ('*', '#'):
 				self.text.append(source)
 				print ''.join(self.text)
@@ -109,46 +129,53 @@ class MainScreen(EdjeGroup):
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", "".join(self.text))
 			elif source == "dial":
-				print '---', 'dial number'
-				self.part_text_set("numberdisplay_text", "calling ...")
-				os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
-				name = self.wireless.Initiate(''.join(self.text), dbus_interface=DIN_VOICE_CALL_INITIATOR, timeout=200, )
-				time.sleep(20)
-				call = object_by_url(name)
-				call.Hangup(dbus_interface=DIN_CALL)
+				PyneoController.gsm_dial(self.text)
 
 
-class PyneoInterface(object):
+class PyneoController(object):
 	_dbus_timer = None
 	_gsm_timer = None
-	_init_callbacks = None
-	_sim_pin_callback = None
-	_gsm_ready_callback = None
+	_callbacks = None
+	
 	gsm = None
-	gsm_net = None
-	keyring = None
+	gsm_wireless = None
+	gsm_keyring = None
+	
+	gsm_wireless_status = None
+	gsm_keyring_status = None
 
 	@classmethod
-	def register_init_callback(class_, callback):
+	def register_callback(class_, event_name, callback):
+		print "In register_callback: ", event_name
 		try:
-			class_._init_callbacks.append(callback)
-		except AttributeError:
-			class_._init_callbacks = [callback]
+			class_._callbacks[event_name].append(callback)
+		
+		except KeyError:
+			# _callbacks[callback_name] undefined
+			class_._callbacks[event_name] = [callback]
+		
+		except TypeError:
+			# _callbacks undefined and thus can't be subscripted
+			class_._callbacks = {event_name: [callback]}
 
 	@classmethod
-	def register_sim_pin_callback(class_, callback):
-		class_._sim_pin_callback = callback
-
-	@classmethod
-	def register_gsm_ready_callback(class_, callback):
-		class_._gsm_ready_callback = callback
+	def notify_callbacks(class_, event_name):
+		try:
+			for cb in class_._callbacks[event_name]:
+				cb()
+		
+		except TypeError:
+			# Is raised when _callbacks is none and thus can't be subscripted
+			pass
+		except KeyError:
+			pass
 
 	@classmethod
 	def init(class_):
 		try:
 			class_.gsm = object_by_url('dbus:///org/pyneo/GsmDevice')
-			class_.gsm_net = object_by_url('dbus:///org/pyneo/gsmdevice/Network')
-			class_.keyring = object_by_url('dbus:///org/pyneo/GsmDevice')
+			class_.gsm_wireless = object_by_url(class_.gsm.GetDevice('wireless'))
+			class_.gsm_keyring = object_by_url(class_.gsm_wireless.GetKeyring())
 		
 		except Exception, e:
 			print "XXXXXXX1 " + str(e)
@@ -158,15 +185,15 @@ class PyneoInterface(object):
 			# We had an error, keep the timer running if we were called by ecore
 			return True
 		
-		# No error, all went well
+		# No error (anymore)
 		if class_._dbus_timer: class_._dbus_timer.stop()
 		
 		# Register our own D-Bus callbacks
-		class_.gsm.connect_to_signal("Status", class_.on_gsm_net_status, dbus_interface=DIN_NETWORK)
+		class_.gsm_wireless.connect_to_signal("Status", class_.on_gsm_wireless_status, dbus_interface=DIN_WIRELESS)
+		class_.gsm_keyring.connect_to_signal("Opened", class_.on_gsm_keyring_status, dbus_interface=DIN_KEYRING)
 		
 		# Notify all screens that the interfaces are here so that they can connect their signal callbacks
-		for callback in class_._init_callbacks:
-			callback()
+		class_.notify_callbacks("init")
 		
 		# D-Bus is ready, let's power up GSM
 		class_.power_up_gsm()
@@ -174,10 +201,10 @@ class PyneoInterface(object):
 	@classmethod
 	def power_up_gsm(class_):
 		try:
-			if class_.gsm.GetPower(APP_TITLE, dbus_interface=DIN_POWERED, ):
+			if class_.gsm.GetPower(APP_TITLE, dbus_interface=DIN_POWERED):
 				print '---', 'gsm device is already on'
 			else:
-				class_.gsm.SetPower(APP_TITLE, True, dbus_interface=DIN_POWERED, )
+				class_.gsm.SetPower(APP_TITLE, True, dbus_interface=DIN_POWERED)
 				print '---', 'switching device on'
 			
 		except Exception, e:
@@ -185,29 +212,67 @@ class PyneoInterface(object):
 			if not class_._gsm_timer:
 				class_._gsm_timer = ecore.timer_add(5, class_.power_up_gsm)
 			 
-			#We had an error, keep the timer running if we were called by ecore
+			# We had an error, keep the timer running if we were called by ecore
 			return True
 		
-		# No error
+		# No error (anymore)
 		if class_._gsm_timer: class_._gsm_timer.stop()
 		
-		# Inquire status and act appropriately
-		gsm_status = dedbusmap(class_.gsm_net.GetStatus(dbus_interface=DIN_WIRELESS))
-		
-		try:
-			if gsm_status["stat"] == 0: class_._sim_pin_callback()
-		except AttributeError:
-			raise NotImplementedError("No one here to handle SIM PIN entry!")
-		
-		try:
-			if gsm_status["stat"] in (1, 5): class_._gsm_ready_callback()
-		except AttributeError:
-			raise NotImplementedError("No one here to handle GSM ready status!")
+		# Inquire SIM status and act accordingly to the initial state
+		status = class_.gsm_keyring.GetOpened(dbus_interface=DIN_KEYRING)
+		class_.on_gsm_keyring_status(status)
 
 	@classmethod
-	def on_gsm_net_status(class_, status_map):
-		status_map = dedbusmap(status_map)
-		print "Status: " + str(status_map)
+	def gsm_sim_locked(class_):
+		return class_.gsm_keyring_status['code'] != 'READY'
+
+	@classmethod
+	def gsm_unlock_sim(class_, key):
+		class_.gsm_keyring.Open(key, dbus_interface=DIN_KEYRING)
+
+	@classmethod
+	def gsm_dial(class_, number):
+		os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
+		name = class_.gsm_wireless.Initiate(number, dbus_interface=DIN_VOICE_CALL_INITIATOR, timeout=200)
+		class_.notify_callbacks("gsm_dialing")
+		
+		time.sleep(20)
+		call = object_by_url(name)
+		call.Hangup(dbus_interface=DIN_CALL)
+
+	@classmethod
+	def on_gsm_wireless_status(class_, status_map):
+		status = dedbusmap(status_map)
+		class_.gsm_net_status = status
+		print "GSM NET Status: " + str(status)
+		
+		nw_status = status["stat"]
+		
+		if nw_status == 0:
+			class_.notify_callbacks("gsm_unregistered")
+		if nw_status in (1, 5):
+			class_.notify_callbacks("gsm_registered")
+		if nw_status == 2:
+			class_.notify_callbacks("gsm_registering")
+		if nw_status == 3:
+			class_.notify_callbacks("gsm_reg_denied")
+		if nw_status == 4:
+			raise NotImplementedError("GSM registration has unknown state")
+
+	@classmethod
+	def on_gsm_keyring_status(class_, status_map):
+		status = dedbusmap(status_map)
+		class_.gsm_keyring_status = status
+		print "SIM Status: " + str(status)
+		
+		if status["code"] == "READY":
+			class_.notify_callbacks("sim_ready")
+			
+			# Try registering on the network
+			class_.gsm_wireless.Register(dbus_interface=DIN_WIRELESS)
+		
+		else:
+			class_.notify_callbacks("sim_key_required")
 
 
 class Dialer(object):
@@ -232,29 +297,18 @@ class Dialer(object):
 		# Initialize the D-Bus interface to pyneo
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
 		self.system_bus = SystemBus(mainloop=dbus_ml)
-		PyneoInterface.init()
+		PyneoController.init()
 
 
 	def init_screen(self, screen_name, instance):
 		self.screens[screen_name] = instance
 		self.evas_canvas.evas_obj.data[screen_name] = instance
 		
-		# Attempt to register the screen's callbacks
+		# Attempt to register the screen default callbacks
 		try:
-			PyneoInterface.register_init_callback(instance.on_dbus_initialized)
+			instance.register_pyneo_callbacks()
 		except AttributeError:
 			pass
-		
-		try:
-			PyneoInterface.register_sim_pin_callback(instance.on_sim_pin_required)
-		except AttributeError:
-			pass
-		
-		try:
-			PyneoInterface.register_gsm_ready_callback(instance.on_gsm_ready)
-		except AttributeError:
-			pass
-
 
 	def show_screen(self, screen_name):
 		for (name, screen) in self.screens.items():
