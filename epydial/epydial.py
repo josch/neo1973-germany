@@ -127,6 +127,7 @@ class MainScreen(EdjeGroup):
 class PyneoController(object):
 	_dbus_timer = None
 	_gsm_timer = None
+	_keyring_timer = None
 	_callbacks = {}
 	
 	gsm = None
@@ -162,7 +163,7 @@ class PyneoController(object):
 			class_.gsm_wireless = object_by_url(class_.gsm.GetDevice('wireless'))
 		
 		except Exception, e:
-			print "XXXXXXX1 " + str(e)
+			print "Pyneo error: " + str(e)
 			if not class_._dbus_timer:
 				class_._dbus_timer = ecore.timer_add(5, class_.init)
 			
@@ -177,18 +178,6 @@ class PyneoController(object):
 		
 		# D-Bus is ready, let's power up GSM
 		class_.power_up_gsm()
-		
-		try:
-			class_.gsm_keyring = object_by_url(class_.gsm_wireless.GetKeyring())
-			
-		except Exception, e:
-			print "XXXSIM " + str(e)
-
-		class_.gsm_keyring.connect_to_signal("Opened", class_.on_gsm_keyring_status, dbus_interface=DIN_KEYRING)
-					
-		# Inquire SIM status and act accordingly to the initial state
-		status = class_.gsm_keyring.GetOpened(dbus_interface=DIN_KEYRING)
-		class_.on_gsm_keyring_status(status)
 
 	@classmethod
 	def power_up_gsm(class_):
@@ -200,7 +189,7 @@ class PyneoController(object):
 				print '---', 'switching device on'
 			
 		except Exception, e:
-			print "XXXXXXX2 " + str(e)
+			print "GSM error: " + str(e)
 			if not class_._gsm_timer:
 				class_._gsm_timer = ecore.timer_add(5, class_.power_up_gsm)
 			 
@@ -210,6 +199,30 @@ class PyneoController(object):
 		# No error (anymore)
 		if class_._gsm_timer: class_._gsm_timer.stop()
 		
+		# Now we can request the keyring object for the SIM, it didn't exist before powering up
+		class_.get_gsm_keyring()
+
+	@classmethod
+	def get_gsm_keyring(class_):
+		try:
+			class_.gsm_keyring = object_by_url(class_.gsm_wireless.GetKeyring())
+			
+		except Exception, e:
+			print "SIM error: " + str(e)
+			if not class_._keyring_timer:
+				class_._keyring_timer = ecore.timer_add(5, class_.get_gsm_keyring)
+			 
+			# We had an error, keep the timer running if we were called by ecore
+			return True
+		
+		# No error (anymore)
+		if class_._keyring_timer: class_._keyring_timer.stop()
+			
+		class_.gsm_keyring.connect_to_signal("Opened", class_.on_gsm_keyring_status, dbus_interface=DIN_KEYRING)
+			
+		# Inquire SIM status and act accordingly to the initial state
+		status = class_.gsm_keyring.GetOpened(dbus_interface=DIN_KEYRING)
+		class_.on_gsm_keyring_status(status)
 
 	@classmethod
 	def gsm_sim_locked(class_):
