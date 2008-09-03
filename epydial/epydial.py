@@ -77,9 +77,9 @@ class MainScreen(EdjeGroup):
 		PyneoController.register_callback("gsm_registered", self.on_gsm_registered)
 		PyneoController.register_callback("gsm_dialing", self.on_gsm_dialing)
 
-	def on_sim_key_required(self):
+	def on_sim_key_required(self, key_type):
 		print '---', 'opening keyring'
-		self.part_text_set("numberdisplay_text", "Enter " + PyneoController.gsm_keyring_status['code'])
+		self.part_text_set("numberdisplay_text", "Enter " + key_type)
 
 	def on_sim_ready(self):
 		print '---', 'SIM unlocked'
@@ -121,7 +121,7 @@ class MainScreen(EdjeGroup):
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", "".join(self.text))
 			elif source == "dial":
-				PyneoController.gsm_dial(self.text)
+				PyneoController.gsm_dial("".join(self.text))
 
 
 class PyneoController(object):
@@ -149,10 +149,10 @@ class PyneoController(object):
 			class_._callbacks[event_name] = [callback]
 
 	@classmethod
-	def notify_callbacks(class_, event_name):
+	def notify_callbacks(class_, event_name, *args):
 		try:
 			for cb in class_._callbacks[event_name]:
-				cb()
+				cb(*args)
 		
 		except KeyError:
 			pass
@@ -272,14 +272,27 @@ class PyneoController(object):
 		
 			if nw_status == 0:
 				class_.notify_callbacks("gsm_unregistered")
-			if nw_status in (1, 5):
+			elif nw_status in (1, 5):
 				class_.notify_callbacks("gsm_registered")
-			if nw_status == 2:
+			elif nw_status == 2:
 				class_.notify_callbacks("gsm_registering")
-			if nw_status == 3:
+			elif nw_status == 3:
 				class_.notify_callbacks("gsm_reg_denied")
-			if nw_status == 4:
+			elif nw_status == 4:
 				raise NotImplementedError("GSM registration has unknown state")
+		
+		if status.has_key('phone_activity_status'):
+			ph_status = status['phone_activity_status']
+			
+			if ph_status == 0:
+				class_.notify_callbacks("gsm_phone_call_end")
+			if ph_status == 3:
+				class_.notify_callbacks("gsm_phone_ringing")
+			if ph_status == 4:
+				class_.notify_callbacks("gsm_phone_call_start")
+		
+		if status.has_key('rssi'):
+			class_.notify_callbacks("gsm_signal_strength_change", status['rssi'])
 
 	@classmethod
 	def on_gsm_keyring_status(class_, status_map):
@@ -294,7 +307,7 @@ class PyneoController(object):
 			class_.gsm_wireless.Register(dbus_interface=DIN_WIRELESS)
 		
 		else:
-			class_.notify_callbacks("sim_key_required")
+			class_.notify_callbacks("sim_key_required", status["code"])
 
 
 class Dialer(object):
@@ -320,7 +333,10 @@ class Dialer(object):
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
 		self.system_bus = SystemBus(mainloop=dbus_ml)
 		PyneoController.init()
-
+		
+		# Register our own callbacks
+		PyneoController.register_callback("gsm_phone_call_start", self.on_call_start)
+		PyneoController.register_callback("gsm_phone_call_end", self.on_call_start)
 
 	def init_screen(self, screen_name, instance):
 		self.screens[screen_name] = instance
@@ -341,6 +357,12 @@ class Dialer(object):
 
 	def get_evas(self):
 		return self.evas_canvas.evas_obj.evas
+
+	def on_call_start(self):
+		self.show_screen(INCALL_SCREEN_NAME)
+
+	def on_call_end(self):
+		self.show_screen(MAIN_SCREEN_NAME)
 
 
 class EvasCanvas(object):
