@@ -336,7 +336,7 @@ class Dialer(object):
 		
 		# Register our own callbacks
 		PyneoController.register_callback("gsm_phone_call_start", self.on_call_start)
-		PyneoController.register_callback("gsm_phone_call_end", self.on_call_start)
+		PyneoController.register_callback("gsm_phone_call_end", self.on_call_end)
 
 	def init_screen(self, screen_name, instance):
 		self.screens[screen_name] = instance
