@@ -3,10 +3,10 @@
 //
 // TODO: make the font colors shinier :)
 //
-// Signal1: "dialer_send"
-//  Parameter1.1: $"keynumber"
-//  Parameter1.2: "backspace"
-//  Parameter1.2: "dial"
+// Signal1: "dialer_incall_send"
+//  Parameter1.1: "End Call"
+//  Parameter1.2: "Back To Dialer"
+//  Parameter1.2: "Hold Call"
 
 data {
 	item: "author" "thomasg [thomas (a) gstaedtner (.) net]";
@@ -120,7 +120,7 @@ program { \
 	name: "button_"button_number"_signal_emit"; \
 	signal: "mouse,down,*"; \
 	source: "button_"button_number; \
-	action: SIGNAL_EMIT "dialer_send" button_caption; \
+	action: SIGNAL_EMIT "dialer_incall_send" button_caption; \
 } \
 program { \
 	name: "button_"button_number"_animation"; \
