@@ -257,6 +257,9 @@ class PyneoController(object):
 				call = call_obj
 		
 		if call: call.Hangup(dbus_interface=DIN_CALL)
+		
+		# Remove the call from our list
+		class_._calls.__delitem__(call_obj)
 
 	@classmethod
 	def on_gsm_wireless_status(class_, status_map):
