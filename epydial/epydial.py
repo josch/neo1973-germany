@@ -7,7 +7,11 @@ __license__ = "GPL3"
 
 WIDTH = 480
 HEIGHT = 640
+
 FRAMETIME = 1.0 / 20
+IMAGE_CACHE_SIZE = 6
+FONT_CACHE_SIZE = 2
+
 FULLSCREEN = True
 APP_TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
@@ -390,6 +394,8 @@ class EvasCanvas(object):
 		self.evas_obj.name_class = WM_INFO
 		self.evas_obj.fullscreen = fullscreen
 #		self.evas_obj.size = str(WIDTH) + 'x' + str(HEIGHT)
+		self.evas_obj.evas.image_cache_set(IMAGE_CACHE_SIZE*1024*1024)
+		self.evas_obj.evas.font_cache_set(FONT_CACHE_SIZE*1024*1024)
 		self.evas_obj.show()
 
 	def on_resize(self, evas_obj):
