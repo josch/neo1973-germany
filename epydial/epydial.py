@@ -16,7 +16,7 @@ FULLSCREEN = True
 APP_TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
 
-EDJE_FILE_PATH = "data/themes/blackwhite/"
+EDJE_FILE_PATH = "data/themes/default/"
 
 MAIN_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
