@@ -79,6 +79,8 @@ class MainScreen(EdjeGroup):
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, MAIN_SCREEN_NAME)
 		self.text = []
+		ecore.timer_add(60.0, self.display_time)
+		self.display_time()
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("sim_key_required", self.on_sim_key_required)
@@ -113,6 +115,10 @@ class MainScreen(EdjeGroup):
 		
 	def on_gsm_signal_strength_change(self, rssi):
 		self.part_text_set("signalq_text", "%s dBm"%str(rssi))
+		
+	def display_time(self):
+		self.part_text_set("time_text", time.strftime("%H:%M", time.localtime()));
+		return True;
 
 	@edje.decorators.signal_callback("dialer_send", "*")
 	def on_edje_signal_numberkey_triggered(self, emission, source):
