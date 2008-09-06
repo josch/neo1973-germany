@@ -236,7 +236,7 @@ collections {
 				description {
 					state: "default" 0;
 					color: 0 0 0 255;
-					rel1 { relative: 0.02 0.02; offset: 0 0; };
+					rel1 { relative: 0.02 0.06; offset: 0 0; };
 					rel2 { relative: 0.9 0.3; offset: 0 0; };
 				}
 			}
