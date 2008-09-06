@@ -16,7 +16,7 @@ FULLSCREEN = True
 APP_TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
 
-EDJE_FILE_PATH = "data/themes/default/"
+EDJE_FILE_PATH = "data/themes/blackwhite/"
 
 MAIN_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
@@ -86,7 +86,9 @@ class MainScreen(EdjeGroup):
 		PyneoController.register_callback("gsm_registering", self.on_gsm_registering)
 		PyneoController.register_callback("gsm_registered", self.on_gsm_registered)
 		PyneoController.register_callback("gsm_dialing", self.on_gsm_dialing)
-
+		PyneoController.register_callback("gsm_operator_change", self.on_gsm_operator_change)
+		PyneoController.register_callback("gsm_signal_strength_change", self.on_gsm_signal_strength_change)
+		
 	def on_sim_key_required(self, key_type):
 		print '---', 'opening keyring'
 		self.part_text_set("numberdisplay_text", "Enter " + key_type)
@@ -105,6 +107,12 @@ class MainScreen(EdjeGroup):
 	def on_gsm_dialing(self):
 		print '---', 'dial number'
 		self.part_text_set("numberdisplay_text", "Dialing ...")
+		
+	def on_gsm_operator_change(self, operator):
+		self.part_text_set("operater_text", operator)
+		
+	def on_gsm_signal_strength_change(self, rssi):
+		self.part_text_set("signalq_text", "%s dBm"%str(rssi))
 
 	@edje.decorators.signal_callback("dialer_send", "*")
 	def on_edje_signal_numberkey_triggered(self, emission, source):
@@ -303,6 +311,9 @@ class PyneoController(object):
 		
 		if status.has_key('rssi'):
 			class_.notify_callbacks("gsm_signal_strength_change", status['rssi'])
+			
+		if status.has_key('oper'):
+			class_.notify_callbacks("gsm_operator_change", status['oper'])
 
 	@classmethod
 	def on_gsm_keyring_status(class_, status_map):
