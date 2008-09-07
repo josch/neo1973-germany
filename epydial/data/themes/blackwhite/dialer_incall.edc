@@ -3,15 +3,20 @@
 //
 // TODO: make the font colors shinier :)
 //
-// Signal1: "dialer_send"
-//  Parameter1.1: $"keynumber"
-//  Parameter1.2: "backspace"
-//  Parameter1.2: "dial"
+// Signal1: "dialer_incall_send"
+//  Parameter1.1: "Accept Call"
+//  Parameter1.2: "Hangup Call"
 
 data {
 	item: "author" "thomasg [thomas (a) gstaedtner (.) net]";
 	item: "version" "prototype";
 	item: "name" "epydial_default";
+}
+
+images {
+	image: "yes.png" COMP;
+	image: "no.png" COMP;
+	image: "caller.png" COMP;
 }
 
 color_classes {
@@ -26,6 +31,12 @@ color_classes {
 		color: 0 0 0 255;
 		color2: 0 0 0 255;
 		color3: 0 0 0 255;
+	}
+	color_class {
+		name: "active";
+		color: 255 255 255 128;
+		color2: 128 128 128 255;
+		color3: 128 128 128 255;
 	}
 }
 
@@ -170,34 +181,87 @@ collections {
 		parts {
 			part {
 				name: "background";
-				type: GRADIENT;
+				type: RECT;
 				description {
+					color_class: "active";
 					state: "default" 0;
-					gradient {
-						spectrum: "background";
-						rel1 { relative: 0 0; offset: 0 0; };
-						rel2 { relative: 0 1; offset: 0 0; };
-					}
-					fill {
-						spread: 1;
-						angle: 1;
-						size { relative: 1 0; offset: 0 0; };
-					}
-					rel1 { relative: 0 0; offset: 0 0; };
-					rel2 { relative: 1 1; offset: 0 0; };
+					rel1 { relative: 0 6/20; };
+					rel2 { relative: 1 14/20; };
 				}
 			}
+			part {
+				name: "number_incall_text";
+				type: TEXT;
+				description {
+					color_class: "button_inactive";
+					state: "default" 0;
+      					rel1 { relative: 0 6/20; }
+      					rel2 { relative: 1 8/20; }
+      					text { text, "number"; font: "Sans"; size, 1; align, 0.5 0.5; fit, 0 1; }
+   				}
+			}
+			part {
+				name: "image_incall";
+				type: IMAGE;
+				description {
+					rel1 {	relative: 1/2 1/2; 
+						offset: -80 -80;
+						}
+					rel2 {	relative: 1/2 1/2;
+						offset: 80 80;
+						}
+					image { normal: "caller.png"; }
+				}
+			}
+			part {
+				name: "incall_yes";
+				type: IMAGE;
+				description {
+					rel1 {
+						relative: 1/8 0.7;
+						offset: -50 -110;
+						}
+					rel2 {
+						relative: 1/8 0.7;
+						offset: 50 -10;
+						}
+					image { normal: "yes.png"; }
+				}
+			}
+			program { \
+				name: "button_incall_yes_signal_emit"; \
+				signal: "mouse,down,*"; \
+				source: "incall_yes"; \
+				action: SIGNAL_EMIT "dialer_incall_send" "Accept Call"; \
+			} \
+			part {
+				name: "incall_no";
+				type: IMAGE;
+				description {
+					rel1 {
+						relative: 7/8 0.7;
+						offset: -50 -110;
+						}
+					rel2 {
+						relative: 7/8 0.7;
+						offset: 50 -10;
+						}
+					image { normal: "no.png"; }
+				}
+			}
+			program { \
+				name: "button_incall_no_signal_emit"; \
+				signal: "mouse,down,*"; \
+				source: "incall_no"; \
+				action: SIGNAL_EMIT "dialer_incall_send" "Hangup Call"; \
+			} \
 
-			/* stripes - just for design :) */
-/*			DESIGN_STRIPE(1, 1/2, 0.18, 1, 0.18);
-			DESIGN_STRIPE(2, 1/2, 0.22, 1, 0.22);
-			DESIGN_STRIPE(3, 1/2, 0.26, 1, 0.26); */
-
+/*  
 			BUTTON(1, 0.1, 0.2, 0.9, 0.4, "End Call");
 			BUTTON(2, 0.1, 0.45, 0.9, 0.65, "Back To Dialer");
 			BUTTON(3, 0.1, 0.7, 0.9, 0.9, "Hold Call");
-/*			DESIGN_SEPERATOR(1, 1/3, 25/70, 1/3, 35/70); */
-/*			DESIGN_SEPERATOR(2, 2/3, 25/70, 2/3, 35/70); */
+			DESIGN_SEPERATOR(1, 1/3, 25/70, 1/3, 35/70);
+			DESIGN_SEPERATOR(2, 2/3, 25/70, 2/3, 35/70); */
 		}
 	}
 }	

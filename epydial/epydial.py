@@ -16,7 +16,7 @@ FULLSCREEN = True
 APP_TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
 
-EDJE_FILE_PATH = "data/themes/default/"
+EDJE_FILE_PATH = "data/themes/blackwhite/"
 
 MAIN_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
@@ -69,9 +69,12 @@ class InCallScreen(EdjeGroup):
 		
 	@edje.decorators.signal_callback("dialer_incall_send", "*")
 	def on_edje_signal_dialer_incall_triggered(self, emission, source):
-		if source == "End Call":
+		if source == "Hangup Call":
 			print source
 			PyneoController.gsm_hangup()
+		if source == "Accept Call":
+			print source
+
 
 class MainScreen(EdjeGroup):
 	text = None
@@ -146,7 +149,7 @@ class MainScreen(EdjeGroup):
 				self.part_text_set("numberdisplay_text", "".join(self.text))
 			elif source == "dial":
 				PyneoController.gsm_dial("".join(self.text))
-				
+
 
 class PyneoController(object):
 	_dbus_timer = None
@@ -311,7 +314,7 @@ class PyneoController(object):
 			if ph_status == 0:
 				class_.notify_callbacks("gsm_phone_call_end")
 			if ph_status == 3:
-				class_.notify_callbacks("gsm_phone_ringing")
+				class_.notify_callbacks("gsm_phone_call_start")
 			if ph_status == 4:
 				class_.notify_callbacks("gsm_phone_call_start")
 		
