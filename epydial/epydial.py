@@ -315,7 +315,7 @@ class PyneoController(object):
 			if ph_status == 0:
 				class_.notify_callbacks("gsm_phone_call_end")
 			if ph_status == 3:
-				class_.notify_callbacks("gsm_phone_call_start")
+				class_.notify_callbacks("gsm_phone_ringing")
 			if ph_status == 4:
 				class_.notify_callbacks("gsm_phone_call_start")
 		
@@ -366,6 +366,7 @@ class Dialer(object):
 		PyneoController.init()
 		
 		# Register our own callbacks
+		PyneoController.register_callback("gsm_phone_ringing", self.on_ringing)
 		PyneoController.register_callback("gsm_phone_call_start", self.on_call_start)
 		PyneoController.register_callback("gsm_phone_call_end", self.on_call_end)
 
@@ -388,6 +389,9 @@ class Dialer(object):
 
 	def get_evas(self):
 		return self.evas_canvas.evas_obj.evas
+
+	def on_ringing(self):
+		self.show_screen(INCALL_SCREEN_NAME)
 
 	def on_call_start(self):
 		self.show_screen(INCALL_SCREEN_NAME)
