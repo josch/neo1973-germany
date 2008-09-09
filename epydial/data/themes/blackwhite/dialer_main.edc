@@ -5,7 +5,8 @@
 //
 // Signal1: "dialer_send"
 //  Parameter1.1: $"keynumber"
-//  Parameter1.2: "backspace"
+//  Parameter1.2: "backspace_down"
+//  Parameter1.2: "backspace_up"
 //  Parameter1.2: "dial"
 
 data {
@@ -336,10 +337,16 @@ collections {
 				}
 			}
 			program {
-				name: "numberdisplay_backspace_area_signal_emit";
+				name: "numberdisplay_backspace_area_down_signal_emit";
 				signal: "mouse,down,*";
 				source: "numberdisplay_backspace_area";
-				action: SIGNAL_EMIT "dialer_send" "backspace";
+				action: SIGNAL_EMIT "dialer_send" "backspace_down";
+			}
+			program {
+				name: "numberdisplay_backspace_area_up_signal_emit";
+				signal: "mouse,up,*";
+				source: "numberdisplay_backspace_area";
+				action: SIGNAL_EMIT "dialer_send" "backspace_up";
 			}
 			program {
 				name: "numberdisplay_backspace_area_animation_start";
