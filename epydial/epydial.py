@@ -146,7 +146,7 @@ class MainScreen(EdjeGroup):
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", "".join(self.text))
 			elif source == "backspace_down":
-				time.time()-self.last < self.TIMEOUT
+				time.time()
 				self.text = self.text[:-1]
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", "".join(self.text))
