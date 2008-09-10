@@ -5,9 +5,9 @@
 //
 // Signal1: "dialer_send"
 //  Parameter1.1: $"keynumber"
-//  Parameter1.2: "backspace_down"
-//  Parameter1.2: "backspace_up"
-//  Parameter1.2: "dial"
+//  Parameter1.2: "backspace"
+//  Parameter1.3: "clear"
+//  Parameter1.4: "dial"
 
 data {
 	item: "author" "thomasg [thomas (a) gstaedtner (.) net]";
@@ -154,7 +154,34 @@ collections {
 	group {
 		name: "pyneo/dialer/main";
 		min: 100 100;
-		max: 800 800;
+		max: 1000 1000;
+		script {
+			public flag_timer_running;
+			public flag_backspace_sent;
+			public timer_id;
+
+			public clear_timer() {
+				set_int(flag_backspace_sent, 0);
+				set_int(flag_timer_running, 1);
+				timer_id = timer(2, "clear_send", 1);
+			}
+
+			public clear_send() {
+				if (get_int(flag_backspace_sent) == 0) {
+					set_int(flag_timer_running, 0);
+					run_program(PROGRAM:"numberdisplay_backspace_emit_signal_clear");
+				}
+			}
+
+			public backspace_send() {
+				if (get_int(flag_timer_running) == 1) {
+					cancel_timer(get_int(timer_id));
+					set_int(flag_backspace_sent, 1);
+					run_program(PROGRAM:"numberdisplay_backspace_emit_signal_backspace");
+				}	
+			}
+		}
+
 		parts {
 			part {
 				name: "background";
@@ -292,7 +319,6 @@ collections {
 				name: "numberdisplay_backspace";
 				type: TEXT;
 				mouse_events: 0;
-				effect: GLOW;
 				description {
 					state: "default" 0;
 					color_class: "button_inactive";
@@ -337,16 +363,28 @@ collections {
 				}
 			}
 			program {
-				name: "numberdisplay_backspace_area_down_signal_emit";
+				name: "numberdisplay_backspace_area_signal_emit";
 				signal: "mouse,down,*";
 				source: "numberdisplay_backspace_area";
-				action: SIGNAL_EMIT "dialer_send" "backspace_down";
+				script {
+					clear_timer();
+				}
 			}
 			program {
-				name: "numberdisplay_backspace_area_up_signal_emit";
+				name: "numberdisplay_backspace_area_signal_stop";
 				signal: "mouse,up,*";
 				source: "numberdisplay_backspace_area";
-				action: SIGNAL_EMIT "dialer_send" "backspace_up";
+				script {
+					backspace_send();
+				}
+			}
+			program {
+				name: "numberdisplay_backspace_emit_signal_backspace";
+				action: SIGNAL_EMIT "dialer_send" "backspace";
+			}
+			program {
+				name: "numberdisplay_backspace_emit_signal_clear";
+				action: SIGNAL_EMIT "dialer_send" "clear";
 			}
 			program {
 				name: "numberdisplay_backspace_area_animation_start";
