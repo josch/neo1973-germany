@@ -16,7 +16,7 @@ FULLSCREEN = True
 APP_TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
 
-EDJE_FILE_PATH = "data/themes/blackwhite/"
+EDJE_FILE_PATH = "data/themes/default/"
 
 MAIN_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
@@ -78,12 +78,10 @@ class InCallScreen(EdjeGroup):
 
 class MainScreen(EdjeGroup):
 	text = None
-	TIMEOUT = 2.0
 	
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, MAIN_SCREEN_NAME)
 		self.text = []
-		self.last = 0.0
 		ecore.timer_add(60.0, self.display_time)
 		self.display_time()
 
@@ -145,18 +143,16 @@ class MainScreen(EdjeGroup):
 				self.text.append(source)
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", "".join(self.text))
-			elif source == "backspace_down":
-				time.time()
+			elif source == "backspace":
 				self.text = self.text[:-1]
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", "".join(self.text))
-			elif source == "backspace_up" and time.time()-self.last > self.TIMEOUT:
+			elif source == "clear":
 				self.text = []
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", "".join(self.text))
 			elif source == "dial":
 				PyneoController.gsm_dial("".join(self.text))
-		self.last = time.time()
 
 
 class PyneoController(object):
