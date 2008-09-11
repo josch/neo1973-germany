@@ -1,0 +1,14 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=unitc
+Comment=Unit convert application
+Exec=unitc
+Icon=unitc
+Terminal=false
+Type=Application
+Categories=Office;
+MimeType=text/x-vcard;
+SingleInstance=true
+StartupNotify=true
+Categories=Office;
+
