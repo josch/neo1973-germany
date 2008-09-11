@@ -13,7 +13,7 @@ import xml.dom.minidom
 from sys import exit
 
 try:
-    unitfile = 'unit.xml' # path to the unit file
+    unitfile = '/usr/share/unitc/unit.xml' # path to the unit file
     file = xml.dom.minidom.parse(unitfile) # parse the xml file
 except:
     print 'The unitfile can not be opened or found'
