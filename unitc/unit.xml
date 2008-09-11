@@ -43,13 +43,13 @@
             />
             <unit
                 name="USD"
-                from_ref="result * 1.4573"
-                to_ref="number / 1.4573"
+                from_ref="result * 1.3943"
+                to_ref="number / 1.3943"
             />
             <unit
                 name="TWD"
-                from_ref="result * 46.125"
-                to_ref="number / 46.125"
+                from_ref="result * 44.8430"
+                to_ref="number / 44.8430"
             />
 			<unit
 				name="DM"
