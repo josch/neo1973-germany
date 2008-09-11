@@ -65,8 +65,11 @@ class InCallScreen(EdjeGroup):
 		EdjeGroup.__init__(self, screen_manager, INCALL_SCREEN_NAME)
 
 	def register_pyneo_callbacks(self):
-		pass
-		
+		PyneoController.register_callback("gsm_number_display", self.on_gsm_number_display)
+
+	def on_gsm_number_display(self, number):
+		self.part_text_set("incall_number_text", number)
+
 	@edje.decorators.signal_callback("dialer_incall_send", "*")
 	def on_edje_signal_dialer_incall_triggered(self, emission, source):
 		if source == "Hangup Call":
@@ -328,6 +331,9 @@ class PyneoController(object):
 			
 		if status.has_key('oper'):
 			class_.notify_callbacks("gsm_operator_change", status['oper'])
+			
+		if status.has_key('number'):
+			class_.notify_callbacks("gsm_number_display", status['number'])
 
 	@classmethod
 	def on_gsm_keyring_status(class_, status_map):
