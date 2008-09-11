@@ -43,8 +43,8 @@
             />
             <unit
                 name="USD"
-                from_ref="result / 1.4573"
-                to_ref="number * 1.4573"
+                from_ref="result * 1.4573"
+                to_ref="number / 1.4573"
             />
             <unit
                 name="TWD"
