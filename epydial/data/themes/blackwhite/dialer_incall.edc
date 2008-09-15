@@ -17,6 +17,7 @@ images {
 	image: "yes.png" COMP;
 	image: "no.png" COMP;
 	image: "caller.png" COMP;
+	image: "bg.png" COMP;
 }
 
 color_classes {
@@ -48,6 +49,16 @@ collections {
 		parts {
 			part {
 				name: "background";
+				type: IMAGE;
+				description {
+					state: "default" 0;
+					rel1 { relative: 0 0; offset: 0 0; };
+					rel2 { relative: 1 1; offset: 0 0; };
+					image { normal: "bg.png"; };
+				}
+			}
+			part {
+				name: "background_rect";
 				type: RECT;
 				description {
 					color_class: "active";

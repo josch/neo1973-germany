@@ -8,6 +8,8 @@
 //  Parameter1.2: "backspace"
 //  Parameter1.3: "clear"
 //  Parameter1.4: "dial"
+//  Parameter1.5: "#"
+//  Parameter1.6: "screen_locked"
 
 data {
 	item: "author" "thomasg [thomas (a) gstaedtner (.) net]";
@@ -194,6 +196,30 @@ collections {
 					run_program(PROGRAM:"numberdisplay_backspace_emit_signal_backspace");
 				}	
 			}
+			public flag_timer_running_hash_key;
+			public flag_hash_key_sent;
+			public timer_id_hash_key;
+
+			public clear_timer_hash_key() {
+				set_int(flag_hash_key_sent, 0);
+				set_int(flag_timer_running_hash_key, 1);
+				timer_id_hash_key = timer(2, "clear_send_hash_key", 1);
+			}
+
+			public clear_send_hash_key() {
+				if (get_int(flag_hash_key_sent) == 0) {
+					set_int(flag_timer_running_hash_key, 0);
+					run_program(PROGRAM:"hash_key_emit_signal_screen_locked");
+				}
+			}
+
+			public hash_key_send() {
+				if (get_int(flag_timer_running_hash_key) == 1) {
+					cancel_timer(get_int(timer_id_hash_key));
+					set_int(flag_hash_key_sent, 1);
+					run_program(PROGRAM:"hash_key_emit_signal_#");
+				}	
+			}			
 		}
 
 		parts {
@@ -461,7 +487,90 @@ collections {
 			/* row 4 */
 			BUTTON(10, 0, 58/70 , 1/3, 68/70, "*");
 			BUTTON(11, 1/3, 58/70, 2/3, 68/70, 0);
-			BUTTON(12, 2/3, 58/70, 3/3, 68/70, "#");
+			/*BUTTON(12, 2/3, 58/70, 3/3, 68/70, "#");*/
+			part {
+				name: "button_12";
+				type: RECT;
+				description {
+					state: "default" 0;
+					color_class: "unvisible";
+					rel1 { relative: 2/3 58/70; offset: 0 0; };
+					rel2 { relative: 3/3 68/70; offset: 0 0; };
+				}
+				description {
+					state: "default" 0.5;
+					inherit: "default" 0;
+					color_class: "button_active";
+					rel1.offset: 0 -5;
+					rel2.offset: 0 5;
+				}
+				description {
+					state: "default" 1;
+					inherit: "default" 0;
+				}
+			}
+			part {
+				name: "button_12_caption";
+				type: TEXT;
+				mouse_events: 0;
+				description { \
+					state: "default" 0;
+					color_class: "button_inactive";
+					rel1 {
+						to: "button_12";
+						relative: 0 0;
+					}
+					rel2 {
+						to: "button_12";
+						relative: 1 1;
+					}
+					text {
+						text: "#";
+						size: 18;
+						font: "Sans:style=Bold,Edje-Vera";
+						fit: 1 1;
+					}
+				}
+			}
+			program {
+				name: "button_12_animation";
+				signal: "mouse,down,*";
+				source: "button_12";
+				action: STATE_SET "default" 0.5;
+				target: "button_12";
+			}
+			program {
+				name: "button_12_animation_end";
+				signal: "mouse,up,*";
+				source: "button_12";
+				action: STATE_SET "default" 1;
+				target: "button_12";
+				transition: DECELERATE 0.1;
+			}
+			program {
+				name: "hash_key_signal_emit";
+				signal: "mouse,down,*";
+				source: "button_12";
+				script {
+					clear_timer_hash_key();
+				}
+			}
+			program {
+				name: "hash_key_signal_stop";
+				signal: "mouse,up,*";
+				source: "button_12";
+				script {
+					hash_key_send();
+				}
+			}
+			program {
+				name: "hash_key_emit_signal_#";
+				action: SIGNAL_EMIT "dialer_send" "#";
+			}
+			program {
+				name: "hash_key_emit_signal_screen_locked";
+				action: SIGNAL_EMIT "dialer_send" "screen_locked";
+			}			
 			DESIGN_SEPERATOR(10, 1/3, 58/70, 1/3, 68/70);
 			DESIGN_SEPERATOR(11, 2/3, 58/70, 2/3, 68/70);
 		}

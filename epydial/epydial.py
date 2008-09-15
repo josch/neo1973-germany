@@ -16,7 +16,7 @@ FULLSCREEN = True
 APP_TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
 
-EDJE_FILE_PATH = "data/themes/blackwhite/"
+EDJE_FILE_PATH = "data/themes/default/"
 
 MAIN_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
@@ -81,10 +81,11 @@ class InCallScreen(EdjeGroup):
 
 class MainScreen(EdjeGroup):
 	text = None
-	
+
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, MAIN_SCREEN_NAME)
 		self.text = []
+		self.look_screen = False
 		ecore.timer_add(60.0, self.display_time)
 		self.display_time()
 
@@ -133,7 +134,7 @@ class MainScreen(EdjeGroup):
 				self.text.append(source)
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", '*' * len(self.text))
-			elif source == "backspace_down":
+			elif source == "backspace":
 				self.text = self.text[:-1]
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", '*' * len(self.text))
@@ -142,20 +143,31 @@ class MainScreen(EdjeGroup):
 				self.part_text_set("numberdisplay_text", "Verifying ...")
 				PyneoController.gsm_unlock_sim(''.join(self.text))
 		else:
-			if source.isdigit() or source in ('*', '#'):
-				self.text.append(source)
-				print ''.join(self.text)
-				self.part_text_set("numberdisplay_text", "".join(self.text))
-			elif source == "backspace":
-				self.text = self.text[:-1]
-				print ''.join(self.text)
-				self.part_text_set("numberdisplay_text", "".join(self.text))
-			elif source == "clear":
-				self.text = []
-				print ''.join(self.text)
-				self.part_text_set("numberdisplay_text", "".join(self.text))
-			elif source == "dial":
-				PyneoController.gsm_dial("".join(self.text))
+			if self.look_screen:
+				self.part_text_set("numberdisplay_text", "Screen locked")
+				if source == "screen_locked":
+					self.text = []
+					self.look_screen = False
+					self.part_text_set("numberdisplay_text", "Dial when ready")
+			else:
+				if source.isdigit() or source in ('*', '#'):
+					self.text.append(source)
+					print ''.join(self.text)
+					self.part_text_set("numberdisplay_text", "".join(self.text))
+				elif source == "backspace":
+					self.text = self.text[:-1]
+					print ''.join(self.text)
+					self.part_text_set("numberdisplay_text", "".join(self.text))
+				elif source == "clear":
+					self.text = []
+					print ''.join(self.text)
+					self.part_text_set("numberdisplay_text", "".join(self.text))
+				elif source == "screen_locked":
+					self.text = []
+					self.look_screen = True
+					self.part_text_set("numberdisplay_text", "Screen locked")
+				elif source == "dial":
+					PyneoController.gsm_dial("".join(self.text))
 
 
 class PyneoController(object):
@@ -432,7 +444,7 @@ class EvasCanvas(object):
 		self.evas_obj.evas.image_cache_set(IMAGE_CACHE_SIZE*1024*1024)
 		self.evas_obj.evas.font_cache_set(FONT_CACHE_SIZE*1024*1024)
 		self.evas_obj.show()
-
+		
 	def on_resize(self, evas_obj):
 		x, y, w, h = evas_obj.evas.viewport
 		size = (w, h)
