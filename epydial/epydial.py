@@ -16,7 +16,7 @@ FULLSCREEN = True
 APP_TITLE = "epydial"
 WM_INFO = ("epydial", "epydial")
 
-EDJE_FILE_PATH = "data/themes/default/"
+EDJE_FILE_PATH = "data/themes/blackwhite/"
 
 MAIN_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
@@ -208,6 +208,8 @@ class PyneoController(object):
 		try:
 			class_.gsm = object_by_url('dbus:///org/pyneo/GsmDevice')
 			class_.gsm_wireless = object_by_url(class_.gsm.GetDevice('wireless'))
+			
+			class_.pwr = object_by_url('dbus:///org/pyneo/Power')
 		
 		except Exception, e:
 			print "Pyneo error: " + str(e)
@@ -225,6 +227,7 @@ class PyneoController(object):
 		
 		# D-Bus is ready, let's power up GSM
 		class_.power_up_gsm()
+
 
 	@classmethod
 	def power_up_gsm(class_):
@@ -332,8 +335,10 @@ class PyneoController(object):
 			ph_status = status['phone_activity_status']
 			
 			if ph_status == 0:
+				class_.pwr.BlinkenLeds("power:blue", 0, 0, 0, dbus_interface=DIN_POWER)
 				class_.notify_callbacks("gsm_phone_call_end")
 			if ph_status == 3:
+				class_.pwr.BlinkenLeds("power:blue", 400, 1300, 0, dbus_interface=DIN_POWER)
 				class_.notify_callbacks("gsm_phone_ringing")
 			if ph_status == 4:
 				class_.notify_callbacks("gsm_phone_call_start")
