@@ -14,7 +14,7 @@ from dbus import SystemBus, Interface
 from optparse import OptionParser
 
 class TrackClient:
-	def __init__(self, username, passwordhash, host, port):
+	def __init__(self, username='anonymous', passwordhash='', host='localhost', port='49152'):
                 self.InitSocket(host, port)
                 self.InitDbusStuff()
                 self.InitUserHash(username, passwordhash)
@@ -62,6 +62,8 @@ class TrackClient:
 # prepare data for sending
                 UDPData = "%s,%s,%s,%s" % (lat, lon, alt, utctime)
                 self.SendData(self.__username, self.__pwhash, 'Transmit', UDPData)
+# Debug message:
+                print "Updated Data"
 
         def InitUserHash(self, username, pwhash):
 # set username and password globally in the class
@@ -72,16 +74,3 @@ class TrackClient:
 # put together and send data to TransmitUDP()
                 senddata = "%s;%s;%s;%s" % (username, pwhash, action, data)
                 self.TransmitUDP(senddata)
-
-
-
-
-
-
-
-
-
-
-
-
-
