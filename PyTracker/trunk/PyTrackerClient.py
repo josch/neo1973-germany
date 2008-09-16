@@ -1,4 +1,4 @@
-# PyTracker Client
+# PyTrackerClient.py
 '''
 author: edistar
 license: GPL v3 or later
@@ -14,10 +14,10 @@ from dbus import SystemBus, Interface
 from optparse import OptionParser
 
 class TrackClient:
-	def __init__(self):
-                self.InitSocket('localhost', 49152)
+	def __init__(self, username, passwordhash, host, port):
+                self.InitSocket(host, port)
                 self.InitDbusStuff()
-                self.InitUserHash('edistar', 'passwdhash')
+                self.InitUserHash(username, passwordhash)
 
         def InitSocket(self, host, port):
 # Set the socket parameters
