@@ -1,0 +1,16 @@
+ONLY WAY OF DATA TRANSFER:
+CLIENT --> SERVER
+
+PASSWORD_HASH is in md5
+Structure:
+
+(USERNAME,PASSWORD_HASH,ACTION,DATA)
+
+ACTION == ("START" | "TRANSMIT" | "STOP")
+
+DATA == ("" | POSITION, TIME/DATE | "")
+
+POSITION == (LAT, LON, HEIGHT)
+
+Only one track may be open for each user.. so if the user requests START and 
+another track is open it gets closed immediately
