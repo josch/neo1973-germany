@@ -11,6 +11,7 @@ close file: file.close()
 The file musst be closed, otherwise the file will be incomplete
 '''
 
+from __future__ import with_statement
 
 class WriteGPX:
         def __init__(self, filename):
