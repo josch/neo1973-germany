@@ -4,8 +4,8 @@ from socket import *
 from WriteGPX import *
 
 class TrackServer:
-        def __init__(self, host='localhost', port='49152', hashfile='hashfile', datadir = '.'):
-                self.InitSocker(host, port)
+        def __init__(self, host='', port='49152', hashfile='hashfile', datadir = './'):
+                self.InitSocket(host, port)
                 self.InitHashdb(hashfile)
                 self.InitTrackDict()
                 self.datadir = datadir
@@ -31,8 +31,8 @@ class TrackServer:
                 self.__addr = (str(host),int(port))
 
 # Create socket and bind it to the address
-                self.__UDPSock = socket(AF_INET,SOCK_DGRAM)
-                self.__UDPSock.bind(sel.__addr)
+                self.UDPSock = socket(AF_INET,SOCK_DGRAM)
+                self.UDPSock.bind(self.__addr)
 
 # Debug message:
                 print "UDP Socket for %s at port %s created" % (host, port)
@@ -66,9 +66,10 @@ class TrackServer:
 # if a track has already started it needs to be closed (finished)
                 if self.TrackDict[username]:
                         self.TrackDict[username].close()
+                        print "Track closed because %s requested a new track" % (username)
 # start the new track
                 self.TrackDict[username] = WriteGPX("%s%s%s" % (self.datadir, username, time.strftime("%Y%m%d%H%M%S")))
-                print "Created track", self.TrackDict[username]
+                print "Created track %s%s%s" % (self.datadir, username, time.strftime("%Y%m%d%H%M%S"))
 
         def CloseTrack(self, username):
                 if self.TrackDict[username]:
@@ -89,6 +90,6 @@ instance = TrackServer()
 
 #Receive messages
 while 1:
-        data,addr = UDPSock.recvfrom(1024)
+        data,addr = instance.UDPSock.recvfrom(1024)
         print "Following data received:", data
         instance.Parser(data)

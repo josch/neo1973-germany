@@ -84,7 +84,6 @@ class TrackClient:
 # set username and password globally in the class
                 self.__username = username
                 self.__pwhash = pwhash
-                self.SendData(self.__username, self.__pwhash, action="START")
 
         def SendData(self, username, pwhash, action, data=""):
 

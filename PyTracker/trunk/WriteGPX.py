@@ -32,7 +32,7 @@ class WriteGPX:
                 self.trackpoint = '<trkpt lat="%s" lon="%s">\n\
                 <ele>%s</ele>\n\
                 <time>%s</time>\n\
-                </trkpt>\n' % (lat, lon, ele, time)
+</trkpt>\n' % (lat, lon, ele, time)
                 with open(self.filename,'a') as file:
                         file.write(self.trackpoint)
         
