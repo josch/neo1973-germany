@@ -4,31 +4,31 @@ from socket import *
 from WriteGPX import *
 
 class TrackServer:
-	def __init__(self, host, port, hashfile, datadir = '.'):
+        def __init__(self, host, port, hashfile, datadir = '.'):
                 self.InitSocker(host, port)
                 self.InitHashdb(hashfile)
                 self.InitTrackDict()
                 self.datadir = datadir
 
-	def InitHashdb(self, hashfile):
-		self.hashdb=[]
-		with open(hashfile, "r") as file:
-			for line in file:
-				if line:
-					self.hashdb.append((line.split()[0], \
-					line.split()[1]))
+        def InitHashdb(self, hashfile):
+                self.hashdb=[]
+                with open(hashfile, "r") as file:
+                        for line in file:
+                                if line:
+                                        self.hashdb.append((line.split()[0], \
+                                        line.split()[1]))
 
-	def InitTrackDict(self):
-		self.TrackDict={}
-		for data in self.hashdb:
-			self.TrackDict[data[0]] = ""
+        def InitTrackDict(self):
+                self.TrackDict={}
+                for data in self.hashdb:
+                        self.TrackDict[data[0]] = ""
 
         def InitSocket(self, host, port):
 
 # Set the socket parameters
 # e.g.	        host = "localhost"
 # e.g.	        port = 49152
-        	self.__addr = (str(host),int(port))
+                self.__addr = (str(host),int(port))
 
 # Create socket and bind it to the address
                 self.__UDPSock = socket(AF_INET,SOCK_DGRAM)
@@ -37,17 +37,17 @@ class TrackServer:
 # Debug message:
                 print "UDP Socket for %s at port %s created" % (host, port)
 
-	def VerifyUser(self, username, password_hash):
-		for data in self.hashdb:
-			if data[0] == username and data[1] == password_hash:
-				return 1
-		return 0
+        def VerifyUser(self, username, password_hash):
+                for data in self.hashdb:
+                        if data[0] == username and data[1] == password_hash:
+                                return 1
+                return 0
 
 
-	def Parser(self, stuff):
+        def Parser(self, stuff):
 
 #	Parses the complete data sent to UDP port
-		try:
+                try:
                         username, password_hash, action, data = stuff.split(';')
 
 #			Verifies the user and password
@@ -65,10 +65,10 @@ class TrackServer:
         def NewTrack(self, username):
 # if a track has already started it needs to be closed (finished)
                 if self.TrackDict[username]:
-        	        self.TrackDict[username].close()
+                        self.TrackDict[username].close()
 # start the new track
                 self.TrackDict[username] = WriteGPX("%s%s%s" % (self.datadir, username, time.strftime("%Y%m%d%H%M%S"))
-        	print "Created track", self.TrackDict[username]
+                print "Created track", self.TrackDict[username]
 
         def CloseTrack(self, username):
                 if self.TrackDict[username]:
