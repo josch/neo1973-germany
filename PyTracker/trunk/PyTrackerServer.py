@@ -4,7 +4,7 @@ from socket import *
 from WriteGPX import *
 
 class TrackServer:
-        def __init__(self, host, port, hashfile, datadir = '.'):
+        def __init__(self, host='localhost', port='49152', hashfile='hashfile', datadir = '.'):
                 self.InitSocker(host, port)
                 self.InitHashdb(hashfile)
                 self.InitTrackDict()
@@ -67,7 +67,7 @@ class TrackServer:
                 if self.TrackDict[username]:
                         self.TrackDict[username].close()
 # start the new track
-                self.TrackDict[username] = WriteGPX("%s%s%s" % (self.datadir, username, time.strftime("%Y%m%d%H%M%S"))
+                self.TrackDict[username] = WriteGPX("%s%s%s" % (self.datadir, username, time.strftime("%Y%m%d%H%M%S")))
                 print "Created track", self.TrackDict[username]
 
         def CloseTrack(self, username):
