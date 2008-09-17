@@ -102,6 +102,7 @@ class TrackClient:
 		
         def StopTrack(self):
                 self.SendData(self.__username, self.__pwhash, action="STOP")
+
+# remove connect_to_signal event
 		self.terminator.remove()
                 self.usage_iface.ReleaseResource("GPS")
-		sys.exit()
