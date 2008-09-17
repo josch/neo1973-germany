@@ -12,11 +12,6 @@ The file musst be closed, otherwise the file will be incomplete
 '''
 from __future__ import with_statement
 
-<<<<<<< .mine
-=======
-from __future__ import with_statement
-
->>>>>>> .r158
 class WriteGPX:
         def __init__(self, filename):
                 self.filename = filename

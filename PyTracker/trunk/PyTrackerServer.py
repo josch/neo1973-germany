@@ -63,15 +63,19 @@ class TrackServer:
                         print "Something went wrong.."
 
         def NewTrack(self, username):
-                if not self.TrackDict[username]:
-        	        self.TrackDict[username] = WriteGPX("%s%s%s" % (self.datadir, username, time.strftime("%Y%m%d%H%M%S"))
-        	        print "Created track", self.TrackDict[username]
+# if a track has already started it needs to be closed (finished)
+                if self.TrackDict[username]:
+        	        self.TrackDict[username].close()
+# start the new track
+                self.TrackDict[username] = WriteGPX("%s%s%s" % (self.datadir, username, time.strftime("%Y%m%d%H%M%S"))
+        	print "Created track", self.TrackDict[username]
 
         def CloseTrack(self, username):
                 if self.TrackDict[username]:
                         self.TrackDict[username].close()
                         print "Closed track", self.TrackDict[username]
-                        del self.TrackDict[username]
+                else:
+                        print "ha, no track for %s exists!" % (username)
 
         def AddToTrack(self, username, data):
                 lat, lon, ele, time = data.split(',')
