@@ -95,11 +95,17 @@ class TrackClient:
 
 	def StartTrack(self):
 		self.SendData(self.__username, self.__pwhash, action="START")
+
 # call self.UpdatePosition() when a dbus signal "PositionChanged" comes along the system bus
-		if self.terminator:
-                        self.terminator.delete()
+# if an event handler has already been set, delete it!
+                try:
+                        if self.terminator:
+                                self.terminator.delete()
+                except:
+                        pass
                 self.terminator = self.pos_iface.connect_to_signal("PositionChanged", self.UpdateData)
-		
+
+
         def StopTrack(self):
                 self.SendData(self.__username, self.__pwhash, action="STOP")
 
