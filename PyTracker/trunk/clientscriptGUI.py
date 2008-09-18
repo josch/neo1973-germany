@@ -5,7 +5,7 @@ import edje
 import sys
 import os
 
-test=TrackClient('edistar','refeco3','80.61.221.9')
+test=TrackClient('anon','passwd','80.61.221.9')
 
 
 # Parse command line
