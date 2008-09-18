@@ -1,0 +1,228 @@
+// Sample EDC
+images {
+        image,  "background.jpg" LOSSY 95;
+        image,  "start.png" COMP;
+        image,  "stop.png" COMP;
+}
+
+collections {
+   group {
+      name, "test";
+      min, 480 640;
+      max, 1024 768;
+
+      parts {
+         part {
+                name,   "background";
+                type,   IMAGE;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                        }
+                        image {
+                                normal, "background.jpg";
+                        }
+                }
+        }
+
+        part {
+                name,   "button_start";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 480 100;
+                        max, 1028 150;
+                        align, 0.5 0.0;
+
+                        color, 211 168 234 200;
+
+                        rel1 {
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 0.0;
+                                offset, -1 0;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 480 100;
+                        max, 1028 100;
+                        align, 0.5 0.0;
+
+                        color, 170 89 214 200;
+
+                        rel1 {
+                                relative, 0.0 0.0;
+                                offset, 2 3;
+                        }
+                        rel2 {
+                                relative, 1.0 0.0;
+                                offset, 1 6;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_stop";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 480 100;
+                        max, 1028 150;
+                        align, 0.5 1.0;
+
+                        color, 211 168 234 200;
+
+                        rel1 {
+                                relative, 0.0 1.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 480 100;
+                        max, 1028 100;
+                        align, 0.5 1.0;
+
+                        color, 170 89 214 200;
+
+                        rel1 {
+                                relative, 0.0 1.0;
+                                offset, 2 3;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, 1 6;
+                        }
+                }
+        }
+
+        part {
+                name,   "text_start";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_start";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_start";
+                        }
+                        text {
+                                text, "START";
+                                font, "sans serif";
+                                size, 20;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_stop";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_stop";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_stop";
+                        }
+                        text {
+                                text, "STOP";
+                                font, "sans serif";
+                                size, 20;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+   } /* Close Parts */
+
+   programs {
+
+        program {
+                name, "button_click";
+                signal, "mouse,down,1";
+                source, "button_start";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_start";
+        }
+
+        program {
+                name, "button_unclick";
+                signal, "mouse,up,1";
+                source, "button_start";
+                action, STATE_SET "default" 0.0;
+                target, "button_start";
+        }
+
+        program {
+                name, "start_signal";
+                signal, "mouse,down,1";
+                source, "button_start";
+                action, SIGNAL_EMIT "StartSelected" "button_start";
+                in, 0.0 0.0;
+        }
+        program {
+                name, "stop_click";
+                signal, "mouse,down,1";
+                source, "button_stop";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_stop";
+        }
+
+        program {
+                name, "stop_unclick";
+                signal, "mouse,up,1";
+                source, "button_stop";
+                action, STATE_SET "default" 0.0;
+                target, "button_stop";
+        }
+
+        program {
+                name, "stop_signal";
+                signal, "mouse,down,1";
+                source, "button_stop";
+                action, SIGNAL_EMIT "StopSelected" "button_stop";
+                in, 0.0 0.0;
+        }
+
+
+
+      } /* Close Prog */
+ } /* Close Group */
+} /* Close Coll */

@@ -64,6 +64,7 @@ class TrackClient:
 		self.course_iface = Interface(self.ogpsd_proxy, 'org.freedesktop.Gypsy.Course')
 		self.pos_iface = Interface(self.ogpsd_proxy, 'org.freedesktop.Gypsy.Position')
 
+		self.terminator=""
 
         def UpdateData(self, fields, timestamp, lat, lon, alt):
 # get UTC time from gypsy timestamp
@@ -94,14 +95,15 @@ class TrackClient:
 
 	def StartTrack(self):
 		self.SendData(self.__username, self.__pwhash, action="START")
-
 # call self.UpdatePosition() when a dbus signal "PositionChanged" comes along the system bus
-		self.terminator = self.pos_iface.connect_to_signal("PositionChanged", self.UpdateData)
-
+		if self.terminator:
+                        self.terminator.delete()
+                self.terminator = self.pos_iface.connect_to_signal("PositionChanged", self.UpdateData)
 		
         def StopTrack(self):
                 self.SendData(self.__username, self.__pwhash, action="STOP")
 
 # remove connect_to_signal event
 		self.terminator.remove()
-                self.usage_iface.ReleaseResource("GPS")
+
+#                self.usage_iface.ReleaseResource("GPS")
