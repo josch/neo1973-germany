@@ -67,12 +67,16 @@ class GpsStatusScreen(EdjeGroup):
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("gps_power_status", self.on_gps_power_status)
+		PyneoController.register_callback("gps_fix_change", self.on_gps_fix_change)
 
 	def on_gps_power_status(self, status):
 		if status: p_status = "on"
 		else: p_status = "off"
 		print '--- gps device is ', p_status
 		self.part_text_set("button_11_caption", p_status)
+
+	def on_gps_fix_change(self, status):
+		self.part_text_set("fix_caption", "fix: %s"%status)
 		
 	@edje.decorators.signal_callback("gps_send", "*")
 	def on_edje_signal_dialer_status_triggered(self, emission, source):
@@ -301,16 +305,22 @@ class PyneoController(object):
 		# No error (anymore)
 		if class_._gps_timer: class_._gps_timer.stop()
 		
+		# Register our own D-Bus Gps callbacks
+		class_.gps.connect_to_signal("Position", class_.on_gps_position_status, dbus_interface=DIN_LOCATION)
+		
 		class_.notify_callbacks("gps_power_status", class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
+		
+		status = class_.gps.GetPosition(dbus_interface=DIN_LOCATION)
+		class_.on_gps_position_status(status)
 
 	@classmethod
 	def power_down_gps(class_):
 		class_.gps.SetPower(APP_TITLE, False, dbus_interface=DIN_POWERED)
 		class_.notify_callbacks("gps_power_status", class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
 
-	@classmethod
-	def power_status_gsm(class_):
-		return class_.gsm.GetPower(APP_TITLE, dbus_interface=DIN_POWERED)
+#	@classmethod
+#	def power_status_gsm(class_):
+#		return class_.gsm.GetPower(APP_TITLE, dbus_interface=DIN_POWERED)
 
 	@classmethod
 	def power_up_gsm(class_):
@@ -393,6 +403,14 @@ class PyneoController(object):
 		
 		# Remove the call from our list
 #		class_._calls.__delitem__(call_obj)
+
+	@classmethod
+	def on_gps_position_status(class_, status_map):
+		status = dedbusmap(status_map)
+		print "GPS Status: " + str(status)
+
+		if status.has_key('fix'):
+			class_.notify_callbacks("gps_fix_change", status['fix'])
 
 	@classmethod
 	def on_gsm_wireless_status(class_, status_map):
