@@ -67,7 +67,7 @@ class GpsStatusScreen(EdjeGroup):
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("gps_power_status", self.on_gps_power_status)
-		PyneoController.register_callback("gps_fix_change", self.on_gps_fix_change)
+		PyneoController.register_callback("gps_position_change", self.on_gps_position_change)
 
 	def on_gps_power_status(self, status):
 		if status: p_status = "on"
@@ -75,8 +75,8 @@ class GpsStatusScreen(EdjeGroup):
 		print '--- gps device is ', p_status
 		self.part_text_set("button_11_caption", p_status)
 
-	def on_gps_fix_change(self, status):
-		self.part_text_set("fix_caption", "fix: %s"%status)
+	def on_gps_position_change(self, status):
+		self.part_text_set("gps_caption", "fix: %s<br>longitude: %s<br>latitude: %s<br>altitude: %s"%(status['fix'], status['longitude'], status['latitude'], status['altitude']))
 		
 	@edje.decorators.signal_callback("gps_send", "*")
 	def on_edje_signal_dialer_status_triggered(self, emission, source):
@@ -410,7 +410,7 @@ class PyneoController(object):
 		print "GPS Status: " + str(status)
 
 		if status.has_key('fix'):
-			class_.notify_callbacks("gps_fix_change", status['fix'])
+			class_.notify_callbacks("gps_position_change", status)
 
 	@classmethod
 	def on_gsm_wireless_status(class_, status_map):

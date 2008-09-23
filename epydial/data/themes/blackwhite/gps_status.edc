@@ -12,10 +12,10 @@ data {
 	item: "version" "prototype";
 	item: "name" "epydial_blackwhite";
 }
-/*
+
 images {
 	image: "bg.png" COMP;
-}*/
+}
 
 color_classes {
 	color_class {
@@ -35,6 +35,20 @@ color_classes {
 		color: 255 255 255 128;
 		color2: 128 128 128 255;
 		color3: 128 128 128 255;;
+	}
+}
+
+styles {
+	style {
+		name: "textblock_style";
+		base: "font=sans.bold font_size=20 align=left valign=top color=#fff wrap=word";
+		tag: "h1" "+ font_size=28";
+		tag: "/h1" "- \n";
+		tag: "p" "+";
+		tag: "/p" "- \n";
+		tag: "em" "+ style=underline underline_color=#000A underline2_color=#0005";
+		tag: "/em" "-";
+		tag: "br" "\n";
 	}
 }
 
@@ -113,11 +127,12 @@ collections {
 		parts {
 			part {
 				name: "background";
-				type: RECT;
+				type: IMAGE;
 				description {
-					color_class: "black";
+					state: "default" 0;
 					rel1 { relative: 0 0; offset: 0 0; };
 					rel2 { relative: 1 1; offset: 0 0; };
+					image { normal: "bg.png"; };
 				}
 			}
 			part {
@@ -138,15 +153,19 @@ collections {
 				}
 			}
 			part {
-				name: "fix_caption";
-				type: TEXT;
+				name: "gps_caption";
+				type: TEXTBLOCK;
 				mouse_events: 0;
 				description {
 					color_class: "button_inactive";
-					state: "default" 0.0;
+					align: 0.5 0.5;
+					fixed: 1 1;
 					rel1 { relative: 0 3/20; }
-					rel2 { relative: 1/3 4/20; }
-					text { text, "fix"; font: "Sans"; size, 1; align, 0 0.5; fit, 0 1; }
+					rel2 { relative: 1 10/20; }
+					text { 
+						text: "gps";
+						style: "textblock_style";
+					}
 				}
 			} /* end fix_caption */
 			BUTTON(11, 1/3, 58/70, 2/3, 68/70, "on");
