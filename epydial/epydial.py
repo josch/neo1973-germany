@@ -64,6 +64,8 @@ class EdjeGroup(edje.Edje):
 class GpsStatusScreen(EdjeGroup):
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, GPS_STATUS_SCREEN_NAME)
+		self.first = 0.0
+		self.last = 0.0
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("gps_power_status", self.on_gps_power_status)
@@ -76,7 +78,10 @@ class GpsStatusScreen(EdjeGroup):
 		self.part_text_set("button_11_caption", p_status)
 
 	def on_gps_position_change(self, status):
-		self.part_text_set("gps_caption", "fix: %s<br>longitude: %s<br>latitude: %s<br>altitude: %s"%(status['fix'], status['longitude'], status['latitude'], status['altitude']))
+		if status['fix'] == 1:
+			self.last = time.time()
+			print 'TIME TO FIX: ', self.last-self.first
+		self.part_text_set("gps_caption", "fix: %s<br>long/lat: %f/%f<br>altitude: %d<br>kph/course: %d/%d<br>satellites: %s"%(status['fix'], status['longitude'], status['latitude'], status['altitude'], status['kph'], status['course'], status['satellites']))
 		
 	@edje.decorators.signal_callback("gps_send", "*")
 	def on_edje_signal_dialer_status_triggered(self, emission, source):
@@ -84,7 +89,9 @@ class GpsStatusScreen(EdjeGroup):
 		if source == "<":
 			PyneoController.show_dailer_main()
 		if source == "on" and  status == "on": PyneoController.power_down_gps()
-		elif source == "on" and status == "off": PyneoController.power_up_gps()
+		elif source == "on" and status == "off":
+			self.first = time.time()
+			PyneoController.power_up_gps()
 
 
 class GsmStatusScreen(EdjeGroup):
@@ -168,7 +175,7 @@ class MainScreen(EdjeGroup):
 	@edje.decorators.signal_callback("dialer_send", "*")
 	def on_edje_signal_numberkey_triggered(self, emission, source):
 		if PyneoController.gsm_sim_locked():
-			if len(self.text) < 4 and source.isdigit():
+			if source.isdigit():
 				self.text.append(source)
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", '*' * len(self.text))
@@ -176,6 +183,10 @@ class MainScreen(EdjeGroup):
 				self.text = self.text[:-1]
 				print ''.join(self.text)
 				self.part_text_set("numberdisplay_text", '*' * len(self.text))
+			elif source == "clear":
+				self.text = []
+				print ''.join(self.text)
+				self.part_text_set("numberdisplay_text", "".join(self.text))
 			elif source == "dial":
 				print '---', 'send pin'
 				self.part_text_set("numberdisplay_text", "Verifying ...")
