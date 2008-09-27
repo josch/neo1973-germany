@@ -1,7 +1,17 @@
 ==Unitc==
 
-Unitc is a small unit converter written in Python. You can choose between different categories, list the available units and then convert from one unit into another.
+Unitc is a small unit converter written in Python. The Toolkit is GTK.  You can choose between different categories, list the available units and then convert from one unit into another.
 
 I hope you can help me to improve unitc :)
 
 Greets Patrick Beck
+
+==INSTALL==
+
+Download the files with the command:
+svn co http://neo1973-germany.de/svn/unitc/
+or directly via the webinterface into a dir. 
+
+Then excecute the install.sh script. It moves the files into the right dirs.
+
+
