@@ -5,6 +5,7 @@
 # version 0.1
 # 2008/02/13
 # by Patrick Beck
+# Thanks to emdete, fgau and thomasg from #neo1973-germany
 
 import pygtk
 pygtk.require('2.0')
