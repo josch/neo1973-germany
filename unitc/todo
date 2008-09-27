@@ -1,15 +1,7 @@
-Kleine Erinnerungshilfe für mich :)
+A little TODO-List for me
 
-- gui trennen von funktion durch unterschiedliche dateien
-2 - unit.xml füllen
-- gui verbessern? => e-gui
-1 - eval() raushauen
-- gutes englisch?
-- gpl3 oder was auch immer einfügen
-- django webseite
-- contributors - dank an
-- ipkg
-- xml auf fehler parsen
-
-# convert
-- binär-dezimal und andersum
+- fill the unit.xml file
+- create a new gui with e*
+- add a license text
+- add a contributors text
+- create a ipkg package
