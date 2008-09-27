@@ -151,18 +151,10 @@ class unitconvert(object):
                                     else:
                                         toref = units.getAttribute('to_ref')
         
-#                   if self.fromactive == 1: # select the basis for the calculation => when the from field was changed use the data from this field 
-#                       number = number_from
-#                   if self.toactive == 1:
-#                    number = number_to
-
                     result = eval(toref) # execute the formular in the toref field and safe it to result
                     endresult = eval(fromref) # convert from the refunit to the target unit
                     printresult = str(endresult).replace('.',',') # for the better readability replace the dot with a comma
         
-#                    if self.fromactive == 1:
-#                        self.toentry_set(printresult) # sets the result into the 'from' field
-#                    else:
                     self.fromentry_set(printresult) # same as above for the 'to' field
 
             else:
@@ -185,19 +177,11 @@ class unitconvert(object):
                                     else:
                                         toref = units.getAttribute('to_ref')
         
-#                    if self.fromactive == 1: # select the basis for the calculation => when the from field was changed use the data from this field 
-#                    number = number_from
-#                    if self.toactive == 1:
-#                        number = number_to
-
                     result = eval(toref) # execute the formular in the toref field and safe it to result
                     endresult = eval(fromref) # convert from the refunit to the target unit
                     printresult = str(endresult).replace('.',',') # for the better readability replace the dot with a comma
         
-#                    if self.fromactive == 1:
                     self.toentry_set(printresult) # sets the result into the 'from' field
-#                    else:
-#                        self.fromentry_set(printresult) # same as above for the 'to' field
         
     def clear(self, widget): # clears the entry fields
         self.fromentry.set_text('')
