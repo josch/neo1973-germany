@@ -1,23 +1,16 @@
-#!/bin/bash -e
-
-cd data/themes
-
-for theme in *
-do
-	if [[ ! -d "$theme" ]]
-	then
-		continue
+#!/bin/sh -e
+for theme in data/themes/*; do
+	if [ -d "$theme" ]; then
+		cd "$theme"
+		theme=`basename "$theme"`
+		echo "Compiling theme $theme"
+		data_path="../../themes_data/$theme"
+		for filename in *.edc; do
+			edje_cc \
+				-id "$data_path/images" \
+				-fd "$data_path/fonts" \
+				$filename
+		done
+		cd - > /dev/null
 	fi
-
-	echo "Compiling theme $theme"
-
-	cd $theme
-	data_path="../../themes_data/"$theme"/"
-
-	for filename in *.edc
-	do
-		edje_cc -id $data_path/images -fd $data_path/fonts $filename
-	done
-
-	cd ..
 done
