@@ -99,7 +99,7 @@ program { \
 	name: "button_"button_number"_signal_emit"; \
 	signal: "mouse,down,*"; \
 	source: "button_"button_number; \
-	action: SIGNAL_EMIT "gps_send" button_caption; \
+	action: SIGNAL_EMIT "gsm_send" button_caption; \
 } \
 program { \
 	name: "button_"button_number"_animation"; \
@@ -119,7 +119,7 @@ program { \
 
 collections {
 	group {
-		name: "pyneo/gps/status";
+		name: "pyneo/gsm/status";
 		min: 100 100;
 		max: 800 800;
 		parts {
@@ -143,7 +143,7 @@ collections {
 					rel1 { relative: 0 0; }
 					rel2 { relative: 1 1/7; }
 					text {
-						text: "gps status";
+						text: "gsm status";
 						size: 18;
 						font: "Sans:style=Bold,Edje-Vera";
 						fit: 1 1;
@@ -151,7 +151,7 @@ collections {
 				}
 			}
 			part {
-				name: "gps_caption";
+				name: "gsm_caption";
 				type: TEXTBLOCK;
 				mouse_events: 0;
 				description {
@@ -161,14 +161,14 @@ collections {
 					rel1 { relative: 0 3/20; }
 					rel2 { relative: 1 10/20; }
 					text { 
-						text: "gps";
+						text: "gsm";
 						style: "textblock_style";
 					}
 				}
 			} /* end fix_caption */
 			BUTTON(11, 1/3, 58/70, 2/3, 68/70, "on");
 			BUTTON(12, 0, 58/70 , 1/3, 68/70, "<");
-			BUTTON(13, 2/3, 58/70, 3/3, 68/70, ">");
+			/*BUTTON(13, 2/3, 58/70, 3/3, 68/70, ">");*/
 		}
 	}
 }

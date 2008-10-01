@@ -18,9 +18,9 @@ WM_INFO = ("epydial", "epydial")
 
 EDJE_FILE_PATH = "data/themes/blackwhite/"
 
-MAIN_SCREEN_NAME = "pyneo/dialer/main"
+DIALER_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
-GSM_STATUS_SCREEN_NAME = "pyneo/dialer/status"
+GSM_STATUS_SCREEN_NAME = "pyneo/gsm/status"
 GPS_STATUS_SCREEN_NAME = "pyneo/gps/status"
 
 from datetime import datetime
@@ -60,174 +60,6 @@ class EdjeGroup(edje.Edje):
 			raise SystemExit("Error loading %s: %s" % (file_name, e))
 		
 		self.size = group_manager.get_evas().size
-
-class GpsStatusScreen(EdjeGroup):
-	def __init__(self, screen_manager):
-		EdjeGroup.__init__(self, screen_manager, GPS_STATUS_SCREEN_NAME)
-		self.first = 0.0
-		self.last = 0.0
-
-	def register_pyneo_callbacks(self):
-		PyneoController.register_callback("gps_power_status", self.on_gps_power_status)
-		PyneoController.register_callback("gps_position_change", self.on_gps_position_change)
-
-	def on_gps_power_status(self, status):
-		if status: p_status = "on"
-		else: p_status = "off"
-		print '--- gps device is ', p_status
-		self.part_text_set("button_11_caption", p_status)
-
-	def on_gps_position_change(self, status):
-		if status['fix'] == 1:
-			self.last = time.time()
-			print 'TIME TO FIX: ', self.last-self.first
-		self.part_text_set("gps_caption", "fix: %s<br>long/lat: %f/%f<br>altitude: %d<br>kph/course: %d/%d<br>satellites: %s"%(status['fix'], status['longitude'], status['latitude'], status['altitude'], status['kph'], status['course'], status['satellites']))
-		
-	@edje.decorators.signal_callback("gps_send", "*")
-	def on_edje_signal_dialer_status_triggered(self, emission, source):
-		status = self.part_text_get("button_11_caption")
-		if source == "<":
-			PyneoController.show_dailer_main()
-		if source == "on" and  status == "on": PyneoController.power_down_gps()
-		elif source == "on" and status == "off":
-			self.first = time.time()
-			PyneoController.power_up_gps()
-
-
-class GsmStatusScreen(EdjeGroup):
-	def __init__(self, screen_manager):
-		EdjeGroup.__init__(self, screen_manager, GSM_STATUS_SCREEN_NAME)
-
-	@edje.decorators.signal_callback("mouse,up,1", "*")
-	def on_edje_signal_dialer_status_triggered(self, emission, source):
-		if source == "button_back_caption":
-			PyneoController.show_dailer_main()
-			print source
-
-
-class InCallScreen(EdjeGroup):
-	def __init__(self, screen_manager):
-		EdjeGroup.__init__(self, screen_manager, INCALL_SCREEN_NAME)
-
-	def register_pyneo_callbacks(self):
-		PyneoController.register_callback("gsm_number_display", self.on_gsm_number_display)
-
-	def on_gsm_number_display(self, number):
-		self.part_text_set("incall_number_text", number)
-
-	@edje.decorators.signal_callback("dialer_incall_send", "*")
-	def on_edje_signal_dialer_incall_triggered(self, emission, source):
-		if source == "Hangup Call":
-			print source
-			PyneoController.gsm_hangup()
-		if source == "Accept Call":
-			print source
-
-
-class MainScreen(EdjeGroup):
-	text = None
-
-	def __init__(self, screen_manager):
-		EdjeGroup.__init__(self, screen_manager, MAIN_SCREEN_NAME)
-		self.text = []
-		self.look_screen = False
-		ecore.timer_add(60.0, self.display_time)
-		self.display_time()
-
-	def register_pyneo_callbacks(self):
-		PyneoController.register_callback("sim_key_required", self.on_sim_key_required)
-		PyneoController.register_callback("sim_ready", self.on_sim_ready)
-		PyneoController.register_callback("gsm_registering", self.on_gsm_registering)
-		PyneoController.register_callback("gsm_registered", self.on_gsm_registered)
-		PyneoController.register_callback("gsm_dialing", self.on_gsm_dialing)
-		PyneoController.register_callback("gsm_operator_change", self.on_gsm_operator_change)
-		PyneoController.register_callback("gsm_signal_strength_change", self.on_gsm_signal_strength_change)
-		
-	def on_sim_key_required(self, key_type):
-		print '---', 'opening keyring'
-		self.part_text_set("numberdisplay_text", "Enter " + key_type)
-
-	def on_sim_ready(self):
-		print '---', 'SIM unlocked'
-		self.part_text_set("numberdisplay_text", "SIM unlocked")
-		self.text = []
-
-	def on_gsm_registering(self):
-		self.part_text_set("numberdisplay_text", "Registering ...")
-
-	def on_gsm_registered(self):
-		self.part_text_set("numberdisplay_text", "Dial when ready")
-
-	def on_gsm_dialing(self):
-		print '---', 'dial number'
-		self.part_text_set("numberdisplay_text", "Dialing ...")
-		
-	def on_gsm_operator_change(self, operator):
-		self.part_text_set("operater_text", operator)
-		
-	def on_gsm_signal_strength_change(self, rssi):
-		self.part_text_set("signalq_text", "%s dBm"%str(rssi))
-		
-	def display_time(self):
-		self.part_text_set("time_text", time.strftime("%H:%M", time.localtime()));
-		return True;
-
-	@edje.decorators.signal_callback("dialer_send", "*")
-	def on_edje_signal_numberkey_triggered(self, emission, source):
-		if PyneoController.gsm_sim_locked():
-			if source.isdigit():
-				self.text.append(source)
-				print ''.join(self.text)
-				self.part_text_set("numberdisplay_text", '*' * len(self.text))
-			elif source == "backspace":
-				self.text = self.text[:-1]
-				print ''.join(self.text)
-				self.part_text_set("numberdisplay_text", '*' * len(self.text))
-			elif source == "clear":
-				self.text = []
-				print ''.join(self.text)
-				self.part_text_set("numberdisplay_text", "".join(self.text))
-			elif source == "dial":
-				print '---', 'send pin'
-				self.part_text_set("numberdisplay_text", "Verifying ...")
-				PyneoController.gsm_unlock_sim(''.join(self.text))
-		else:
-			if self.look_screen:
-				self.part_text_set("numberdisplay_text", "Screen locked")
-				if source == "screen_locked":
-					self.text = []
-					self.look_screen = False
-					self.part_text_set("numberdisplay_text", "Dial when ready")
-			else:
-				if source.isdigit() or source in ('*', '#'):
-					self.text.append(source)
-					print ''.join(self.text)
-					self.part_text_set("numberdisplay_text", "".join(self.text))
-				elif source == "backspace":
-					self.text = self.text[:-1]
-					print ''.join(self.text)
-					self.part_text_set("numberdisplay_text", "".join(self.text))
-				elif source == "clear":
-					self.text = []
-					print ''.join(self.text)
-					self.part_text_set("numberdisplay_text", "".join(self.text))
-				elif source == "screen_locked":
-					self.text = []
-					self.look_screen = True
-					self.part_text_set("numberdisplay_text", "Screen locked")
-				elif source == "dial" and ''.join(self.text) == "1":
-					print '--- Gsm Status'
-					self.text = []
-					self.part_text_set("numberdisplay_text", "".join(self.text))
-					PyneoController.gsm_status_start()
-				elif source == "dial" and ''.join(self.text) == "2":
-					print '--- Gps Status'
-					self.text = []
-					self.part_text_set("numberdisplay_text", "".join(self.text))
-					PyneoController.gps_power_status()
-					PyneoController.gps_status_start()
-				elif source == "dial":
-					PyneoController.gsm_dial("".join(self.text))
 
 
 class PyneoController(object):
@@ -287,51 +119,10 @@ class PyneoController(object):
 		
 		# Register our own D-Bus callbacks
 		class_.gsm_wireless.connect_to_signal("Status", class_.on_gsm_wireless_status, dbus_interface=DIN_WIRELESS)
-		
-		# D-Bus is ready, let's power up GSM
-		class_.power_up_gsm()
-
 
 	@classmethod
-	def gps_power_status(class_):
-		class_.notify_callbacks("gps_power_status", class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
-		
-	@classmethod
-	def power_up_gps(class_):
-		try:
-			if class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED):
-				print '---', 'gps device is already on'
-			else:
-				class_.gps.SetPower(APP_TITLE, True, dbus_interface=DIN_POWERED)
-				print '---', 'switching gps device on'
-			
-		except Exception, e:
-			print "GPS error: " + str(e)
-			if not class_._gps_timer:
-				class_._gps_timer = ecore.timer_add(5, class_.power_up_gps)
-			 
-			# We had an error, keep the timer running if we were called by ecore
-			return True
-		
-		# No error (anymore)
-		if class_._gps_timer: class_._gps_timer.stop()
-		
-		# Register our own D-Bus Gps callbacks
-		class_.gps.connect_to_signal("Position", class_.on_gps_position_status, dbus_interface=DIN_LOCATION)
-		
-		class_.notify_callbacks("gps_power_status", class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
-		
-		status = class_.gps.GetPosition(dbus_interface=DIN_LOCATION)
-		class_.on_gps_position_status(status)
-
-	@classmethod
-	def power_down_gps(class_):
-		class_.gps.SetPower(APP_TITLE, False, dbus_interface=DIN_POWERED)
-		class_.notify_callbacks("gps_power_status", class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
-
-#	@classmethod
-#	def power_status_gsm(class_):
-#		return class_.gsm.GetPower(APP_TITLE, dbus_interface=DIN_POWERED)
+	def power_status_gsm(class_):
+		class_.notify_callbacks("power_status_gsm", class_.gsm.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
 
 	@classmethod
 	def power_up_gsm(class_):
@@ -352,9 +143,14 @@ class PyneoController(object):
 		
 		# No error (anymore)
 		if class_._gsm_timer: class_._gsm_timer.stop()
+
+		# Register our own D-Bus Gps callbacks
+		class_.gps.connect_to_signal("Position", class_.on_gps_position_status, dbus_interface=DIN_LOCATION)
 		
-		# Now we can request the keyring object for the SIM, it didn't exist before powering up
-		class_.get_gsm_keyring()
+		class_.notify_callbacks("gps_power_status", class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
+		
+		status = class_.gps.GetPosition(dbus_interface=DIN_LOCATION)
+		class_.on_gps_position_status(status)
 
 	@classmethod
 	def get_gsm_keyring(class_):
@@ -377,7 +173,7 @@ class PyneoController(object):
 		# Inquire SIM status and act accordingly to the initial state
 		status = class_.gsm_keyring.GetOpened(dbus_interface=DIN_KEYRING)
 		class_.on_gsm_keyring_status(status)
-
+		
 	@classmethod
 	def gsm_sim_locked(class_):
 		return class_.gsm_keyring_status['code'] != 'READY'
@@ -414,14 +210,6 @@ class PyneoController(object):
 		
 		# Remove the call from our list
 #		class_._calls.__delitem__(call_obj)
-
-	@classmethod
-	def on_gps_position_status(class_, status_map):
-		status = dedbusmap(status_map)
-		print "GPS Status: " + str(status)
-
-		if status.has_key('fix'):
-			class_.notify_callbacks("gps_position_change", status)
 
 	@classmethod
 	def on_gsm_wireless_status(class_, status_map):
@@ -480,16 +268,68 @@ class PyneoController(object):
 			class_.notify_callbacks("sim_key_required", status["code"])
 
 	@classmethod
-	def gsm_status_start(class_):
-		class_.notify_callbacks("gsm_status_start")
+	def power_status_gps(class_):
+		class_.notify_callbacks("power_status_gps", class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
+		
+	@classmethod
+	def power_up_gps(class_):
+		print 'power_up_gps'
+		try:
+			if class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED):
+				print '---', 'gps device is already on'
+			else:
+				class_.gps.SetPower(APP_TITLE, True, dbus_interface=DIN_POWERED)
+				print '---', 'switching gps device on'
+			
+		except Exception, e:
+			print "GPS error: " + str(e)
+			if not class_._gps_timer:
+				class_._gps_timer = ecore.timer_add(5, class_.power_up_gps)
+			 
+			# We had an error, keep the timer running if we were called by ecore
+			return True
+		
+		# No error (anymore)
+		if class_._gps_timer: class_._gps_timer.stop()
+		
+		# Register our own D-Bus Gps callbacks
+		class_.gps.connect_to_signal("Position", class_.on_gps_position_status, dbus_interface=DIN_LOCATION)
+		
+		class_.notify_callbacks("power_status_gps", class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
+		
+		status = class_.gps.GetPosition(dbus_interface=DIN_LOCATION)
+		class_.on_gps_position_status(status)
 
 	@classmethod
-	def gps_status_start(class_):
-		class_.notify_callbacks("gps_status_start")
+	def power_down_gps(class_):
+		class_.gps.SetPower(APP_TITLE, False, dbus_interface=DIN_POWERED)
+		class_.notify_callbacks("power_status_gps", class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
 
 	@classmethod
-	def show_dailer_main(class_):
-		class_.notify_callbacks("show_dialer_main")
+	def on_gps_position_status(class_, status_map):
+		status = dedbusmap(status_map)
+		print "GPS Status: " + str(status)
+
+		if status.has_key('fix'):
+			class_.notify_callbacks("gps_position_change", status)
+
+	@classmethod
+	def show_dialer_screen(class_):
+		class_.notify_callbacks("show_dialer_screen")
+
+	@classmethod
+	def show_gsm_status_screen(class_):
+		class_.notify_callbacks("show_gsm_status_screen")
+
+	@classmethod
+	def show_gps_status_screen(class_):
+		class_.notify_callbacks("show_gps_status_screen")
+
+
+from dialer_screen import *
+from incall_screen import *
+from gsm_status_screen import *
+from gps_status_screen import *
 
 
 class Dialer(object):
@@ -504,14 +344,12 @@ class Dialer(object):
 		
 		self.screens = {}
 		
-		self.init_screen(MAIN_SCREEN_NAME, MainScreen(self))
+		self.init_screen(DIALER_SCREEN_NAME, DialerScreen(self))
 		self.init_screen(INCALL_SCREEN_NAME, InCallScreen(self))
 		self.init_screen(GSM_STATUS_SCREEN_NAME, GsmStatusScreen(self))
 		self.init_screen(GPS_STATUS_SCREEN_NAME, GpsStatusScreen(self))
 		
-		self.screens[MAIN_SCREEN_NAME].part_text_set("numberdisplay_text", "wait ...")
-		
-		self.show_screen(MAIN_SCREEN_NAME)
+		self.show_screen(DIALER_SCREEN_NAME)
 		
 		# Initialize the D-Bus interface to pyneo
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -522,9 +360,9 @@ class Dialer(object):
 		PyneoController.register_callback("gsm_phone_ringing", self.on_ringing)
 		PyneoController.register_callback("gsm_phone_call_start", self.on_call_start)
 		PyneoController.register_callback("gsm_phone_call_end", self.on_call_end)
-		PyneoController.register_callback("gsm_status_start", self.on_gsm_status_start)
-		PyneoController.register_callback("gps_status_start", self.on_gps_status_start)
-		PyneoController.register_callback("show_dialer_main", self.on_call_end)
+		PyneoController.register_callback("show_gsm_status_screen", self.on_gsm_status_screen)
+		PyneoController.register_callback("show_gps_status_screen", self.on_gps_status_screen)
+		PyneoController.register_callback("show_dialer_screen", self.on_call_end)
 
 	def init_screen(self, screen_name, instance):
 		self.screens[screen_name] = instance
@@ -553,12 +391,12 @@ class Dialer(object):
 		self.show_screen(INCALL_SCREEN_NAME)
 
 	def on_call_end(self):
-		self.show_screen(MAIN_SCREEN_NAME)
+		self.show_screen(DIALER_SCREEN_NAME)
 
-	def on_gsm_status_start(self):
+	def on_gsm_status_screen(self):
 		self.show_screen(GSM_STATUS_SCREEN_NAME)
 
-	def on_gps_status_start(self):
+	def on_gps_status_screen(self):
 		self.show_screen(GPS_STATUS_SCREEN_NAME)
 
 
