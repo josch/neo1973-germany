@@ -16,7 +16,7 @@ do
 
 	for filename in *.edc
 	do
-		/opt/e17/bin/edje_cc -id $data_path/images -fd $data_path/fonts $filename
+		edje_cc -id $data_path/images -fd $data_path/fonts $filename
 	done
 
 	cd ..
