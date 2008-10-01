@@ -1,0 +1,7 @@
+#!/bin/sh -e
+# export DISPLAY=:0
+NAME=epydial
+PATH=/bin:/usr/bin:/sbin:/usr/sbin; export PATH
+TZ=MET; export TZ
+cd /usr/share/$NAME
+exec python2.5 ./$NAME.py > /media/card/$NAME.log 2>&1
