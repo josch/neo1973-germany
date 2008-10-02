@@ -119,6 +119,10 @@ class PyneoController(object):
 		
 		# Register our own D-Bus callbacks
 		class_.gsm_wireless.connect_to_signal("Status", class_.on_gsm_wireless_status, dbus_interface=DIN_WIRELESS)
+		class_.pwr.connect_to_signal("Status", class_.on_pwr_status, dbus_interface=DIN_POWERED)
+
+		status = class_.pwr.GetStatus(dbus_interface=DIN_POWERED)
+		class_.on_pwr_status(status)
 
 	@classmethod
 	def power_status_gsm(class_):
@@ -312,6 +316,12 @@ class PyneoController(object):
 
 		if status.has_key('fix'):
 			class_.notify_callbacks("gps_position_change", status)
+
+	@classmethod
+	def on_pwr_status(class_, status_map):
+		status = dedbusmap(status_map)
+		print "POWER Status: " + str(status)
+		class_.notify_callbacks("pwr_status_change", status)
 
 	@classmethod
 	def show_dialer_screen(class_):

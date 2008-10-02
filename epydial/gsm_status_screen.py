@@ -13,6 +13,10 @@ class GsmStatusScreen(EdjeGroup):
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("power_status_gsm", self.on_power_status_gsm)
+		PyneoController.register_callback("pwr_status_change", self.on_pwr_status_change)
+
+	def on_pwr_status_change(self, status):
+		self.part_text_set("gsm_caption", "battvolt: %f<br>chgstate: %s"%(status['battvolt'], status['chgstate']))
 
 	def on_power_status_gsm(self, status):
 		if status: p_status = "on"
