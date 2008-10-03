@@ -211,7 +211,8 @@ class PyneoController(object):
 		
 #		if call: 
 		call.Hangup(dbus_interface=DIN_CALL)
-		
+		os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
+
 		# Remove the call from our list
 #		class_._calls.__delitem__(call_obj)
 
