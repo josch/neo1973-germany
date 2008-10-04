@@ -4,6 +4,9 @@ import ecore.evas
 import edje
 import sys
 import os
+import atexit
+
+atexit.register(test.StopTrack())
 
 test=TrackClient('anon','passwd','80.61.221.9')
 
