@@ -18,15 +18,13 @@ class DialerScreen(EdjeGroup):
 		self.display_time()
 		
 		self.part_text_set("numberdisplay_text", "Wait ...")
-		PyneoController.power_up_gsm()
-		PyneoController.get_gsm_keyring()
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("sim_key_required", self.on_sim_key_required)
 		PyneoController.register_callback("sim_ready", self.on_sim_ready)
 		PyneoController.register_callback("gsm_registering", self.on_gsm_registering)
 		PyneoController.register_callback("gsm_registered", self.on_gsm_registered)
-		PyneoController.register_callback("gsm_dialing", self.on_gsm_dialing)
+#		PyneoController.register_callback("gsm_dialing", self.on_gsm_dialing)
 		PyneoController.register_callback("gsm_operator_change", self.on_gsm_operator_change)
 		PyneoController.register_callback("gsm_signal_strength_change", self.on_gsm_signal_strength_change)
 		
@@ -45,9 +43,9 @@ class DialerScreen(EdjeGroup):
 	def on_gsm_registered(self):
 		self.part_text_set("numberdisplay_text", "Dial when ready")
 
-	def on_gsm_dialing(self):
-		print '---', 'dial number'
-		self.part_text_set("numberdisplay_text", "Dialing ...")
+#	def on_gsm_dialing(self):
+#		print '---', 'dial number'
+#		self.part_text_set("numberdisplay_text", "Dialing ...")
 		
 	def on_gsm_operator_change(self, operator):
 		self.part_text_set("operater_text", operator)
@@ -108,6 +106,7 @@ class DialerScreen(EdjeGroup):
 					self.text = []
 					self.part_text_set("numberdisplay_text", "".join(self.text))
 					PyneoController.power_status_gsm()
+					PyneoController.get_pwr_status()
 					PyneoController.show_gsm_status_screen()
 				elif source == "dial" and ''.join(self.text) == "2":
 					print '--- Gps Status'
@@ -116,5 +115,6 @@ class DialerScreen(EdjeGroup):
 					PyneoController.power_status_gps()
 					PyneoController.show_gps_status_screen()
 				elif source == "dial":
+					PyneoController.show_incall_screen('outgoing')
 					PyneoController.gsm_dial("".join(self.text))
 

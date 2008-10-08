@@ -10,8 +10,6 @@ from epydial import *
 class GpsStatusScreen(EdjeGroup):
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, GPS_STATUS_SCREEN_NAME)
-		self.first = 0.0
-		self.last = 0.0
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("power_status_gps", self.on_power_status_gps)
@@ -25,10 +23,8 @@ class GpsStatusScreen(EdjeGroup):
 		self.part_text_set("gps_caption", "gps device is %s"%p_status)
 
 	def on_gps_position_change(self, status):
-		if status['fix'] == 1:
-			self.last = time.time()
-			print 'TIME TO FIX: ', self.last-self.first
-			self.part_text_set("gps_caption", "fix: %s<br>long/lat: %f/%f<br>altitude: %d<br>kph/course: %d/%d<br>satellites: %s"%(status['fix'], status['longitude'], status['latitude'], status['altitude'], status['kph'], status['course'], status['satellites']))
+		if status['fix'] != 0:
+			self.part_text_set("gps_caption", "fix: %d<br>long/lat: %f/%f<br>altitude: %d<br>kph/course: %d/%d<br>satellites: %d"%(status['fix'], status['longitude'], status['latitude'], status['altitude'], status['kph'], status['course'], status['satellites']))
 		else:
 			self.part_text_set("gps_caption", "fix: NIX FIX")
 		
@@ -37,9 +33,8 @@ class GpsStatusScreen(EdjeGroup):
 		status = self.part_text_get("button_11_caption")
 		if source == "<":
 			PyneoController.show_dialer_screen()
-		if source == "on" and  status == "on": PyneoController.power_down_gps()
+		if source == "on" and  status == "on":
+			PyneoController.power_down_gps()
 		elif source == "on" and status == "off":
-			self.first = time.time()
 			PyneoController.power_up_gps()
-
 

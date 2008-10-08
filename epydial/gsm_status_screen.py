@@ -16,14 +16,14 @@ class GsmStatusScreen(EdjeGroup):
 		PyneoController.register_callback("pwr_status_change", self.on_pwr_status_change)
 
 	def on_pwr_status_change(self, status):
-		self.part_text_set("gsm_caption", "battvolt: %f<br>chgstate: %s"%(status['battvolt'], status['chgstate']))
+		self.part_text_set("pwr_caption", "battemp: %s<br>chgmode: %s<br>chgstate: %s<br>chgcur: %s<br>battvolt: %f"%(status['battemp'], status['chgmode'], status['chgstate'], status['chgcur'], status['battvolt']))
 
 	def on_power_status_gsm(self, status):
 		if status: p_status = "on"
 		else: p_status = "off"
 		print '--- gsm device is ', p_status
 		self.part_text_set("button_11_caption", p_status)
-		self.part_text_set("gsm_caption", "gsm device is %s"%p_status)
+		self.part_text_set("pwr_caption", "gsm device is %s"%p_status)
 
 	@edje.decorators.signal_callback("gsm_send", "*")
 	def on_edje_signal_dialer_status_triggered(self, emission, source):

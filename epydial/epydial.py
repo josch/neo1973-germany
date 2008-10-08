@@ -78,6 +78,8 @@ class PyneoController(object):
 	
 	gsm_wireless_status = None
 	gsm_keyring_status = None
+	
+	call_type = None
 
 	@classmethod
 	def register_callback(class_, event_name, callback):
@@ -105,6 +107,7 @@ class PyneoController(object):
 			class_.gsm_wireless = object_by_url(class_.gsm.GetDevice('wireless'))
 			class_.pwr = object_by_url('dbus:///org/pyneo/Power')
 			class_.gps = object_by_url('dbus:///org/pyneo/GpsLocation')
+			class_.call_type = 'nix'
 		
 		except Exception, e:
 			print "Pyneo error: " + str(e)
@@ -121,6 +124,8 @@ class PyneoController(object):
 		class_.gsm_wireless.connect_to_signal("Status", class_.on_gsm_wireless_status, dbus_interface=DIN_WIRELESS)
 		class_.pwr.connect_to_signal("Status", class_.on_pwr_status, dbus_interface=DIN_POWERED)
 
+	@classmethod
+	def get_pwr_status(class_):
 		status = class_.pwr.GetStatus(dbus_interface=DIN_POWERED)
 		class_.on_pwr_status(status)
 
@@ -147,14 +152,6 @@ class PyneoController(object):
 		
 		# No error (anymore)
 		if class_._gsm_timer: class_._gsm_timer.stop()
-
-		# Register our own D-Bus Gps callbacks
-		class_.gps.connect_to_signal("Position", class_.on_gps_position_status, dbus_interface=DIN_LOCATION)
-		
-		class_.notify_callbacks("gps_power_status", class_.gps.GetPower(APP_TITLE, dbus_interface=DIN_POWERED))
-		
-		status = class_.gps.GetPosition(dbus_interface=DIN_LOCATION)
-		class_.on_gps_position_status(status)
 
 	@classmethod
 	def get_gsm_keyring(class_):
@@ -196,7 +193,7 @@ class PyneoController(object):
 		# Initialize "active call" counter
 		class_._calls[call] = 1
 		
-		class_.notify_callbacks("gsm_dialing")
+#		class_.notify_callbacks("gsm_dialing")
 
 	@classmethod
 	def gsm_hangup(class_):
@@ -212,6 +209,7 @@ class PyneoController(object):
 #		if call: 
 		call.Hangup(dbus_interface=DIN_CALL)
 		os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
+		class_.call_type = 'nix'
 
 		# Remove the call from our list
 #		class_._calls.__delitem__(call_obj)
@@ -239,11 +237,11 @@ class PyneoController(object):
 		if status.has_key('phone_activity_status'):
 			ph_status = status['phone_activity_status']
 			
-			if ph_status == 0:
-				class_.pwr.BlinkenLeds("power:blue", 0, 0, 0, dbus_interface=DIN_POWER)
+			if ph_status == 0 and class_.call_type != 'outgoing':
+#				class_.pwr.BlinkenLeds("power:blue", 0, 0, 0, dbus_interface=DIN_POWER)
 				class_.notify_callbacks("gsm_phone_call_end")
 			if ph_status == 3:
-				class_.pwr.BlinkenLeds("power:blue", 400, 1300, 0, dbus_interface=DIN_POWER)
+#				class_.pwr.BlinkenLeds("power:blue", 400, 1300, 0, dbus_interface=DIN_POWER)
 				class_.notify_callbacks("gsm_phone_ringing")
 			if ph_status == 4:
 				class_.notify_callbacks("gsm_phone_call_start")
@@ -336,6 +334,12 @@ class PyneoController(object):
 	def show_gps_status_screen(class_):
 		class_.notify_callbacks("show_gps_status_screen")
 
+	@classmethod
+	def show_incall_screen(class_, calling_type):
+		class_.call_type = calling_type
+		print "CALLING_TYPE: ", class_.call_type
+		class_.notify_callbacks("gsm_phone_call_start")
+
 
 from dialer_screen import *
 from incall_screen import *
@@ -354,19 +358,7 @@ class Dialer(object):
 		self.evas_canvas = EvasCanvas(FULLSCREEN, "x11-16")
 		
 		self.screens = {}
-		
-		self.init_screen(DIALER_SCREEN_NAME, DialerScreen(self))
-		self.init_screen(INCALL_SCREEN_NAME, InCallScreen(self))
-		self.init_screen(GSM_STATUS_SCREEN_NAME, GsmStatusScreen(self))
-		self.init_screen(GPS_STATUS_SCREEN_NAME, GpsStatusScreen(self))
-		
-		self.show_screen(DIALER_SCREEN_NAME)
-		
-		# Initialize the D-Bus interface to pyneo
-		dbus_ml = e_dbus.DBusEcoreMainLoop()
-		self.system_bus = SystemBus(mainloop=dbus_ml)
-		PyneoController.init()
-		
+
 		# Register our own callbacks
 		PyneoController.register_callback("gsm_phone_ringing", self.on_ringing)
 		PyneoController.register_callback("gsm_phone_call_start", self.on_call_start)
@@ -374,6 +366,21 @@ class Dialer(object):
 		PyneoController.register_callback("show_gsm_status_screen", self.on_gsm_status_screen)
 		PyneoController.register_callback("show_gps_status_screen", self.on_gps_status_screen)
 		PyneoController.register_callback("show_dialer_screen", self.on_call_end)
+		
+		# Initialize the D-Bus interface to pyneo
+		dbus_ml = e_dbus.DBusEcoreMainLoop()
+		self.system_bus = SystemBus(mainloop=dbus_ml)
+		PyneoController.init()
+
+		self.init_screen(DIALER_SCREEN_NAME, DialerScreen(self))
+		PyneoController.show_dialer_screen()
+#		self.show_screen(DIALER_SCREEN_NAME)
+		self.init_screen(INCALL_SCREEN_NAME, InCallScreen(self))
+		self.init_screen(GSM_STATUS_SCREEN_NAME, GsmStatusScreen(self))
+		self.init_screen(GPS_STATUS_SCREEN_NAME, GpsStatusScreen(self))
+
+		PyneoController.power_up_gsm()
+		PyneoController.get_gsm_keyring()
 
 	def init_screen(self, screen_name, instance):
 		self.screens[screen_name] = instance
