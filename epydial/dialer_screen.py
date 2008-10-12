@@ -114,6 +114,12 @@ class DialerScreen(EdjeGroup):
 					self.part_text_set("numberdisplay_text", "".join(self.text))
 					PyneoController.power_status_gps()
 					PyneoController.show_gps_status_screen()
+				elif source == "dial" and ''.join(self.text) == "6":
+					print '--- Hon Screen'
+					self.text = []
+					self.part_text_set("numberdisplay_text", "".join(self.text))
+					PyneoController.get_hon()
+					PyneoController.show_hon_screen()
 				elif source == "dial":
 					PyneoController.show_incall_screen('outgoing')
 					PyneoController.gsm_dial("".join(self.text))

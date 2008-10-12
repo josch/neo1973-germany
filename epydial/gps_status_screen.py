@@ -23,8 +23,8 @@ class GpsStatusScreen(EdjeGroup):
 		self.part_text_set("gps_caption", "gps device is %s"%p_status)
 
 	def on_gps_position_change(self, status):
-		if status['fix'] != 0:
-			self.part_text_set("gps_caption", "fix: %d<br>long/lat: %f/%f<br>altitude: %d<br>kph/course: %d/%d<br>satellites: %d"%(status['fix'], status['longitude'], status['latitude'], status['altitude'], status['kph'], status['course'], status['satellites']))
+		if status['fix'] == 3:
+			self.part_text_set("gps_caption", "fix: %s<br>long/lat: %s/%s<br>altitude: %s<br>kph/course: %s/%s<br>satellites: %s"%(status['fix'], status['longitude'], status['latitude'], status['altitude'], status['kph'], status['course'], status['satellites']))
 		else:
 			self.part_text_set("gps_caption", "fix: NIX FIX")
 		
