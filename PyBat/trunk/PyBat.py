@@ -111,35 +111,37 @@ class PyBatclass:
     print "l%st" % (self.power)
     edje_obj.signal_emit("%s" % (self.mode), "is_clicked")
     edje_obj.signal_emit("l%s" % (self.power), "is_clicked")
-    
-    self.systembus=systembus = SystemBus(mainloop=e_dbus.DBusEcoreMainLoop())
-    
-    self.odeviced_proxy = self.systembus.get_object('org.freesmartphone.odeviced', '/org/freesmartphone/Device/PowerControl/UsbHost')
-    self.PowerControl_iface = Interface(self.odeviced_proxy, 'org.freesmartphone.Device.PowerControl')
+#DBus:
+#    self.systembus=systembus = SystemBus(mainloop=e_dbus.DBusEcoreMainLoop())
+#    self.odeviced_proxy = self.systembus.get_object('org.freesmartphone.odeviced', '/org/freesmartphone/Device/PowerControl/UsbHost')
+#    self.PowerControl_iface = Interface(self.odeviced_proxy, 'org.freesmartphone.Device.PowerControl')
 
   def write_data(self, usbmode, power):
         if usbmode == "host":
+          self.fileusbmode.write("host")
+          #print "#echo host > /sys/devices/platform/s3c2410-ohci/usb_mode"
           if power == "-500":
             os.system("ifdown usb0 &")
             #dbus:
-            self.PowerControl_iface.SetPower(1)
-            print "#echo 1 > /sys/devices/platform/neo1973-pm-host.0/hostmode"
+            #self.PowerControl_iface.SetPower(1)
+            os.write(self.filehostmode, "1")
+            #print "#echo 1 > /sys/devices/platform/neo1973-pm-host.0/hostmode"
           else:
             os.system("ifdown usb0 &")
-            self.fileusbmode.write("host")
-            print "#echo host > /sys/devices/platform/s3c2410-ohci/usb_mode"
             os.write(self.filehostmode, "0")
-            print "#echo 0 > /sys/devices/platform/neo1973-pm-host.0/hostmode"
+            #print "#echo 0 > /sys/devices/platform/neo1973-pm-host.0/hostmode"
             os.write(self.filePower, power)
-            print "#echo %s > /sys/class/i2c-adapter/i2c-0/0-0073/force_usb_limit_dangerous" % (power)
+            #print "#echo %s > /sys/class/i2c-adapter/i2c-0/0-0073/force_usb_limit_dangerous" % (power)
         elif usbmode == "device":
           if power != "-500":
-            self.PowerControl_iface.SetPower(0)
+            self.fileusbmode.write("device")
+            #print "#echo device > /sys/devices/platform/s3c2410-ohci/usb_mode"
+            os.write(self.filehostmode, "0")
+            #print "#echo 0 > /sys/devices/platform/neo1973-pm-host.0/hostmode"
+            #self.PowerControl_iface.SetPower(0)
             os.system("ifup usb0 &")
-            print "#echo device > /sys/devices/platform/s3c2410-ohci/usb_mode"
-            print "#echo 0 > /sys/devices/platform/neo1973-pm-host.0/hostmode"
             os.write(self.filePower, power)
-            print "#echo %s > /sys/class/i2c-adapter/i2c-0/0-0073/force_usb_limit_dangerous" % (power)
+            #print "#echo %s > /sys/class/i2c-adapter/i2c-0/0-0073/force_usb_limit_dangerous" % (power)
         
   def button_pressed(self, edje_obj, signal, source):
         if source == "usbmode":
