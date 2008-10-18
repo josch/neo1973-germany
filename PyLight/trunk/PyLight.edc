@@ -1,0 +1,468 @@
+//test
+
+images {
+//        image,  "background.jpg" LOSSY 95;
+}
+
+color_classes {
+            color_class {
+                name:  "user_color";
+                color:  255 255 255 255;
+            }
+            
+}
+
+
+collections {
+   group {
+      name, "main";
+      min, 480 640;
+      max, 1024 768;
+
+      parts {
+#define COLOR_DEFAULT 30 30 30 255
+#define COLOR_CLICKED 80 80 80 255
+#define COLOR_BOX 80 80 80 255
+#define COLOR_SLIDER 30 30 30 255
+         part {
+                name,   "background";
+                type,   RECT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+                        min, 480 640;
+                        max, 1024 768;
+                        color, 200 200 200 200;
+                        rel1 {
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_ok";
+                type,   RECT;
+                mouse_events, 1;
+                effect, OUTLINE;
+
+                description {
+                        state, "default" 0.0;
+                        min, 200 80;
+                        max, 200 80;
+                        align, 0.5 0.0;
+                        color, COLOR_DEFAULT;
+                        color2, 0 0 0 255;
+                        color3, 255 255 255 255;
+
+                        rel1 {
+                                relative, 0.0 0.84;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 0.5 1.0;
+                                offset, 0 0;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 200 80;
+                        max, 200 80;
+                        align, 0.5 0.0;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.0 0.84;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 0.5 1.0;
+                                offset, -1 -1;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_close";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 200 80;
+                        max, 200 80;
+                        align, 0.5 0.0;
+
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.5 0.84;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, 0 0;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 200 80;
+                        max, 200 80;
+                        align, 0.5 0.0;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.5 0.84;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, 0 0;
+                        }
+                }
+        }
+
+
+        part {
+                name,   "text_ok";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_ok";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_ok";
+                        }
+                        text {
+                                text, "OK";
+                                font, "sans serif";
+                                size, 22;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_close";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_close";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_close";
+                        }
+                        text {
+                                text, "CLOSE";
+                                font, "sans serif";
+                                size, 22;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "box_red";
+                type,   RECT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+                        min, 440 50;
+                        max, 440 50;
+                        align, 0.5 0.0;
+
+                        color, 120 20 20 255;
+
+                        rel1 {
+                                relative, 0.0 0.1;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 0.2;
+                                offset, 0 0;
+                        }
+                }
+        }
+        part {
+                name,   "slider_red";
+                type,   RECT;
+//              mouse_events, 0;
+                dragable {
+                        confine: "box_red";
+//                       events:  "another dragable part";
+                        x: -1 1 0;
+                        y: 0 0 0;
+                }
+
+                description {
+                        state, "default" 0.0;
+                        min, 90 50;
+                        max, 90 50;
+//                        align, 1.0 0.0;
+
+                        color, COLOR_SLIDER;
+
+/*                        rel1 {
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "box_red";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, 0 0;
+                                to, "box_red";
+                        }
+  */              }
+        }
+        part {
+                name,   "box_green";
+                type,   RECT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+                        min, 440 50;
+                        max, 440 50;
+                        align, 0.5 0.0;
+
+                        color, 20 120 20 255;
+
+                        rel1 {
+                                relative, 0.0 0.2;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 0.3;
+                                offset, 0 0;
+                        }
+                }
+        }
+        part {
+                name,   "slider_green";
+                type,   RECT;
+                mouse_events, 1;
+                dragable {
+                        confine: "box_green";
+                        x: -1 1 0;
+                        y: 0 0 0;
+                }
+
+                description {
+                        state, "default" 0.0;
+                        min, 90 50;
+                        max, 90 50;
+//                        align, 1.0 0.0;
+
+                        color, COLOR_SLIDER;
+
+                }
+        }
+        part {
+                name,   "box_blue";
+                type,   RECT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+                        min, 440 50;
+                        max, 440 50;
+                        align, 0.5 0.0;
+
+                        color, 20 20 120 255;
+
+                        rel1 {
+                                relative, 0.0 0.3;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 0.4;
+                                offset, 0 0;
+                        }
+                }
+        }
+        part {
+                name,   "slider_blue";
+                type,   RECT;
+                mouse_events, 1;
+                dragable {
+                        confine: "box_blue";
+                        x: -1 1 0;
+                        y: 0 0 0;
+                }
+
+                description {
+                        state, "default" 0.0;
+                        min, 90 50;
+                        max, 90 50;
+//                        align, 1.0 0.0;
+
+                        color, COLOR_SLIDER;
+
+                }
+        }
+        part {
+                name,   "box_prev";
+                type,   RECT;
+                mouse_events, 0;
+                description {
+                        state, "default" 0.0;
+                        min, 100 100;
+                        max, 100 100;
+                        align, 0.5 0.0;
+
+                        color_class, user_color;
+
+                        rel1 {
+                                relative, 0.0 0.6;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 0.8;
+                                offset, 0 0;
+                        }
+                }
+        }
+        part {
+                name,   "box_light";
+                type,   RECT;
+                mouse_events, 1;
+                description {
+                        state, "default" 0.0;
+                        min, 480 640;
+                        max, 1024 768;
+                        align, 0.0 0.0;
+                        visible: 1;
+                        color_class, user_color;
+
+                        rel1 {
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                        }
+                }
+                description {
+                        state, "hidden" 0.0;
+                        min, 480 640;
+                        max, 1024 768;
+                        align, 0.0 0.0;
+                        visible: 0;
+                        color_class, user_color;
+
+                        rel1 {
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                        }
+                }
+        } 
+   } /* Close Parts */
+
+   programs {
+//Button_ok
+        program {
+                name, "ok_click";
+                signal, "mouse,down,1";
+                source, "button_ok";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_ok";
+        }
+
+        program {
+                name, "ok_unclick";
+                signal, "mouse,up,1";
+                source, "button_ok";
+                action, STATE_SET "default" 0.0;
+                target, "button_ok";
+        }
+
+        program {
+                name, "ok_signal";
+                signal, "mouse,down,1";
+                source, "button_ok";
+                action, SIGNAL_EMIT "ok" "programm";
+                in, 0.0 0.0;
+        }
+//Button_close
+        program {
+                name, "close_click";
+                signal, "mouse,down,1";
+                source, "button_close";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_close";
+        }
+
+        program {
+                name, "close_unclick";
+                signal, "mouse,up,1";
+                source, "button_close";
+                action, STATE_SET "default" 0.0;
+                target, "button_close";
+        }
+
+        program {
+                name, "close_signal";
+                signal, "mouse,down,1";
+                source, "button_close";
+                action, SIGNAL_EMIT "close" "programm";
+                in, 0.0 0.0;
+        }
+//Light
+        program {
+                name, "light_default";
+                signal, "on";
+                source, "light";
+                action, STATE_SET "default" 0.0;
+                target, "box_light";
+        }
+        
+        program {
+                name, "light_hidden";
+                signal, "off";
+                source, "light";
+                action, STATE_SET "hidden" 0.0;
+                target, "box_light";
+        }
+
+        program {
+                name, "back_signal";
+                signal, "mouse,down,1";
+                source, "box_light";
+                action, SIGNAL_EMIT "back" "programm";
+                in, 0.0 0.0;
+        }
+
+
+
+      } /* Close Prog */
+ } /* Close Group */
+} /* Close Coll */
