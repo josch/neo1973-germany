@@ -128,15 +128,14 @@ collections {
 				type: IMAGE;
 				description {
 					state: "default" 0;
-					rel1 { relative: 0 0; offset: 0 0; };
-					rel2 { relative: 1 1; offset: 0 0; };
-					image { normal: "bg.png"; };
+					rel1 { relative: 0 0; offset: 0 0; }
+					rel2 { relative: 1 1; offset: 0 0; }
+					image { normal: "bg.png"; }
 				}
 			}
 			part {
 				name: "headline";
 				type: TEXT;
-				mouse_events: 0;
 				description {
 					state: "default" 0;
 					color_class: "button_inactive";
@@ -165,10 +164,20 @@ collections {
 						style: "textblock_style";
 					}
 				}
-			} /* end fix_caption */
-			BUTTON(7, 0, 47/70, 1/3, 57/70, "hot");
-			BUTTON(9, 2/3, 47/70, 3/3, 57/70, "not");
-			BUTTON(12, 0, 58/70 , 1/3, 68/70, "<");
+			} /* end hon_caption */
+			part {
+				name: "icon";
+				mouse_events: 0;
+				type: SWALLOW;
+				description {
+					/*fixed: 1 1;*/
+					rel1 { relative: 1/2 1/2; offset: -180 -180; }
+					rel2 { relative: 1/2 1/2; offset: 180 180; }
+				}
+			} /*end icon swallow */
+			BUTTON(10, 0, 58/70 , 1/3, 68/70, "<");
+			BUTTON(11, 1/3, 58/70, 2/3, 68/70, "hot");
+			BUTTON(12, 2/3, 58/70, 3/3, 68/70, "not");
 		}
 	}
 }

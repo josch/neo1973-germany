@@ -141,9 +141,12 @@ class PyneoController(object):
 	@classmethod
 	def get_hon(class_):
 		status = class_.hon_hotornot.GetHotOrNot(dbus_interface=DIN_HOTORNOT)
-		print '---hon status', status
-		img = object_by_url(status['img']).read()		
+		print '---get hon', status		
 		class_.notify_callbacks("get_hon", status)
+
+	@classmethod
+	def vote_hon(class_, vote):
+		class_.hon_hotornot.HotOrNot(vote, dbus_interface=DIN_HOTORNOT)
 
 	@classmethod
 	def power_up_gsm(class_):
@@ -391,11 +394,9 @@ class Dialer(object):
 
 		self.init_screen(DIALER_SCREEN_NAME, DialerScreen(self))
 		PyneoController.show_dialer_screen()
-#		self.show_screen(DIALER_SCREEN_NAME)
 		self.init_screen(INCALL_SCREEN_NAME, InCallScreen(self))
 		self.init_screen(GSM_STATUS_SCREEN_NAME, GsmStatusScreen(self))
 		self.init_screen(GPS_STATUS_SCREEN_NAME, GpsStatusScreen(self))
-		self.init_screen(HON_SCREEN_NAME, HonScreen(self))
 
 		PyneoController.power_up_gsm()
 		PyneoController.get_gsm_keyring()
@@ -436,6 +437,7 @@ class Dialer(object):
 		self.show_screen(GPS_STATUS_SCREEN_NAME)
 
 	def on_hon_screen(self):
+		self.init_screen(HON_SCREEN_NAME, HonScreen(self))
 		self.show_screen(HON_SCREEN_NAME)
 
 

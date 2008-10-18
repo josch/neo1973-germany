@@ -118,8 +118,8 @@ class DialerScreen(EdjeGroup):
 					print '--- Hon Screen'
 					self.text = []
 					self.part_text_set("numberdisplay_text", "".join(self.text))
-					PyneoController.get_hon()
 					PyneoController.show_hon_screen()
+#					PyneoController.get_hon()
 				elif source == "dial":
 					PyneoController.show_incall_screen('outgoing')
 					PyneoController.gsm_dial("".join(self.text))
