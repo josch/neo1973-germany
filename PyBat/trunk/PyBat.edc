@@ -1,0 +1,1025 @@
+//test
+
+images {
+//        image,  "background.jpg" LOSSY 95;
+}
+
+
+
+collections {
+   group {
+      name, "main";
+      min, 480 640;
+      max, 1024 768;
+
+      parts {
+#define COLOR_DEFAULT 30 30 30 255
+#define COLOR_CLICKED 80 80 80 255
+         part {
+                name,   "background";
+                type,   RECT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+                        min, 480 640;
+                        max, 1024 768;
+                        color, 200 200 200 200;
+                        rel1 {
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_device";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 0.5 0.2;
+                                offset, 0 0;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 230 100;
+                        max, 130 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 0.5 0.2;
+                                offset, 0 0;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_host";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.5 0.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 0.2;
+                                offset, 0 0;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.5 0.0;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 0.2;
+                                offset, 0 0;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_dontload";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.0 0.2;
+                                offset, 0 -5;
+                        }
+                        rel2 {
+                                relative, 0.5 0.4;
+                                offset, 0 -5;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.0 0.2;
+                                offset, 0 -5;
+                        }
+                        rel2 {
+                                relative, 0.5 0.4;
+                                offset, 0 -5;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_l100";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.5 0.2;
+                                offset, 0 -5;
+                        }
+                        rel2 {
+                                relative, 1.0 0.4;
+                                offset, 0 -5;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.5 0.2;
+                                offset, 0 -5;
+                        }
+                        rel2 {
+                                relative, 1.0 0.4;
+                                offset, 0 -5;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_l500";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.0 0.4;
+                                offset, 0 -20;
+                        }
+                        rel2 {
+                                relative, 0.5 0.6;
+                                offset, 0 -20;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.0 0.4;
+                                offset, 0 -20;
+                        }
+                        rel2 {
+                                relative, 0.5 0.6;
+                                offset, 0 -20;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_l1000";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.5 0.4;
+                                offset, 0 -20;
+                        }
+                        rel2 {
+                                relative, 1.0 0.6;
+                                offset, 0 -20;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.5 0.4;
+                                offset, 0 -20;
+                        }
+                        rel2 {
+                                relative, 1.0 0.6;
+                                offset, 0 -20;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_provide";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+                        visible: 1;
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.0 0.6;
+                                offset, 0 -35;
+                        }
+                        rel2 {
+                                relative, 1.0 0.8;
+                                offset, 0 -35;
+                        } 
+                }
+                description {
+                        state, "hidden" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.0 0.6;
+                                offset, 0 -35;
+                        }
+                        rel2 {
+                                relative, 1.0 0.8;
+                                offset, 0 -35;
+                        }
+                        visible: 0;
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 230 100;
+                        max, 230 100;
+                        align, 0.5 0.5;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.0 0.6;
+                                offset, 0 -35;
+                        }
+                        rel2 {
+                                relative, 1.0 0.8;
+                                offset, 0 -35;
+                        }
+                        visible: 1;
+                }
+        }
+
+        part {
+                name,   "button_ok";
+                type,   RECT;
+                mouse_events, 1;
+
+                description {
+                        state, "default" 0.0;
+                        min, 200 80;
+                        max, 200 80;
+                        align, 0.5 0.0;
+
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.0 0.84;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 0.5 1.0;
+                                offset, 0 0;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 200 80;
+                        max, 200 80;
+                        align, 0.5 0.0;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.0 0.84;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 0.5 1.0;
+                                offset, -1 -1;
+                        }
+                }
+        }
+
+        part {
+                name,   "button_cancel";
+                type,   RECT;
+                mouse_events, 1;
+                effect, OUTLINE;
+
+                description {
+                        state, "default" 0.0;
+                        min, 200 80;
+                        max, 200 80;
+                        align, 0.5 0.0;
+
+                        color, COLOR_DEFAULT;
+
+                        rel1 {
+                                relative, 0.5 0.84;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, 0 0;
+                        }
+                }
+                description {
+                        state, "clicked" 0.0;
+                        min, 200 80;
+                        max, 200 80;
+                        align, 0.5 0.0;
+
+                        color, COLOR_CLICKED;
+
+                        rel1 {
+                                relative, 0.5 0.84;
+                                offset, 0 0;
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, 0 0;
+                        }
+                }
+        }
+
+        part {
+                name,   "text_device";
+                type,   TEXT;
+                mouse_events, 0;
+                
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_device";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_device";
+                        }
+                        text {
+                                text, "USB - Device";
+                                font, "sans serif";
+                                size, 26;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_host";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_host";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_host";
+                        }
+                        text {
+                                text, "USB - Host";
+                                font, "sans serif";
+                                size, 26;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_dontload";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_dontload";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_dontload";
+                        }
+                        text {
+                                text, "Don't Load";
+                                font, "sans serif";
+                                size, 26;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_l100";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_l100";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_l100";
+                        }
+                        text {
+                                text, "Load 100mA";
+                                font, "sans serif";
+                                size, 26;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_l500";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_l500";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_l500";
+                        }
+                        text {
+                                text, "Load 500mA";
+                                font, "sans serif";
+                                size, 26;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_l1000";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_l1000";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_l1000";
+                        }
+                        text {
+                                text, "Load 1A";
+                                font, "sans serif";
+                                size, 26;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_provide";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+                        visible: 1;
+                        
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_provide";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_provide";
+                        }
+                        text {
+                                text, "Provied Power";
+                                font, "sans serif";
+                                size, 26;
+                                align, 0.5 0.5;
+                        }
+                }
+                description {
+                        state, "hidden" 0.0;
+                        visible: 0;
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_provide";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_provide";
+                        }
+                        text {
+                                text, "Provied Power";
+                                font, "sans serif";
+                                size, 26;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_ok";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_ok";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_ok";
+                        }
+                        text {
+                                text, "OK";
+                                font, "sans serif";
+                                size, 22;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_cancel";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        rel1 {
+
+                                relative, 0.0 0.0;
+                                offset, 0 0;
+                                to, "button_cancel";
+                        }
+                        rel2 {
+                                relative, 1.0 1.0;
+                                offset, -1 -1;
+                                to, "button_cancel";
+                        }
+                        text {
+                                text, "CANCEL";
+                                font, "sans serif";
+                                size, 22;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+        part {
+                name,   "text_field";
+                type,   TEXT;
+                mouse_events, 0;
+
+                description {
+                        state, "default" 0.0;
+
+                        color, 200 000 000 255;
+                        
+                        rel1 {
+
+                                relative, 0.0 0.8;
+                                offset, 0 -35;
+                                
+                        }
+                        rel2 {
+                                relative, 1.0 0.83;
+                                offset, -1 -1;
+                                
+                        }
+                        text {
+                                text, "";
+                                font, "sans serif";
+                                fit, 1 1;
+                                size, 22;
+                                align, 0.5 0.5;
+                        }
+                }
+        }
+   } /* Close Parts */
+
+   programs {
+//Button_device
+        program {
+                name, "device_click";
+                signal, "mouse,down,1";
+                source, "button_device";
+                after, "device_clicked";
+                after, "host_default";
+                after, "provide_hidden";
+         }
+
+        program {
+                name, "device_clicked";
+                signal, "device";
+                source, "is_clicked";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_device";
+        }
+        
+        program {
+                name, "device_default";
+                signal, "device";
+                source, "is_default";
+                action, STATE_SET "default" 0.0;
+                target, "button_device";
+        }
+
+        program {
+                name, "device_signal";
+                signal, "mouse,down,1";
+                source, "button_device";
+                action, SIGNAL_EMIT "device" "usbmode";
+                in, 0.0 0.0;
+        }
+//Button_host
+        program {
+                name, "host_click";
+                signal, "mouse,down,1";
+                source, "button_host";
+                after, "host_clicked";
+                after, "device_default";
+                after, "provide_default";
+        }
+        
+        program {
+                name, "host_clicked";
+                signal, "host";
+                source, "is_clicked";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_host";
+        }
+        
+        program {
+                name, "host_default";
+                signal, "host";
+                source, "is_default";
+                action, STATE_SET "default" 0.0;
+                target, "button_host";
+        }
+
+        program {
+                name, "host_signal";
+                signal, "mouse,down,1";
+                source, "button_host";
+                action, SIGNAL_EMIT "host" "usbmode";
+                in, 0.0 0.0;
+        }
+//Button_dontload
+        program {
+                name, "dontload_click";
+                signal, "mouse,down,1";
+                source, "button_dontload";
+                after, "dontload_clicked";
+                after, "l100_default";
+                after, "l500_default";
+                after, "l1000_default";
+       }
+
+        program {
+                name, "dontload_clicked";
+                signal, "l0";
+                source, "is_clicked";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_dontload";
+        }
+        
+        program {
+                name, "dontload_default";
+                signal, "l0";
+                source, "is_default";
+                action, STATE_SET "default" 0.0;
+                target, "button_dontload";
+        }
+
+        program {
+                name, "dontload_signal";
+                signal, "mouse,down,1";
+                source, "button_dontload";
+                action, SIGNAL_EMIT "0" "power";
+                in, 0.0 0.0;
+        }
+//Button_l100
+        program {
+                name, "l100_click";
+                signal, "mouse,down,1";
+                source, "button_l100";
+                after, "l100_clicked";
+                after, "dontload_default";
+                after, "l500_default";
+                after, "l1000_default";
+        }
+
+        program {
+                name, "l100_clicked";
+                signal, "l100";
+                source, "is_clicked";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_l100";
+        }
+        
+        program {
+                name, "l100_default";
+                signal, "l100";
+                source, "is_default";
+                action, STATE_SET "default" 0.0;
+                target, "button_l100";
+        }
+
+        program {
+                name, "l100_signal";
+                signal, "mouse,down,1";
+                source, "button_l100";
+                action, SIGNAL_EMIT "100" "power";
+                in, 0.0 0.0;
+        }
+//Button_l500
+        program {
+                name, "l500_click";
+                signal, "mouse,down,1";
+                source, "button_l500";
+                after, "l500_clicked";
+                after, "dontload_default";
+                after, "l100_default";
+                after, "l1000_default"; 
+        }
+
+        program {
+                name, "l500_clicked";
+                signal, "l500";
+                source, "is_clicked";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_l500";
+        }
+        
+        program {
+                name, "l500_default";
+                signal, "l500";
+                source, "is_default";
+                action, STATE_SET "default" 0.0;
+                target, "button_l500";
+        }
+
+        program {
+                name, "l500_signal";
+                signal, "mouse,down,1";
+                source, "button_l500";
+                action, SIGNAL_EMIT "500" "power";
+                in, 0.0 0.0;
+        }
+//Button_l1000
+        program {
+                name, "l1000_click";
+                signal, "mouse,down,1";
+                source, "button_l1000";
+                after, "l1000_clicked";
+                after, "dontload_default";
+                after, "l500_default";
+                after, "l100_default"; 
+        }
+
+        program {
+                name, "l1000_clicked";
+                signal, "l1000";
+                source, "is_clicked";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_l1000";
+        }
+        
+        program {
+                name, "l1000_default";
+                signal, "l1000";
+                source, "is_default";
+                action, STATE_SET "default" 0.0;
+                target, "button_l1000";
+        }
+
+        program {
+                name, "l1000_signal";
+                signal, "mouse,down,1";
+                source, "button_l1000";
+                action, SIGNAL_EMIT "1000" "power";
+                in, 0.0 0.0;
+        }
+//Button_provide
+        program {
+                name, "provide_click";
+                signal, "mouse,down,1";
+                source, "button_provide";
+                after, "provide_clicked";
+                after, "l100_default";
+                after, "dontload_default";
+                after, "l500_default";
+                after, "l1000_default"; 
+        }
+
+        program {
+                name, "provide_clicked";
+                signal, "l-500";
+                source, "is_clicked";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_provide";
+        }
+        
+        program {
+                name, "provide_default";
+                signal, "l-500";
+                source, "is_default";
+                action, STATE_SET "default" 0.0;
+                target, "button_provide";
+                target, "text_provide";
+        }
+        
+        program {
+                name, "provide_hidden";
+                signal, "hide_provide";
+                action, STATE_SET "hidden" 0.0;
+                target, "button_provide";
+                target, "text_provide";
+        }
+
+        program {
+                name, "provide_signal";
+                signal, "mouse,down,1";
+                source, "button_provide";
+                action, SIGNAL_EMIT "-500" "power";
+                in, 0.0 0.0;
+        }
+//Button_ok
+        program {
+                name, "ok_click";
+                signal, "mouse,down,1";
+                source, "button_ok";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_ok";
+        }
+
+        program {
+                name, "ok_unclick";
+                signal, "mouse,up,1";
+                source, "button_ok";
+                action, STATE_SET "default" 0.0;
+                target, "button_ok";
+        }
+
+        program {
+                name, "ok_signal";
+                signal, "mouse,down,1";
+                source, "button_ok";
+                action, SIGNAL_EMIT "ok" "programm";
+                in, 0.0 0.0;
+        }
+//Button_cancle
+        program {
+                name, "cancel_click";
+                signal, "mouse,down,1";
+                source, "button_cancel";
+                action, STATE_SET "clicked" 0.0;
+                target, "button_cancel";
+        }
+
+        program {
+                name, "cancel_unclick";
+                signal, "mouse,up,1";
+                source, "button_cancel";
+                action, STATE_SET "default" 0.0;
+                target, "button_cancel";
+        }
+
+        program {
+                name, "cancel_signal";
+                signal, "mouse,down,1";
+                source, "button_cancel";
+                action, SIGNAL_EMIT "cancel" "programm";
+                in, 0.0 0.0;
+        }
+
+
+
+      } /* Close Prog */
+ } /* Close Group */
+} /* Close Coll */
