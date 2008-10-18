@@ -74,6 +74,7 @@ edje_obj.size = canvas.size
 edje_obj.show()
 ee.data["edje"] = edje_obj
 
+edje_obj.signal_emit("off", "light")
 
 # Setup callbacks for resize, keydown and selected item
 def resize_cb(ee):
