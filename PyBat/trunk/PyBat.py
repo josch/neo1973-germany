@@ -2,6 +2,7 @@
 '''
 authors: Pau1us <paulus.mail@oleco.net>
 license: gpl v2 or later
+PyBat is a tool to set usb in host or devices mode aund to set the charging speed.
 '''
 
 import ecore
@@ -94,55 +95,60 @@ edje_obj.on_key_down_add(key_down_cb, ee)
 
 class PyBatclass:
   def __init__(self, edje_obj):
-#open sys-devices
     self.filePower = os.open( "/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/force_usb_limit_dangerous", os.O_RDWR )
     self.filePowerread = os.open( "/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/usb_curlim", os.O_RDONLY )
-    self.fileusbmode = os.open( "/sys/devices/platform/s3c2410-ohci/usb_mode", os.O_RDWR )
+    self.fileusbmode = open( "/sys/devices/platform/s3c2410-ohci/usb_mode", "r+" )
     self.filehostmode = os.open( "/sys/devices/platform/neo1973-pm-host.0/hostmode", os.O_RDWR )
-#read default values
-    self.mode = str(os.read(self.fileusbmode, 6))
+    self.mode = self.fileusbmode.readline()
     self.power = str(os.read(self.filePowerread, 4))
+    # while self.mode[-1] == whitespace:
+    #  self.mode = self.mode[:-1]
     self.mode = self.mode.split()[0]
+    #while self.power[-1] == whitespace:
+    #  self.power = self.power[:-1] 
     self.power = self.power.split()[0]
     print self.mode
     print "l%st" % (self.power)
     edje_obj.signal_emit("%s" % (self.mode), "is_clicked")
     edje_obj.signal_emit("l%s" % (self.power), "is_clicked")
-#open dbus
+    
     self.systembus=systembus = SystemBus(mainloop=e_dbus.DBusEcoreMainLoop())
+    
     self.odeviced_proxy = self.systembus.get_object('org.freesmartphone.odeviced', '/org/freesmartphone/Device/PowerControl/UsbHost')
     self.PowerControl_iface = Interface(self.odeviced_proxy, 'org.freesmartphone.Device.PowerControl')
+
   def write_data(self, usbmode, power):
         if usbmode == "host":
           if power == "-500":
+            os.system("ifdown usb0 &")
             #dbus:
             self.PowerControl_iface.SetPower(1)
+            print "#echo 1 > /sys/devices/platform/neo1973-pm-host.0/hostmode"
           else:
-            os.write(self.fileusbmode, "host")
+            os.system("ifdown usb0 &")
+            self.fileusbmode.write("host")
             print "#echo host > /sys/devices/platform/s3c2410-ohci/usb_mode"
             os.write(self.filehostmode, "0")
             print "#echo 0 > /sys/devices/platform/neo1973-pm-host.0/hostmode"
             os.write(self.filePower, power)
             print "#echo %s > /sys/class/i2c-adapter/i2c-0/0-0073/force_usb_limit_dangerous" % (power)
         elif usbmode == "device":
-          if power == "-500":
-            print "won't work!"
-          else:
-            #dbus:
+          if power != "-500":
             self.PowerControl_iface.SetPower(0)
+            os.system("ifup usb0 &")
             print "#echo device > /sys/devices/platform/s3c2410-ohci/usb_mode"
             print "#echo 0 > /sys/devices/platform/neo1973-pm-host.0/hostmode"
             os.write(self.filePower, power)
             print "#echo %s > /sys/class/i2c-adapter/i2c-0/0-0073/force_usb_limit_dangerous" % (power)
         
   def button_pressed(self, edje_obj, signal, source):
-        if source == "usbmode":         #host or device
+        if source == "usbmode":
                 self.mode = signal
                 if self.mode == "device" and self.power == "-500":
                   edje_obj.part_text_set("text_field", "won't work!")
                 else:
                   edje_obj.part_text_set("text_field", "")
-        elif source == "power":         #set charging speed
+        elif source == "power":
                 self.power = signal
                 if signal != "-500":
                   if self.mode == "device":
@@ -157,13 +163,13 @@ class PyBatclass:
                    edje_obj.part_text_set("text_field", "make shure your charger can provide 0.5A")
                 elif signal == "1000":
                    edje_obj.part_text_set("text_field", "make shure your charger can provide 1A")
-                elif signal == "-500":
+                elif signal == "500":
                    edje_obj.part_text_set("text_field", "")
         elif source == "programm":
-                if signal == "ok":              #write data and quit
+                if signal == "ok":
                         self.write_data(self.mode, self.power)
                         ecore.main_loop_quit()
-                elif signal == "cancel":        #quit
+                elif signal == "cancel":
                         ecore.main_loop_quit()
 
 test = PyBatclass(edje_obj)
@@ -173,4 +179,11 @@ edje_obj.signal_callback_add("*", "*", test.button_pressed)
 # Give focus to object, show window and enter event loop
 edje_obj.focus = True
 ee.show()
+
+
+
+
+
+#ecore.main_loop_begin()
 ecore.main_loop_begin()
+

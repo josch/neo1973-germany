@@ -1,1 +1,23 @@
- 
+PyBat is a tool to set usb in host or devices mode aund to set the charging speed.
+
+If you want PyBat to start when usb is pluged in you have to add a rule to /etc/freesmartphone/oevents/rules.yaml.(your changes will be deleted after an upgrade!)
+
+Example:
+
+1. Creat file /usr/bin/pybat:
+        #!/bin/sh
+        export DISPLAY=:0
+        python /directory/PyBat.py
+        exit 0
+
+2. add to /usr/etc/freesmartphone/oevents/rules.yaml (not working yes, so you have to add to /etc/freesmartphone/oevents/rules.yaml): 
+        -
+                trigger: InputEvent()
+                filters:
+                        - HasAttr(switch, "USB")
+                        - HasAttr(event, "pressed")
+                actions: Command('pybat')
+
+TODO:
+-change write to /sys/files to dbus, when available
+-fix dbus
