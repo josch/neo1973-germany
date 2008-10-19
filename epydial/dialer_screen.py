@@ -29,7 +29,11 @@ class DialerScreen(EdjeGroup):
 		PyneoController.register_callback("gsm_signal_strength_change", self.on_gsm_signal_strength_change)
 		PyneoController.register_callback("battvolt_change", self.on_battvolt_change)
 
-	def on_battvolt_change(self, battvolt):
+	def on_battvolt_change(self, battvolt, chgmode):
+		if chgmode == "play-only":
+			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 64, 0,0,0,0,0,0,0,0)
+		else:
+			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 128, 0,0,0,0,0,0,0,0)
 		self.part_text_set("battvolt_text", "%s V"%str(battvolt)[:4])
 		
 	def on_sim_key_required(self, key_type):
