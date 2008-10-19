@@ -27,6 +27,10 @@ class DialerScreen(EdjeGroup):
 #		PyneoController.register_callback("gsm_dialing", self.on_gsm_dialing)
 		PyneoController.register_callback("gsm_operator_change", self.on_gsm_operator_change)
 		PyneoController.register_callback("gsm_signal_strength_change", self.on_gsm_signal_strength_change)
+		PyneoController.register_callback("battvolt_change", self.on_battvolt_change)
+
+	def on_battvolt_change(self, battvolt):
+		self.part_text_set("battvolt_text", "%s V"%str(battvolt)[:4])
 		
 	def on_sim_key_required(self, key_type):
 		print '---', 'opening keyring'
@@ -51,7 +55,7 @@ class DialerScreen(EdjeGroup):
 		self.part_text_set("operater_text", operator)
 		
 	def on_gsm_signal_strength_change(self, rssi):
-		self.part_text_set("signalq_text", "%s dBm"%str(rssi))
+		self.part_text_set("signalq_text", "%s dBm /"%str(rssi))
 		
 	def display_time(self):
 		self.part_text_set("time_text", time.strftime("%H:%M", time.localtime()));
