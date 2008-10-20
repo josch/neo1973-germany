@@ -13,49 +13,15 @@ import os
 import e_dbus
 from dbus import SystemBus, Interface
 
-# Parse command line
-from optparse import OptionParser
 
-def parse_geometry(option, opt, value, parser):
-    try:
-        w, h = value.split("x")
-        w = int(w)
-        h = int(h)
-    except Exception, e:
-        raise optparse.OptionValueError("Invalid format for %s" % option)
-    parser.values.geometry = (w, h)
+if ecore.evas.engine_type_supported_get("software_x11_16"):
+     f = ecore.evas.SoftwareX11_16
+else:
+     print "warning: x11-16 is not supported, fallback to x11"
+     f = ecore.evas.SoftwareX11
 
-usage = "usage: %prog [options]"
-op = OptionParser(usage=usage)
-op.add_option("-e", "--engine", type="choice",
-              choices=("x11", "x11-16"), default="x11-16",
-              help=("which display engine to use (x11, x11-16), "
-                    "default=%default"))
-op.add_option("-n", "--no-fullscreen", action="store_true",
-              help="do not launch in fullscreen")
-op.add_option("-g", "--geometry", type="string", metavar="WxH",
-              action="callback", callback=parse_geometry,
-              default=(480, 640),
-              help="use given window geometry")
-op.add_option("-f", "--fps", type="int", default=50,
-              help="frames per second to use, default=%default")
-
-
-# Handle options and create output window
-options, args = op.parse_args()
-if options.engine == "x11":
-    f = ecore.evas.SoftwareX11
-elif options.engine == "x11-16":
-    if ecore.evas.engine_type_supported_get("software_x11_16"):
-        f = ecore.evas.SoftwareX11_16
-    else:
-        print "warning: x11-16 is not supported, fallback to x11"
-        f = ecore.evas.SoftwareX11
-
-w, h = options.geometry
-ee = f(w=w, h=h)
-ee.fullscreen = 0 # not options.no_fullscreen
-edje.frametime_set(1.0 / options.fps)
+ee = f(w=640, h=480)
+ee.fullscreen = 0
 
 
 # Load and setup UI
@@ -82,17 +48,6 @@ def resize_cb(ee):
 
 ee.callback_resize = resize_cb
 
-
-def key_down_cb(bg, event, ee):
-    k = event.key
-    if k == "Escape":
-        ecore.main_loop_quit()
-    if k in ("F6", "f"):
-        ee.fullscreen = not ee.fullscreen
-
-edje_obj.on_key_down_add(key_down_cb, ee)
-
-
 class PyBatclass:
   def __init__(self, edje_obj):
     self.filePower = os.open( "/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/force_usb_limit_dangerous", os.O_RDWR )
@@ -101,14 +56,10 @@ class PyBatclass:
     self.filehostmode = os.open( "/sys/devices/platform/neo1973-pm-host.0/hostmode", os.O_RDWR )
     self.mode = self.fileusbmode.readline()
     self.power = str(os.read(self.filePowerread, 4))
-    # while self.mode[-1] == whitespace:
-    #  self.mode = self.mode[:-1]
     self.mode = self.mode.split()[0]
-    #while self.power[-1] == whitespace:
-    #  self.power = self.power[:-1] 
     self.power = self.power.split()[0]
-    print self.mode
-    print "l%st" % (self.power)
+    #print self.mode
+    #print "l%st" % (self.power)
     edje_obj.signal_emit("%s" % (self.mode), "is_clicked")
     edje_obj.signal_emit("l%s" % (self.power), "is_clicked")
 #DBus:
@@ -176,16 +127,10 @@ class PyBatclass:
 
 test = PyBatclass(edje_obj)
 edje_obj.signal_callback_add("*", "*", test.button_pressed)
-#edje_obj.signal_callback_add("StopSelected", "*", icon_selected)
 
 # Give focus to object, show window and enter event loop
 edje_obj.focus = True
 ee.show()
 
-
-
-
-
-#ecore.main_loop_begin()
 ecore.main_loop_begin()
 
