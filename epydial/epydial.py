@@ -350,6 +350,7 @@ class PyneoController(object):
 	@classmethod
 	def show_dialer_screen(class_):
 		class_.pwr.SetBrightness(class_.brightness_value, dbus_interface=DIN_POWER)
+		class_.pwr.GetStatus(dbus_interface=DIN_POWERED)
 		class_.notify_callbacks("show_dialer_screen")
 
 	@classmethod
