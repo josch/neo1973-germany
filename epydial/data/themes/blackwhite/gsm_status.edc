@@ -11,6 +11,11 @@ data {
 	item: "name" "epydial_blackwhite";
 }
 
+fonts {
+	font: "Vera.ttf" "Vera";
+	font: "VeraBd.ttf" "VeraBd";
+}
+
 images {
 	image: "bg.png" COMP;
 }
@@ -34,6 +39,12 @@ color_classes {
 		color2: 128 128 128 255;
 		color3: 128 128 128 255;;
 	}
+	color_class {
+		name: "scale";
+		color: 255 255 255 64;
+		color2: 0 0 0 255;
+		color3: 0 0 0 255;
+	}
 }
 
 styles {
@@ -50,7 +61,7 @@ styles {
 	}
 }
 
-#define BUTTON(button_number, rel1x, rel1y, rel2x, rel2y, button_caption) \
+#define BUTTON(button_number, rel1x, rel1y, rel2x, rel2y, button_caption, color_class_caption, alignx, aligny) \
 part { \
 	name: "button_"button_number; \
 	type: RECT; \
@@ -78,7 +89,7 @@ part { \
 	mouse_events: 0; \
 	description { \
 		state: "default" 0; \
-		color_class: "button_inactive"; \
+		color_class: color_class_caption; \
 		rel1 { \
 			to: "button_"button_number; \
 			relative: 0 0; \
@@ -90,8 +101,9 @@ part { \
 		text { \
 			text: button_caption; \
 			size: 18; \
-			font: "Sans:style=Bold,Edje-Vera"; \
+			font: "VeraBd"; \
 			fit: 1 1; \
+			align: alignx aligny; \
 		} \
 	} \
 } \
@@ -115,7 +127,68 @@ program { \
 	action: STATE_SET "default" 1; \
 	target: "button_"button_number; \
 	transition: DECELERATE 0.1; \
-}
+} \
+
+#define HBAR(barname, bordercolor, borderwidth, rel1x, rel1y, rel2x, rel2y, left_right_offset) \
+part { \
+	name: "border_left_"barname; \
+	type: RECT; \
+	description { \
+		color_class: bordercolor; \
+		rel1 { relative: rel1x rel1y; offset: left_right_offset 0; }; \
+		rel2 { relative: rel1x rel2y; offset: (borderwidth+left_right_offset) 0; }; \
+	} \
+} \
+part { \
+	name: "border_right_"barname; \
+	type: RECT; \
+	description { \
+		color_class: bordercolor; \
+		rel1 { relative: rel2x rel1y; offset: (0-left_right_offset-borderwidth) 0; }; \
+		rel2 { relative: rel2x rel2y; offset: 0-left_right_offset 0; }; \
+	} \
+} \
+part { \
+	name: "border_bottom_"barname; \
+	type: RECT; \
+	description { \
+		color_class: bordercolor; \
+		rel1 { relative: rel1x rel2y; offset: (borderwidth+left_right_offset) -borderwidth; }; \
+		rel2 { relative: rel2x rel2y; offset: 0-left_right_offset 0; }; \
+	} \
+} \
+part { \
+	name: "border_top_left"barname; \
+	type: RECT; \
+	description { \
+		color_class: bordercolor; \
+		rel1 { relative: rel1x rel1y; offset: left_right_offset 0; }; \
+		rel2 { relative: rel2x/4 rel1y; offset: 0-left_right_offset borderwidth; }; \
+	} \
+} \
+part { \
+	name: "border_top_right"barname; \
+	type: RECT; \
+	description { \
+		color_class: bordercolor; \
+		rel1 { relative: 1-rel2x/4 rel1y; offset: left_right_offset 0; }; \
+		rel2 { relative: rel2x rel1y; offset: 0-left_right_offset borderwidth; }; \
+	} \
+} \
+part { \
+	name: "top_description_"barname; \
+	type: TEXT; \
+	description { \
+		color_class: bordercolor; \
+		rel1 { relative: 1-rel2x/2 rel1y; offset: -80 -10; }; \
+		rel2 { relative: 1-rel2x/2 rel1y; offset: +80 10; }; \
+		text { \
+			text: barname; \
+			font: "VeraBd"; \
+			size: 16; \
+		} \
+	} \
+} \
 
 collections {
 	group {
@@ -145,7 +218,7 @@ collections {
 					text {
 						text: "gsm status";
 						size: 18;
-						font: "Sans:style=Bold,Edje-Vera";
+						font: "VeraBd";
 						fit: 1 1;
 					}
 				}
@@ -166,25 +239,14 @@ collections {
 					}
 				}
 			} /* end gsm_caption */
-			part {
-				name: "device_caption";
-				type: TEXTBLOCK;
-				mouse_events: 0;
-				description {
-					color_class: "button_inactive";
-					align: 0.5 0.5;
-					fixed: 1 1;
-					rel1 { relative: 0 11/20; }
-					rel2 { relative: 1 18/20; }
-					text { 
-						text: "gsm";
-						style: "textblock_style";
-					}
-				}
-			} /* end gsm_caption */
-			BUTTON(11, 1/3, 58/70, 2/3, 68/70, "on");
-			BUTTON(12, 0, 58/70 , 1/3, 68/70, "<");
-			/*BUTTON(13, 2/3, 58/70, 3/3, 68/70, ">");*/
+			BUTTON(4, 0, 36/70, 1/4, 46/70, "-", button_inactive, 0.5, 0.5);
+			BUTTON(7, 1/4, 36/70, 3/4, 46/70, "||||||||||", scale, 0, 0);
+			BUTTON(5, 1/4, 36/70, 3/4, 46/70, "|", button_inactive, 0, 0);
+			BUTTON(6, 3/4, 36/70, 4/4, 46/70, "+", button_inactive, 0.5, 0.5);
+			BUTTON(11, 1/3, 58/70, 2/3, 68/70, "on", button_inactive, 0.5, 0.5);
+			BUTTON(12, 0, 58/70 , 1/3, 68/70, "<", button_inactive, 0.5, 0.5);
+			HBAR("Brightness", button_inactive, 1, 0, 36/70, 1, 46/70, 10);
+			HBAR("Volume", button_inactive, 1, 0, 47/70, 3/3, 57/70, 10);
 		}
 	}
 }

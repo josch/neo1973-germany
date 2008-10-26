@@ -14,6 +14,13 @@ class GsmStatusScreen(EdjeGroup):
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("power_status_gsm", self.on_power_status_gsm)
 		PyneoController.register_callback("pwr_status_change", self.on_pwr_status_change)
+		PyneoController.register_callback("brightness_change", self.on_brightness_change)
+
+	def on_brightness_change(self, status):
+		if status == 10: bar = '| '
+		else: bar = '|'
+		self.part_text_set("button_5_caption", status/10*bar)
+		self.part_text_set("top_description_Brightness", "Brightness %s"%status+"%")
 
 	def on_pwr_status_change(self, status):
 		self.part_text_set("pwr_caption", "battemp: %s<br>chgmode: %s<br>chgstate: %s<br>chgcur: %s<br>battvolt: %f"%(status['battemp'], status['chgmode'], status['chgstate'], status['chgcur'], status['battvolt']))
@@ -30,9 +37,12 @@ class GsmStatusScreen(EdjeGroup):
 		status = self.part_text_get("button_11_caption")
 		if source == "<":
 			PyneoController.show_dialer_screen()
-		if source == "on" and  status == "on": PyneoController.power_down_gsm()
+		elif source == "on" and  status == "on":
+			PyneoController.power_down_gsm()
 		elif source == "on" and status == "off":
-			self.first = time.time()
 			PyneoController.power_up_gsm()
-
+		elif source == "+":
+			PyneoController.brightness_change(source)
+		elif source == "-":
+			PyneoController.brightness_change(source)
 

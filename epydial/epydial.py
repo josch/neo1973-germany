@@ -83,6 +83,8 @@ class PyneoController(object):
 	gsm_keyring_status = None
 	
 	call_type = None
+	
+	brightness_value = None
 
 	@classmethod
 	def register_callback(class_, event_name, callback):
@@ -113,6 +115,7 @@ class PyneoController(object):
 			class_.hon = object_by_url('dbus:///org/pyneo/HotOrNot')
 			class_.hon_hotornot = object_by_url(class_.hon.GetDevice('hotornot'))
 			class_.call_type = 'nix'
+			class_.brightness_value = 60
 		
 		except Exception, e:
 			print "Pyneo error: " + str(e)
@@ -280,8 +283,13 @@ class PyneoController(object):
 			class_.notify_callbacks("sim_ready")
 
 			# Try registering on the network
-			class_.gsm_wireless.Register(dbus_interface=DIN_WIRELESS)
-
+			res = dedbusmap(class_.gsm_wireless.GetStatus(dbus_interface=DIN_WIRELESS, ))
+			if not res['stat'] in (1, 5, ):
+				print '---', 'registering to gsm network'
+				class_.gsm_wireless.Register()
+				res = dedbusmap(class_.gsm_wireless.GetStatus(dbus_interface=DIN_WIRELESS, ))
+			else:
+				print '---', 'already registered'
 		else:
 			class_.notify_callbacks("sim_key_required", status["code"])
 
@@ -341,11 +349,13 @@ class PyneoController(object):
 
 	@classmethod
 	def show_dialer_screen(class_):
+		class_.pwr.SetBrightness(class_.brightness_value, dbus_interface=DIN_POWER)
 		class_.notify_callbacks("show_dialer_screen")
 
 	@classmethod
 	def show_gsm_status_screen(class_):
 		class_.notify_callbacks("show_gsm_status_screen")
+		class_.notify_callbacks("brightness_change", class_.brightness_value)
 
 	@classmethod
 	def show_gps_status_screen(class_):
@@ -360,6 +370,17 @@ class PyneoController(object):
 	@classmethod
 	def show_hon_screen(class_):
 		class_.notify_callbacks("show_hon_screen")
+
+	@classmethod
+	def brightness_change(class_, up_down):
+		if up_down == '+':
+			class_.brightness_value += 10
+			if class_.brightness_value > 100: class_.brightness_value = 100
+		else:
+			class_.brightness_value -= 10
+			if class_.brightness_value < 0: class_.brightness_value = 0
+		class_.pwr.SetBrightness(class_.brightness_value, dbus_interface=DIN_POWER)
+		class_.notify_callbacks("brightness_change", class_.brightness_value)
 
 
 from dialer_screen import *

@@ -31,9 +31,9 @@ class DialerScreen(EdjeGroup):
 
 	def on_battvolt_change(self, battvolt, chgmode):
 		if chgmode == "play-only":
-			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 64, 0,0,0,0,0,0,0,0)
+			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 64, 0, 0, 0, 0, 0, 0, 0, 0)
 		else:
-			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 128, 0,0,0,0,0,0,0,0)
+			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 128, 0, 0, 0, 0, 0, 0, 0, 0)
 		self.part_text_set("battvolt_text", "%s V"%str(battvolt)[:4])
 		
 	def on_sim_key_required(self, key_type):
@@ -127,7 +127,6 @@ class DialerScreen(EdjeGroup):
 					self.text = []
 					self.part_text_set("numberdisplay_text", "".join(self.text))
 					PyneoController.show_hon_screen()
-#					PyneoController.get_hon()
 				elif source == "dial":
 					PyneoController.show_incall_screen('outgoing')
 					PyneoController.gsm_dial("".join(self.text))
