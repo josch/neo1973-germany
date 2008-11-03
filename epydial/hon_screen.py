@@ -8,8 +8,14 @@ __license__ = "GPL3"
 from epydial import *
 
 class HonScreen(EdjeGroup):
+	class SignalGraph( evas.ClippedSmartObject ):
+		def __init__( self, *args, **kargs ):
+			evas.ClippedSmartObject.__init__( self, *args, **kargs )
+
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, HON_SCREEN_NAME)
+		self.signalgraph = self.SignalGraph( self.evas )
+		print 'signalgraph', self.signalgraph
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("get_hon", self.on_get_hon)

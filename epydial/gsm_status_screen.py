@@ -32,17 +32,18 @@ class GsmStatusScreen(EdjeGroup):
 		self.part_text_set("button_11_caption", p_status)
 		self.part_text_set("pwr_caption", "gsm device is %s"%p_status)
 
-	@edje.decorators.signal_callback("gsm_send", "*")
+	@edje.decorators.signal_callback("mouse,up,1", "*")
 	def on_edje_signal_dialer_status_triggered(self, emission, source):
 		status = self.part_text_get("button_11_caption")
-		if source == "<":
+		if source == "button_12":
 			PyneoController.show_dialer_screen()
 		elif source == "on" and  status == "on":
 			PyneoController.power_down_gsm()
 		elif source == "on" and status == "off":
 			PyneoController.power_up_gsm()
-		elif source == "+":
+		elif source == "button_right_bg_brightness":
 			PyneoController.brightness_change(source)
-		elif source == "-":
+		elif source == "button_left_bg_brightness":
 			PyneoController.brightness_change(source)
+		print 'settings source: ', source
 

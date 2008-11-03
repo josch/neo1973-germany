@@ -24,4 +24,5 @@ class InCallScreen(EdjeGroup):
 			PyneoController.gsm_hangup()
 		if source == "Accept Call":
 			print source
+			PyneoController.gsm_accept()
 

@@ -62,7 +62,7 @@ class DialerScreen(EdjeGroup):
 		self.part_text_set("signalq_text", "%s dBm /"%str(rssi))
 		
 	def display_time(self):
-		self.part_text_set("time_text", time.strftime("%H:%M", time.localtime()));
+		self.part_text_set("time_text", datetime.now().strftime('%H:%M'));
 		return True;
 
 

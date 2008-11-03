@@ -41,6 +41,7 @@ from pyneo.dbus_support import *
 from pyneo.sys_support import pr_set_name
 
 from ConfigParser import SafeConfigParser
+import cairo
 
 
 class EdjeGroup(edje.Edje):
@@ -203,6 +204,8 @@ class PyneoController(object):
 
 	@classmethod
 	def gsm_dial(class_, number):
+		class_.notify_callbacks("gsm_phone_call_start")
+		
 		os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
 		
 		name = class_.gsm_wireless.Initiate(number, dbus_interface=DIN_VOICE_CALL_INITIATOR, timeout=200)
@@ -210,27 +213,18 @@ class PyneoController(object):
 		
 		# Initialize "active call" counter
 		class_._calls[call] = 1
-		
-#		class_.notify_callbacks("gsm_dialing")
 
 	@classmethod
 	def gsm_hangup(class_):
-		# Find call with highest "active call" counter - it'll be the one currently active
-		call = None
-		highest = 0
-		
-		for (call_obj, counter) in class_._calls.items():
-			if counter > highest:
-				highest = counter
-				call = call_obj
-		
-#		if call: 
+		call = object_by_url('dbus:///org/pyneo/gsmdevice/Call/1')
 		call.Hangup(dbus_interface=DIN_CALL)
 		os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
-		class_.call_type = 'nix'
 
-		# Remove the call from our list
-#		class_._calls.__delitem__(call_obj)
+	@classmethod
+	def gsm_accept(class_):
+		call = object_by_url('dbus:///org/pyneo/gsmdevice/Call/1')
+		call.Accept(dbus_interface=DIN_CALL)
+		os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
 
 	@classmethod
 	def on_gsm_wireless_status(class_, status_map):
@@ -255,11 +249,10 @@ class PyneoController(object):
 		if status.has_key('phone_activity_status'):
 			ph_status = status['phone_activity_status']
 			
-			if ph_status == 0 and class_.call_type != 'outgoing':
-#				class_.pwr.BlinkenLeds("power:blue", 0, 0, 0, dbus_interface=DIN_POWER)
+			if ph_status == 0:
 				class_.notify_callbacks("gsm_phone_call_end")
+				os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
 			if ph_status == 3:
-#				class_.pwr.BlinkenLeds("power:blue", 400, 1300, 0, dbus_interface=DIN_POWER)
 				class_.notify_callbacks("gsm_phone_ringing")
 			if ph_status == 4:
 				class_.notify_callbacks("gsm_phone_call_start")
@@ -374,7 +367,7 @@ class PyneoController(object):
 
 	@classmethod
 	def brightness_change(class_, up_down):
-		if up_down == '+':
+		if up_down == 'button_right_bg_brightness':
 			class_.brightness_value += 10
 			if class_.brightness_value > 100: class_.brightness_value = 100
 		else:
