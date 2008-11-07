@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 # -*- coding: utf-8 -*-
-__author__ = "Soeren Apel (abraxa@dar-clan.de), Frank Gau (fgau@gau-net.de), Thomas Gstaedner (thomas (a) gstaedtner (.) net)"
+__author__ = "Soeren Apel (abraxa@dar-clan.de), Frank Gau (fgau@gau-net.de), Thomas Gstaedtner (thomas (a) gstaedtner (.) net)"
 __version__ = "prototype"
 __copyright__ = "Copyright (c) 2008"
 __license__ = "GPL3"
@@ -122,6 +122,11 @@ class DialerScreen(EdjeGroup):
 					self.part_text_set("numberdisplay_text", "".join(self.text))
 					PyneoController.power_status_gps()
 					PyneoController.show_gps_status_screen()
+				elif source == "dial" and ''.join(self.text) == "3":
+					print '--- Calculator'
+					self.text =[]
+					self.part_text_set("numberdisplay_text", "".join(self.text))
+					PyneoController.show_calc_screen()
 				elif source == "dial" and ''.join(self.text) == "6":
 					print '--- Hon Screen'
 					self.text = []

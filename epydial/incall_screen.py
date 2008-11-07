@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 # -*- coding: utf-8 -*-
-__author__ = "Soeren Apel (abraxa@dar-clan.de), Frank Gau (fgau@gau-net.de), Thomas Gstaedner (thomas (a) gstaedtner (.) net)"
+__author__ = "Soeren Apel (abraxa@dar-clan.de), Frank Gau (fgau@gau-net.de), Thomas Gstaedtner (thomas (a) gstaedtner (.) net)"
 __version__ = "prototype"
 __copyright__ = "Copyright (c) 2008"
 __license__ = "GPL3"

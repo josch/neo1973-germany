@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 # -*- coding: utf-8 -*-
-__author__ = "Soeren Apel (abraxa@dar-clan.de), Frank Gau (fgau@gau-net.de), Thomas Gstaedner (thomas (a) gstaedtner (.) net)"
+__author__ = "Soeren Apel (abraxa@dar-clan.de), Frank Gau (fgau@gau-net.de), Thomas Gstaedtner (thomas (a) gstaedtner (.) net)"
 __version__ = "prototype"
 __copyright__ = "Copyright (c) 2008"
 __license__ = "GPL3"
@@ -8,14 +8,14 @@ __license__ = "GPL3"
 from epydial import *
 
 class HonScreen(EdjeGroup):
-	class SignalGraph( evas.ClippedSmartObject ):
+	class PixGraph( evas.ClippedSmartObject ):
 		def __init__( self, *args, **kargs ):
 			evas.ClippedSmartObject.__init__( self, *args, **kargs )
 
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, HON_SCREEN_NAME)
-		self.signalgraph = self.SignalGraph( self.evas )
-		print 'signalgraph', self.signalgraph
+		self.pixgraph = self.PixGraph( self.evas )
+		print 'pixgraph', self.pixgraph
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("get_hon", self.on_get_hon)

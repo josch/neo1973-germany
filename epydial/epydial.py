@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 # -*- coding: utf-8 -*-
-__author__ = "Soeren Apel (abraxa@dar-clan.de), Frank Gau (fgau@gau-net.de), Thomas Gstaedner (thomas (a) gstaedtner (.) net)"
+__author__ = "Soeren Apel (abraxa@dar-clan.de), Frank Gau (fgau@gau-net.de), Thomas Gstaedtner (thomas (a) gstaedtner (.) net)"
 __version__ = "prototype"
 __copyright__ = "Copyright (c) 2008"
 __license__ = "GPL3"
@@ -23,6 +23,7 @@ INCALL_SCREEN_NAME = "pyneo/dialer/incall"
 GSM_STATUS_SCREEN_NAME = "pyneo/gsm/status"
 GPS_STATUS_SCREEN_NAME = "pyneo/gps/status"
 HON_SCREEN_NAME = "pyneo/hon/screen"
+CALC_SCREEN_NAME = "pyneo/calc/screen"
 
 from datetime import datetime
 from dbus import SystemBus
@@ -41,7 +42,7 @@ from pyneo.dbus_support import *
 from pyneo.sys_support import pr_set_name
 
 from ConfigParser import SafeConfigParser
-import cairo
+#import cairo
 
 
 class EdjeGroup(edje.Edje):
@@ -366,6 +367,10 @@ class PyneoController(object):
 		class_.notify_callbacks("show_hon_screen")
 
 	@classmethod
+	def show_calc_screen(class_):
+		class_.notify_callbacks("show_calc_screen")
+
+	@classmethod
 	def brightness_change(class_, up_down):
 		if up_down == 'button_right_bg_brightness':
 			class_.brightness_value += 10
@@ -382,6 +387,7 @@ from incall_screen import *
 from gsm_status_screen import *
 from gps_status_screen import *
 from hon_screen import *
+from calc_screen import *
 
 class Dialer(object):
 	screens = None
@@ -403,6 +409,7 @@ class Dialer(object):
 		PyneoController.register_callback("show_gps_status_screen", self.on_gps_status_screen)
 		PyneoController.register_callback("show_dialer_screen", self.on_call_end)
 		PyneoController.register_callback("show_hon_screen", self.on_hon_screen)
+		PyneoController.register_callback("show_calc_screen", self.on_calc_screen)
 		
 		# Initialize the D-Bus interface to pyneo
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -456,6 +463,10 @@ class Dialer(object):
 	def on_hon_screen(self):
 		self.init_screen(HON_SCREEN_NAME, HonScreen(self))
 		self.show_screen(HON_SCREEN_NAME)
+
+	def on_calc_screen(self):
+		self.init_screen(CALC_SCREEN_NAME, CalcScreen(self))
+		self.show_screen(CALC_SCREEN_NAME)
 
 
 class EvasCanvas(object):
