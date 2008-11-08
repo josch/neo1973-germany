@@ -1,0 +1,22 @@
+This package adds some futeres/fixes to the FSO soundmanagement.
+
+to install:
+copy all files to the neo and execute "install"
+Attention: some files will be overwritten!
+
+
+It adds:
+- 2 profiles: headset and headset_silent
+- a new .state file: silent.state
+- an menu for the auxbutton
+
+Improvements:
+When you mute the phone in the auxmenu (don't use the profile switcher from zhone!), silent.state is loaded and the silent profile is choosen.
+If you plug in the headset, headset.state is loaded, an the profile switches to headset or headset_silent(they are the same, just to remember if the phone is muted or not)
+during a call gsmhandset.state or gsmheadset.state is loaded
+
+
+Known Issues:
+-the "lock-funktion" don't work yet
+-the install script will overwrite your /etc/freesmartphone/oevents/rules.yaml and some other files.
+-I don't know what happens if you plug in or remove the headset during an call
