@@ -19,4 +19,10 @@ during a call gsmhandset.state or gsmheadset.state is loaded
 Known Issues:
 -the "lock-funktion" don't work yet
 -the install script will overwrite your /etc/freesmartphone/oevents/rules.yaml and some other files.
--I don't know what happens if you plug in or remove the headset during an call
+-You will hear nothing, if you plug in or remove the headset during an call
+
+Changelog:
+
+Rev 210: changed oevents/rules.yaml to work with Milestone 4.
+
+Rev 209: first version: works with fso-testing before Milestone 4

@@ -76,7 +76,7 @@ class auxmenuclass:
       os.system("apm -s")
     elif signal == "shutdown":
       print "shutdown"
-      os.system("halt")
+      os.system("poweroff")
     ecore.main_loop_quit()
   def mute(self):
     if self.profile == "default":

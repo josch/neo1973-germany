@@ -26,6 +26,16 @@
     actions: Debug("A Test")
 -
     #
+    # Suspend Handling
+    #
+    trigger: InputEvent()
+    filters:
+             - HasAttr(switch, "POWER")
+             - HasAttr(event, "released")
+             - HasAttr(duration, 0)
+    actions: Suspend()
+-
+    #
     # Call -> Audio Scenario Handling
     #
     trigger: IncomingMessage()
@@ -122,6 +132,9 @@
     while: Test("test2")
     actions: RingTone()
 -
+    trigger: DbusTrigger(system, 'org.freesmartphone.odeviced', 0, 'org.freesmartphone.Device.IdleNotifier', 'State')
+    actions: Debug("dbus trigger test")
+- 
 
     #
     # Idleness Brightness Handling
@@ -137,6 +150,10 @@
     trigger: IdleState()
     filters: HasAttr(status, "idle_prelock")
     actions: SetDisplayBrightness("pcf50633_bl", 0)
+
+    #
+    # usb and aux Handling
+    #
 -
     trigger: InputEvent()
     filters:
@@ -151,5 +168,3 @@
              - HasAttr(event, "pressed")
 
     actions: Command('auxmenu')
-
-
