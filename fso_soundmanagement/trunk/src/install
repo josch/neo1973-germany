@@ -9,9 +9,8 @@ cp profiles/* /etc/freesmartphone/opreferences/conf/profiles/
 cp rules/* /etc/freesmartphone/opreferences/conf/rules/
 
 #auxmenu:
-if [ 'ls /usr/share | grep -c "auxmenu"' = "0" ]; then
-        mkdir /usr/share/auxmenu
-fi
+mkdir -p /usr/share/auxmenu
+
 cp auxmenu/auxmenu.py /usr/share/auxmenu/auxmenu.py
 cp auxmenu/auxmenu.edj /usr/share/auxmenu/auxmenu.edj
 cp auxmenu/auxmenu.sh /usr/bin/auxmenu

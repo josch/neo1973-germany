@@ -56,6 +56,9 @@ class auxmenuclass:
     self.systembus=systembus = SystemBus(mainloop=e_dbus.DBusEcoreMainLoop())
     self.odeviced_proxy = self.systembus.get_object('org.freesmartphone.oeventsd', '/org/freesmartphone/Preferences')
     self.Preferences_iface = Interface(self.odeviced_proxy, 'org.freesmartphone.Preferences')
+    self.ousaged_proxy = self.systembus.get_object('org.freesmartphone.ousaged', '/org/freesmartphone/Usage')
+    self.Usage_iface = Interface(self.ousaged_proxy, 'org.freesmartphone.Usage')
+    
     self.profile = self.Preferences_iface.GetProfile()
     if self.profile == "silent" or self.profile == "headset_silent":
       edje_obj.part_text_set("text_mute", "UNMUTE")
@@ -73,7 +76,8 @@ class auxmenuclass:
       print "lock"
     elif signal == "standby":
       print "standby"
-      os.system("apm -s")
+      #os.system("apm -s")
+      self.Usage_iface.Suspend()
     elif signal == "shutdown":
       print "shutdown"
       os.system("poweroff")

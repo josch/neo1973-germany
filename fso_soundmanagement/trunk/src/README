@@ -23,6 +23,8 @@ Known Issues:
 
 Changelog:
 
+Rev 211: added dbus-interface for suspend
+
 Rev 210: changed oevents/rules.yaml to work with Milestone 4.
 
 Rev 209: first version: works with fso-testing before Milestone 4
