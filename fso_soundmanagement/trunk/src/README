@@ -1,4 +1,4 @@
-This package adds some futeres/fixes to the FSO soundmanagement.
+This package adds some futeres/fixes to the FSO/shr soundmanagement.
 
 to install:
 copy all files to the neo and execute "install"
@@ -23,8 +23,10 @@ Known Issues:
 
 Changelog:
 
+Rev 212: changed some files to newer versions (tested with shr)
+
 Rev 211: added dbus-interface for suspend
 
-Rev 210: changed oevents/rules.yaml to work with Milestone 4.
+Rev 210: changed oevents/rules.yaml to work with Milestone 4. (tested with fso)
 
-Rev 209: first version: works with fso-testing before Milestone 4
+Rev 209: first version: works with fso-testing before Milestone 4 (tested with fso)
