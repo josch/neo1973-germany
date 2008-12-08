@@ -15,14 +15,21 @@ class InCallScreen(EdjeGroup):
 		PyneoController.register_callback("gsm_number_display", self.on_gsm_number_display)
 
 	def on_gsm_number_display(self, number):
-		self.part_text_set("incall_number_text", number)
+		connection = connect(DB_FILE_PATH)
+		cursor = connection.cursor()
+		cursor.execute("SELECT * FROM contacts WHERE mobil LIKE '%" + str(number) + "' OR home LIKE '%" + str(number) + "' OR work LIKE '%" + str(number) + "'")
+		for row in cursor:
+			CallerNamemap = row[0], row[1], row[2], row[3], row[4]
+
+		if CallerNamemap[1] and CallerNamemap[0]:
+			self.part_text_set("incall_number_text", "%s"% (CallerNamemap[1] + ', ' + CallerNamemap[0]))
+		else:
+			self.part_text_set("incall_number_text", "unbekannt")
 
 	@edje.decorators.signal_callback("dialer_incall_send", "*")
 	def on_edje_signal_dialer_incall_triggered(self, emission, source):
 		if source == "Hangup Call":
-			print source
 			PyneoController.gsm_hangup()
 		if source == "Accept Call":
-			print source
 			PyneoController.gsm_accept()
-
+		print source

@@ -1,14 +1,15 @@
-// incall.edc
+// hon_screen.edc
 // this is a theme for epydial, a pyneo dialer
-//
-// TODO: make the font colors shinier :)
-//
-// Signal1: 
 
 data {
-	item: "author" "thomasg [thomas (a) gstaedtner (.) net]";
+	item: "author" "thomasg [thomas (a) gstaedtner (.) net] , fgau (fgau@gau-net.de)";
 	item: "version" "prototype";
 	item: "name" "epydial_blackwhite";
+}
+
+fonts {
+	font: "Vera.ttf" "Vera";
+	font: "VeraBd.ttf" "VeraBd";
 }
 
 images {
@@ -16,12 +17,6 @@ images {
 }
 
 color_classes {
-	color_class {
-		name: "black";
-		color: 0 0 0 255;
-		color2: 0 0 0 255;
-		color3: 0 0 0 255;
-	}
 	color_class {
 		name: "unvisible";
 		color: 0 0 0 0;
@@ -34,12 +29,18 @@ color_classes {
 		color2: 128 128 128 255;
 		color3: 128 128 128 255;;
 	}
+	color_class {
+		name: "scale";
+		color: 255 255 255 64;
+		color2: 0 0 0 255;
+		color3: 0 0 0 255;
+	}
 }
 
 styles {
 	style {
 		name: "textblock_style";
-		base: "font=sans.bold font_size=20 align=left valign=top color=#fff wrap=word";
+		base: "font=Vera font_size=20 align=left valign=top color=#fff";
 		tag: "h1" "+ font_size=28";
 		tag: "/h1" "- \n";
 		tag: "p" "+";
@@ -47,6 +48,10 @@ styles {
 		tag: "em" "+ style=underline underline_color=#000A underline2_color=#0005";
 		tag: "/em" "-";
 		tag: "br" "\n";
+		tag: "c1" "+ color=#fff";
+		tag: "/c1" "-";
+		tag: "c2" "+ color=#f3f";
+		tag: "/c2" "-";
 	}
 }
 
@@ -139,12 +144,12 @@ collections {
 				description {
 					state: "default" 0;
 					color_class: "button_inactive";
-					rel1 { relative: 0 0; }
-					rel2 { relative: 1 1/7; }
+					rel1 { relative: 1/20 1/20; }
+					rel2 { relative: 19/20 3/20; }
 					text {
 						text: "hot or not";
-						size: 18;
-						font: "Sans:style=Bold,Edje-Vera";
+						size: 20;
+						font: "VeraBd";
 						fit: 1 1;
 					}
 				}

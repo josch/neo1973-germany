@@ -6,7 +6,7 @@
 // Signal1: 
 
 data {
-	item: "author" "http://www.gurumeditation.it/blog/wp-content/uploads/releases/calculator03.tgz";
+	item: "author" "thanks to dave andreoli, http://www.gurumeditation.it/blog/wp-content/uploads/releases/calculator03.tgz";
 	item: "version" "prototype";
 	item: "name" "epydial_blackwhite";
 }
@@ -179,7 +179,7 @@ collections {
          }
       }
 
-      parts {
+		parts {
 			part {
 				name: "background";
 				type: IMAGE;
@@ -191,45 +191,41 @@ collections {
 					image { normal: "bg.png"; }
 				}
 			}
-         part {
-            name: "bg_calc";
-            type: IMAGE;
-            mouse_events: 1;
-            description {
-               state: "default" 0.0;
-               aspect: 0.9 0.9;
-               aspect_preference: BOTH;
-               image {
-                  normal: "bg_calc.png";
-               }
-            }
-         }
-
-         part {
-            name: "display";
-            type: TEXT;
-            mouse_events: 0;
-            description {
-               state: "default" 0.0;
-               color: 68 72 63 200;
-               rel1 {
-                  relative: 0.07 0.09;
-                  to: "bg_calc";
-               }
-               rel2 {
-                  relative: 0.93 0.22;
-                  to: "bg_calc";
-               }
-               text{
-                  font: "vera";
-                  size: 20;
-                  fit: 0 1;
-                  align: 1 0.5;
-                  text: "012345";
-               }
-               
-            }
-         }
+			part {
+				name: "bg_calc";
+				type: IMAGE;
+				mouse_events: 1;
+				description {
+					state: "default" 0.0;
+					aspect: 0.9 0.9;
+					aspect_preference: BOTH;
+					image { normal: "bg_calc.png"; }
+				}
+			}
+			part {
+				name: "display";
+				type: TEXT;
+				mouse_events: 0;
+				description {
+					state: "default" 0.0;
+					color: 68 72 63 200;
+					rel1 {
+						relative: 0.07 0.09;
+						to: "bg_calc";
+					}
+					rel2 {
+						relative: 0.93 0.22;
+						to: "bg_calc";
+					}
+					text {
+						font: "vera";
+						size: 20;
+						fit: 0 1;
+						align: 1 0.5;
+						text: "012345";
+					}
+				}
+			}
          
          part {
             name: "num_bg";

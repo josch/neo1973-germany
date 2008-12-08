@@ -13,17 +13,47 @@ class GsmStatusScreen(EdjeGroup):
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("power_status_gsm", self.on_power_status_gsm)
-		PyneoController.register_callback("pwr_status_change", self.on_pwr_status_change)
+		PyneoController.register_callback("device_status", self.on_device_status)
+		PyneoController.register_callback("gsm_details", self.on_gsm_details)
+		PyneoController.register_callback("scan_operator", self.on_scan_operator)
 		PyneoController.register_callback("brightness_change", self.on_brightness_change)
 
-	def on_brightness_change(self, status):
-		if status == 10: bar = '| '
-		else: bar = '|'
-		self.part_text_set("button_5_caption", status/10*bar)
-		self.part_text_set("top_description_Brightness", "Brightness %s"%status+"%")
+	def on_scan_operator(self, status):
+		operator = 'scan operator:<br>'
+		for n, v in status.items():
+			operator += v['oper'] + '<br>' 
+			print 'provider', n, ':', v['oper']
+		self.part_text_set("scan_operator_caption", operator)
 
-	def on_pwr_status_change(self, status):
-		self.part_text_set("pwr_caption", "battemp: %s<br>chgmode: %s<br>chgstate: %s<br>chgcur: %s<br>battvolt: %f"%(status['battemp'], status['chgmode'], status['chgstate'], status['chgcur'], status['battvolt']))
+	def on_brightness_change(self, status):
+		self.part_text_set("description_brightness", "brightness %s"%status+"%")
+
+	def on_device_status(self, status):
+		self.part_text_set("device_caption", \
+			"imei: %s<br>model: %s<br>revision: %s<br>manufacturer: %s" \
+			%(status['imei'], status['model'], status['revision'], status['manufacturer']))
+
+	def on_gsm_details(self, status):
+		global oper, lac, ci, rssi, mcc, cc, country
+		if status.has_key('oper'):
+			oper = status['oper']
+		if status.has_key('lac'):
+			lac = status['lac']
+		if status.has_key('ci'):
+			ci = status['ci']
+		if status.has_key('rssi'):
+			rssi = status['rssi']
+		if status.has_key('mcc'):
+			mcc = status['mcc']
+			connection = connect(DB_FILE_PATH)
+			cursor = connection.cursor()
+			cursor.execute("SELECT * FROM mcc WHERE mcc='" + str(mcc) + "'")
+			for row in cursor:
+				country = row[0]
+				cc = row[1]
+		self.part_text_set("gsm_details_caption", \
+			"operator: %s<br>lac/ci: %s/%s<br>rssi: %s<br>mcc/cc/country: %s/%s/%s" \
+			%(oper, lac, ci, rssi, mcc, cc, country))
 
 	def on_power_status_gsm(self, status):
 		if status: p_status = "on"
@@ -35,15 +65,16 @@ class GsmStatusScreen(EdjeGroup):
 	@edje.decorators.signal_callback("mouse,up,1", "*")
 	def on_edje_signal_dialer_status_triggered(self, emission, source):
 		status = self.part_text_get("button_11_caption")
+		if source == "headline":
+			PyneoController.scan_operator()
 		if source == "button_12":
 			PyneoController.show_dialer_screen()
 		elif source == "on" and  status == "on":
 			PyneoController.power_down_gsm()
 		elif source == "on" and status == "off":
 			PyneoController.power_up_gsm()
-		elif source == "button_right_bg_brightness":
-			PyneoController.brightness_change(source)
-		elif source == "button_left_bg_brightness":
-			PyneoController.brightness_change(source)
-		print 'settings source: ', source
+#		elif source == "button_right_bg_brightness":
+#			PyneoController.brightness_change(source)
+#		elif source == "button_left_bg_brightness":
+#			PyneoController.brightness_change(source)
 

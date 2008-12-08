@@ -14,3 +14,5 @@ for theme in data/themes/*; do
 		cd - > /dev/null
 	fi
 done
+
+chmod -R 777 ./data/themes/blackwhite

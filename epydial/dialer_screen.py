@@ -62,8 +62,8 @@ class DialerScreen(EdjeGroup):
 		self.part_text_set("signalq_text", "%s dBm /"%str(rssi))
 		
 	def display_time(self):
-		self.part_text_set("time_text", datetime.now().strftime('%H:%M'));
-		return True;
+		self.part_text_set("time_text", datetime.now().strftime('%H:%M'))
+		return True
 
 
 	@edje.decorators.signal_callback("dialer_send", "*")
@@ -114,7 +114,7 @@ class DialerScreen(EdjeGroup):
 					self.text = []
 					self.part_text_set("numberdisplay_text", "".join(self.text))
 					PyneoController.power_status_gsm()
-					PyneoController.get_pwr_status()
+					PyneoController.get_device_status()
 					PyneoController.show_gsm_status_screen()
 				elif source == "dial" and ''.join(self.text) == "2":
 					print '--- Gps Status'
@@ -127,11 +127,21 @@ class DialerScreen(EdjeGroup):
 					self.text =[]
 					self.part_text_set("numberdisplay_text", "".join(self.text))
 					PyneoController.show_calc_screen()
+				elif source == "dial" and ''.join(self.text) == "4":
+					print '--- Pix'
+					self.text =[]
+					self.part_text_set("numberdisplay_text", "".join(self.text))
+					PyneoController.show_pix_screen()
 				elif source == "dial" and ''.join(self.text) == "6":
 					print '--- Hon Screen'
 					self.text = []
 					self.part_text_set("numberdisplay_text", "".join(self.text))
 					PyneoController.show_hon_screen()
+				elif source == "dial" and ''.join(self.text) == "7":
+					print '--- Contacts Screen'
+					self.text = []
+					self.part_text_set("numberdisplay_text", "".join(self.text))
+					PyneoController.show_contacts_screen()
 				elif source == "dial":
 					PyneoController.show_incall_screen('outgoing')
 					PyneoController.gsm_dial("".join(self.text))

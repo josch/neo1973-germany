@@ -1,5 +1,5 @@
-// gps_status.edc
-// this is a theme for epydial, a pyneo dialer and more
+// pix_screen.edc
+// this is a theme for epydial, a pyneo dialer
 
 data {
 	item: "author" "thomasg [thomas (a) gstaedtner (.) net] , fgau (fgau@gau-net.de)";
@@ -101,6 +101,12 @@ part { \
 	} \
 } \
 program { \
+	name: "button_"button_number"_signal_emit"; \
+	signal: "mouse,down,*"; \
+	source: "button_"button_number; \
+	action: SIGNAL_EMIT "hon_send" button_caption; \
+} \
+program { \
 	name: "button_"button_number"_animation"; \
 	signal: "mouse,down,*"; \
 	source: "button_"button_number; \
@@ -118,19 +124,18 @@ program { \
 
 collections {
 	group {
-		name: "pyneo/gps/status";
+		name: "pyneo/pix/screen";
 		min: 100 100;
 		max: 800 800;
 		parts {
 			part {
 				name: "background";
 				type: IMAGE;
-				mouse_events: 0;
 				description {
 					state: "default" 0;
-					rel1 { relative: 0 0; offset: 0 0; };
-					rel2 { relative: 1 1; offset: 0 0; };
-					image { normal: "bg.png"; };
+					rel1 { relative: 0 0; offset: 0 0; }
+					rel2 { relative: 1 1; offset: 0 0; }
+					image { normal: "bg.png"; }
 				}
 			}
 			part {
@@ -142,7 +147,7 @@ collections {
 					rel1 { relative: 1/20 1/20; }
 					rel2 { relative: 19/20 3/20; }
 					text {
-						text: "gps status";
+						text: "pix viewer";
 						size: 20;
 						font: "VeraBd";
 						fit: 1 1;
@@ -150,40 +155,61 @@ collections {
 				}
 			}
 			part {
-				name: "gps_caption";
-				type: TEXTBLOCK;
-				mouse_events: 0;
+				name: "filename";
+				type: TEXT;
 				description {
 					state: "default" 0;
 					color_class: "button_inactive";
-					align: 0.5 0.5;
-					fixed: 1 1;
-					rel1 { relative: 0 4/20; }
-					rel2 { relative: 1 8/20; }
-					text { 
-						text: "gps";
-						style: "textblock_style";
+					rel1 { relative: 0 1/7;}
+					rel2 { relative: 1 1/5; }
+					text {
+						text: "filename";
+						size: 10;
+						font: "Sans:style=Bold,Edje-Vera";
+						fit: 1 1;
 					}
 				}
 			}
 			part {
-				name: "gps_track";
-				type: TEXTBLOCK;
+				name: "rev";
+				type: RECT;
 				description {
-					color_class: "button_inactive";
-					align: 0.5 0.5;
-					fixed: 1 1;
-					rel1 { relative: 0 9/20; }
-					rel2 { relative: 1 11/20; }
-					text { 
-						text: "track log: off";
-						style: "textblock_style";
-					}
+					color: 0 0 0 0;
+					state: "default" 0;
+					rel1 { relative: 0 0; }
+					rel2 { relative: 1/2 57/70; }
 				}
 			}
-			BUTTON(11, 1/3, 58/70, 2/3, 68/70, "on");
-			BUTTON(12, 0, 58/70 , 1/3, 68/70, "<");
-			BUTTON(13, 2/3, 58/70, 3/3, 68/70, ">");
+			part {
+				name: "pre";
+				type: RECT;
+				description {
+					color: 0 0 0 0;
+					state: "default" 0;
+					rel1 { relative: 1/2 0; }
+					rel2 { relative: 1 57/70; }
+				}
+			}
+			part {
+				name: "clipper";
+				type: RECT;
+				description {
+					rel1 { relative: 1/2 1/2; offset: -180 -180; }
+					rel2 { relative: 1/2 1/2; offset: 180 180; }
+				}
+			}
+			part {
+				name: "icon";
+				type: SWALLOW;
+				mouse_events: 0;
+				clip_to: "clipper";
+				description {
+					/*fixed: 1 1;*/
+					rel1 { relative: 1/2 1/2; offset: -180 -180; }
+					rel2 { relative: 1/2 1/2; offset: 180 180; }
+				}
+			} /*end icon swallow */
+			BUTTON(10, 0, 58/70 , 1/3, 68/70, "<");
 		}
 	}
 }
