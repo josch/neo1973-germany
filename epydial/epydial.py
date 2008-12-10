@@ -29,6 +29,7 @@ HON_SCREEN_NAME = "pyneo/hon/screen"
 CALC_SCREEN_NAME = "pyneo/calc/screen"
 PIX_SCREEN_NAME = "pyneo/pix/screen"
 CONTACTS_SCREEN_NAME = "pyneo/contacts/screen"
+SMS_SCREEN_NAME = "pyneo/sms/screen"
 
 from datetime import datetime
 from dbus import SystemBus
@@ -444,6 +445,10 @@ class PyneoController(object):
 			print '--- NULL new sms'
 		class_.gsm_sms.DeleteAll()
 
+	@classmethod
+	def show_sms_screen(class_):
+		class_.notify_callbacks("show_sms_screen")
+
 
 from dialer_screen import *
 from incall_screen import *
@@ -453,6 +458,7 @@ from hon_screen import *
 from calc_screen import *	
 from pix_screen import *
 from contacts_screen import *
+from sms_screen import *
 
 class Dialer(object):
 	screens = None
@@ -477,6 +483,7 @@ class Dialer(object):
 		PyneoController.register_callback("show_calc_screen", self.on_calc_screen)
 		PyneoController.register_callback("show_pix_screen", self.on_pix_screen)
 		PyneoController.register_callback("show_contacts_screen", self.on_contacts_screen)
+		PyneoController.register_callback("show_sms_screen", self.on_sms_screen)
 
 		# Initialize the D-Bus interface to pyneo
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -542,6 +549,10 @@ class Dialer(object):
 	def on_contacts_screen(self):
 		self.init_screen(CONTACTS_SCREEN_NAME, ContactsScreen(self))
 		self.show_screen(CONTACTS_SCREEN_NAME)
+
+	def on_sms_screen(self):
+		self.init_screen(SMS_SCREEN_NAME, SmsScreen(self))
+		self.show_screen(SMS_SCREEN_NAME)
 
 
 class EvasCanvas(object):

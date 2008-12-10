@@ -142,6 +142,11 @@ class DialerScreen(EdjeGroup):
 					self.text = []
 					self.part_text_set("numberdisplay_text", "".join(self.text))
 					PyneoController.show_contacts_screen()
+				elif source == "dial" and ''.join(self.text) == "8":
+					print '--- Sms Screen'
+					self.text = []
+					self.part_text_set("numberdisplay_text", "".join(self.text))
+					PyneoController.show_sms_screen()
 				elif source == "dial":
 					PyneoController.show_incall_screen('outgoing')
 					PyneoController.gsm_dial("".join(self.text))
