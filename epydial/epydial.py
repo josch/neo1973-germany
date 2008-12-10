@@ -559,9 +559,9 @@ class EvasCanvas(object):
 	def __init__(self, fullscreen, engine_name):
 		if engine_name == "x11":
 			engine = ecore.evas.SoftwareX11
-		elif engine_name == "x11-16":
-			if ecore.evas.engine_type_supported_get("software_x11_16"):
-				engine = ecore.evas.SoftwareX11_16
+#		elif engine_name == "x11-16":
+#			if ecore.evas.engine_type_supported_get("software_x11_16"):
+#				engine = ecore.evas.SoftwareX11_16
 		else:
 			print "warning: x11-16 is not supported, falling back to x11"
 			engine = ecore.evas.SoftwareX11
