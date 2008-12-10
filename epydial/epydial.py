@@ -252,7 +252,6 @@ class PyneoController(object):
 				class_.notify_callbacks("gsm_unregistered")
 			elif nw_status in (1, 5):
 				class_.notify_callbacks("gsm_registered")
-				class_.first_check_new_sms
 			elif nw_status == 2:
 				class_.notify_callbacks("gsm_registering")
 			elif nw_status == 3:
@@ -276,6 +275,7 @@ class PyneoController(object):
 			class_.notify_callbacks("gsm_signal_strength_change", status['rssi'])
 			
 		if status.has_key('oper'):
+			class_.first_check_new_sms()
 			class_.notify_callbacks("gsm_operator_change", status['oper'])
 			
 		if status.has_key('number'):
