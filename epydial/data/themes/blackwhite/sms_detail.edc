@@ -1,4 +1,4 @@
-// sms_screen.edc
+// sms_detail.edc
 // this is a theme for epydial, a pyneo dialer
 
 data {
@@ -40,8 +40,8 @@ color_classes {
 styles {
 	style {
 		name: "textblock_style";
-		base: "font=Vera font_size=20 align=left valign=top color=#fff";
-		tag: "h1" "+ font_size=28";
+		base: "font=Vera font_size=28 align=left valign=top color=#fff wrap=word";
+		tag: "h1" "+ font_size=36";
 		tag: "/h1" "- \n";
 		tag: "p" "+";
 		tag: "/p" "- \n";
@@ -134,74 +134,25 @@ part { \
 	} \
 } \
 part { \
-	name: "sms_status_"item_number; \
-	type: TEXT; \
+	name: "sms_text_"item_number; \
+	type: TEXTBLOCK; \
 	mouse_events: 0; \
 	description { \
 		state: "default" 0; \
 		color_class: "button_inactive"; \
+		align: 0.5 0.5; \
+		fixed: 1 1; \
 		rel1 { \
 			to: item_number; \
 			relative: 1/20 0; \
 		} \
 		rel2 { \
 			to: item_number; \
-			relative: 3/20 1; \
-		} \
-		text { \
-			text: ""; \
-			size: 26; \
-			font: "Sans:style=Bold,Edje-Vera"; \
-			/*fit: 1 1; */\
-			align: 0 0.5; \
-		} \
-	} \
-} \
-part { \
-	name: "sms_time_number_"item_number; \
-	type: TEXT; \
-	mouse_events: 0; \
-	description { \
-		state: "default" 0; \
-		color_class: "button_inactive"; \
-		rel1 { \
-			to: item_number; \
-			relative: 4/20 0; \
-		} \
-		rel2 { \
-			to: item_number; \
-			relative: 19/20 1/2; \
-		} \
-		text { \
-			text: ""; \
-			size: 16; \
-			font: "Sans:style=Bold,Edje-Vera"; \
-			/*fit: 1 1; */\
-			align: 0 0.5; \
-		} \
-	} \
-} \
-part { \
-	name: "sms_text_"item_number; \
-	type: TEXT; \
-	mouse_events: 0; \
-	description { \
-		state: "default" 0; \
-		color_class: "button_inactive"; \
-		rel1 { \
-			to: item_number; \
-			relative: 4/20 1/2; \
-		} \
-		rel2 { \
-			to: item_number; \
 			relative: 19/20 1; \
 		} \
 		text { \
-			text: ""; \
-			size: 22; \
-			font: "Sans:style=Bold,Edje-Vera"; \
-			/*fit: 1 1; */\
-			align: 0 0.5; \
+			text: "muaaaah "; \
+			style: "textblock_style"; \
 		} \
 	} \
 } \
@@ -209,7 +160,7 @@ part { \
 
 collections {
 	group {
-		name: "pyneo/sms/screen";
+		name: "pyneo/sms/detail";
 		min: 100 100;
 		max: 800 800;
 		parts {
@@ -233,34 +184,14 @@ collections {
 					rel1 { relative: 1/20 1/20; }
 					rel2 { relative: 19/20 3/20; }
 					text {
-						text: "sms";
+						text: "sms detail";
 						size: 20;
 						font: "VeraBd";
 						fit: 1 1;
 					}
 				}
 			}
-			part {
-				name: "sort_by";
-				type: TEXT;
-				mouse_events: 0;
-				description {
-					state: "default" 0;
-					color_class: "button_inactive";
-					rel1 { relative: 1/20 3/20;}
-					rel2 { relative: 19/20 4/20; }
-					text {
-						text: "sorted by: date";
-						size: 10;
-						font: "Vera";
-						fit: 1 1;
-					}
-				}
-			}
-			ITEM(1, 1/20, 9/40, 19/20, 14/40);
-			ITEM(2, 1/20, 15/40, 19/20, 20/40);
-			ITEM(3, 1/20, 21/40, 19/20, 26/40);
-			ITEM(4, 1/20, 27/40, 19/20, 32/40);
+			ITEM(1, 1/20, 9/40, 19/20, 28/40);
 			BUTTON(10, 0, 58/70 , 1/3, 68/70, "<");
 			BUTTON(11, 1/3, 58/70, 2/3, 68/70, "<");
 			BUTTON(12, 2/3, 58/70, 3/3, 68/70, ">");

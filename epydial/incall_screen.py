@@ -17,14 +17,19 @@ class InCallScreen(EdjeGroup):
 	def on_gsm_number_display(self, number):
 		connection = connect(DB_FILE_PATH)
 		cursor = connection.cursor()
-		cursor.execute("SELECT * FROM contacts WHERE mobil LIKE '%" + str(number) + "' OR home LIKE '%" + str(number) + "' OR work LIKE '%" + str(number) + "'")
-		for row in cursor:
-			CallerNamemap = row[0], row[1], row[2], row[3], row[4]
+		try:
+			cursor.execute("SELECT * FROM contacts WHERE mobil LIKE '%" + str(number) + "' OR home LIKE '%" + str(number) + "' OR work LIKE '%" + str(number) + "'")
+			for row in cursor:
+				CallerNamemap = row[0], row[1], row[2], row[3], row[4]
 
-		if CallerNamemap[1] and CallerNamemap[0]:
-			self.part_text_set("incall_number_text", "%s"% (CallerNamemap[1] + ', ' + CallerNamemap[0]))
-		else:
-			self.part_text_set("incall_number_text", "unbekannt")
+			if CallerNamemap[2] == str(number): source = 'mobil'
+			elif CallerNamemap[3] == str(number): source = 'home'
+			elif CallerNamemap[4] == str(number): source = 'work'
+
+			if CallerNamemap[1] and CallerNamemap[0]:
+				self.part_text_set("incall_number_text", "%s: %s"% (source, CallerNamemap[1] + ', ' + CallerNamemap[0]))
+		except:
+			self.part_text_set("incall_number_text", "unknown")
 
 	@edje.decorators.signal_callback("dialer_incall_send", "*")
 	def on_edje_signal_dialer_incall_triggered(self, emission, source):

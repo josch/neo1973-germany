@@ -19,7 +19,6 @@ class HonScreen(EdjeGroup):
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("get_hon", self.on_get_hon)
-		PyneoController.register_callback("vote_hon", self.on_vote_hon)
 
 	def on_get_hon(self, status):
 		img = object_by_url(status['img']).read()

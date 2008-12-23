@@ -30,6 +30,7 @@ CALC_SCREEN_NAME = "pyneo/calc/screen"
 PIX_SCREEN_NAME = "pyneo/pix/screen"
 CONTACTS_SCREEN_NAME = "pyneo/contacts/screen"
 SMS_SCREEN_NAME = "pyneo/sms/screen"
+SMS_DETAIL_SCREEN_NAME = "pyneo/sms/detail"
 
 from datetime import datetime
 from dbus import SystemBus
@@ -96,6 +97,9 @@ class PyneoController(object):
 	
 	brightness_value = None
 
+	call = None
+	callsigs = []
+
 	@classmethod
 	def register_callback(class_, event_name, callback):
 		print "In register_callback: ", event_name
@@ -127,6 +131,8 @@ class PyneoController(object):
 			class_.hon_hotornot = object_by_url(class_.hon.GetDevice('hotornot'))
 			class_.call_type = 'nix'
 			class_.brightness_value = 60
+			class_.call = None
+			class_.callsigs = []
 		
 		except Exception, e:
 			print "Pyneo error: " + str(e)
@@ -139,8 +145,9 @@ class PyneoController(object):
 		# No error (anymore)
 		if class_._dbus_timer: class_._dbus_timer.stop()
 		
-		# Register our own D-Bus callbacks
+		# Register our own D-Bus callbacks (device status, new calls, power status, new sms)
 		class_.gsm_wireless.connect_to_signal("Status", class_.on_gsm_wireless_status, dbus_interface=DIN_WIRELESS)
+		class_.gsm_wireless.connect_to_signal('New', class_.check_new_call, dbus_interface=DIN_WIRELESS)
 		class_.pwr.connect_to_signal("Status", class_.on_pwr_status, dbus_interface=DIN_POWERED)
 		class_.gsm_sms.connect_to_signal('New', class_.check_new_sms, dbus_interface=DIN_STORAGE)
 
@@ -164,6 +171,10 @@ class PyneoController(object):
 	@classmethod
 	def vote_hon(class_, vote):
 		class_.hon_hotornot.HotOrNot(vote, dbus_interface=DIN_HOTORNOT)
+
+	@classmethod
+	def show_sms_detail(class_, number):
+		class_.notify_callbacks("show_sms_detail", number)
 
 	@classmethod
 	def power_up_gsm(class_):
@@ -220,20 +231,20 @@ class PyneoController(object):
 		os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
 		class_.notify_callbacks("gsm_phone_call_start")
 		name = class_.gsm_wireless.Initiate(number, dbus_interface=DIN_VOICE_CALL_INITIATOR, timeout=200)
-		call = object_by_url(name)
+		class_.call = object_by_url(name)
 
 	@classmethod
 	def gsm_hangup(class_):
 		os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
 		class_.call_type = 'nix'
-		call = object_by_url('dbus:///org/pyneo/gsmdevice/Call/1')
-		call.Hangup(dbus_interface=DIN_CALL)
+		class_.call = object_by_url('dbus:///org/pyneo/gsmdevice/Call/1')
+		class_.call.Hangup(dbus_interface=DIN_CALL)
 
 	@classmethod
 	def gsm_accept(class_):
 		os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
-		call = object_by_url('dbus:///org/pyneo/gsmdevice/Call/1')
-		call.Accept(dbus_interface=DIN_CALL)
+#		class_.call = object_by_url('dbus:///org/pyneo/gsmdevice/Call/1')
+		class_.call.Accept(dbus_interface=DIN_CALL)
 
 	@classmethod
 	def gsm_details(class_):
@@ -259,17 +270,17 @@ class PyneoController(object):
 			elif nw_status == 4:
 				raise NotImplementedError("GSM registration has unknown state")
 		
-		if status.has_key('phone_activity_status'):
-			ph_status = status['phone_activity_status']
-
-			if class_.call_type != 'outgoing':
-				if ph_status == 0:
-					class_.notify_callbacks("gsm_phone_call_end")
-					os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
-				if ph_status == 3:
-					class_.notify_callbacks("gsm_phone_ringing")
-				if ph_status == 4:
-					class_.notify_callbacks("gsm_phone_call_start")
+#		if status.has_key('phone_activity_status'):
+#			ph_status = status['phone_activity_status']
+#
+#			if class_.call_type != 'outgoing':
+#				if ph_status == 0:
+#					class_.notify_callbacks("gsm_phone_call_end")
+#					os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
+#				if ph_status == 3:
+#					class_.notify_callbacks("gsm_phone_ringing")
+#				if ph_status == 4:
+#					class_.notify_callbacks("gsm_phone_call_start")
 		
 		if status.has_key('rssi'):
 			class_.notify_callbacks("gsm_signal_strength_change", status['rssi'])
@@ -410,6 +421,44 @@ class PyneoController(object):
 		class_.notify_callbacks("show_contacts_screen")
 
 	@classmethod
+	def check_new_call(class_, newmap):
+		def CallStatus(newmap):
+			newmap = dedbusmap(newmap)
+			print '---', 'CallStatus'
+#			for n, v in newmap.items():
+#				print '\t', n, ':', v
+
+		def CallRing(newmap):
+			newmap = dedbusmap(newmap)
+			class_.notify_callbacks("gsm_phone_ringing")
+			if newmap['number']: class_.notify_callbacks("gsm_number_display", newmap['number'])
+			print '---', 'CallRing'
+#			for n, v in newmap.items():
+#				print '\t', n, ':', v
+
+		def CallEnd(newmap):
+			class_.notify_callbacks("gsm_phone_call_end")
+			os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
+			newmap = dedbusmap(newmap)
+			print '---', 'CallEnd'
+#			for n, v in newmap.items():
+#				print '\t', n, ':', v
+			if class_.call:
+				class_.call = None
+				while class_.callsigs:
+					class_.callsigs.pop().remove()
+
+		newmap = dedbusmap(newmap)
+		print '---', 'CallNew'
+		os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
+		for n, v in newmap.items():
+#			print '\t', n, ':', v
+			class_.call = object_by_url(n)
+			class_.callsigs.append(class_.call.connect_to_signal('Ring', CallRing, dbus_interface=DIN_CALL, ))
+			class_.callsigs.append(class_.call.connect_to_signal('Status', CallStatus, dbus_interface=DIN_CALL, ))
+			class_.callsigs.append(class_.call.connect_to_signal('End', CallEnd, dbus_interface=DIN_CALL, ))
+
+	@classmethod
 	def check_new_sms(class_, newmap,):
 		def InsertSms(status, from_msisdn, time, text):			
 			connection = connect(DB_FILE_PATH)
@@ -449,6 +498,10 @@ class PyneoController(object):
 	def show_sms_screen(class_):
 		class_.notify_callbacks("show_sms_screen")
 
+	@classmethod
+	def show_sms_screen_detail(class_):
+		class_.notify_callbacks("show_sms_screen_detail")
+
 
 from dialer_screen import *
 from incall_screen import *
@@ -459,6 +512,7 @@ from calc_screen import *
 from pix_screen import *
 from contacts_screen import *
 from sms_screen import *
+from sms_detail import *
 
 class Dialer(object):
 	screens = None
@@ -484,6 +538,7 @@ class Dialer(object):
 		PyneoController.register_callback("show_pix_screen", self.on_pix_screen)
 		PyneoController.register_callback("show_contacts_screen", self.on_contacts_screen)
 		PyneoController.register_callback("show_sms_screen", self.on_sms_screen)
+		PyneoController.register_callback("show_sms_screen_detail", self.on_sms_screen_detail)
 
 		# Initialize the D-Bus interface to pyneo
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -553,6 +608,10 @@ class Dialer(object):
 	def on_sms_screen(self):
 		self.init_screen(SMS_SCREEN_NAME, SmsScreen(self))
 		self.show_screen(SMS_SCREEN_NAME)
+
+	def on_sms_screen_detail(self):
+		self.init_screen(SMS_DETAIL_SCREEN_NAME, SmsDetail(self))
+		self.show_screen(SMS_DETAIL_SCREEN_NAME)
 
 
 class EvasCanvas(object):
