@@ -30,7 +30,7 @@ class DialerScreen(EdjeGroup):
 		PyneoController.register_callback("battvolt_change", self.on_battvolt_change)
 
 	def on_battvolt_change(self, battvolt, chgmode):
-		if chgmode == "play-only":
+		if chgmode == "play-only" or chgmode == "idle":
 			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 64, 0, 0, 0, 0, 0, 0, 0, 0)
 		else:
 			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 128, 0, 0, 0, 0, 0, 0, 0, 0)
