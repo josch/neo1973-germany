@@ -502,6 +502,14 @@ class PyneoController(object):
 	def show_sms_screen_detail(class_):
 		class_.notify_callbacks("show_sms_screen_detail")
 
+	@classmethod
+	def vibrate_start(class_):
+		class_.pwr.Vibrate(10, 3, 1, dbus_interface=DIN_POWER)
+
+	@classmethod
+	def vibrate_stop(class_):
+		class_.pwr.Vibrate(0, 0, 0, dbus_interface=DIN_POWER)
+
 
 from dialer_screen import *
 from incall_screen import *

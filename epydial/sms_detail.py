@@ -15,12 +15,21 @@ class SmsDetail(EdjeGroup):
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("show_sms_detail", self.on_show_sms_detail)
 
+	def mark_sms_read(self, sms_time):
+		connection = connect(DB_FILE_PATH)
+		cursor = connection.cursor()
+		cursor.execute("UPDATE sms SET status='REC READ' WHERE time='%s'" %(sms_time))
+		connection.commit()
+
 	def on_show_sms_detail(self, sms_number):
 		connection = connect(DB_FILE_PATH)
 		cursor = connection.cursor()
 		cursor.execute("SELECT * FROM sms WHERE status='%s' ORDER BY time DESC LIMIT 1 OFFSET %s" %('REC UNREAD', sms_number))
 		for row in cursor:
-			self.part_text_set("sms_text_1", row[3])
+			self.part_text_set("sms_text_1", row[2] + '<br>' + row[1] + '<br>' + row[3])
+
+		if row[0] == 'REC UNREAD':
+			self.mark_sms_read(row[2])
 
 	@edje.decorators.signal_callback("mouse,up,1", "*")
 	def on_edje_signal_dialer_status_triggered(self, emission, source):

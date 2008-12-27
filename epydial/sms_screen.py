@@ -14,6 +14,10 @@ class SmsScreen(EdjeGroup):
 
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, SMS_SCREEN_NAME)
+		if self.check_for_unread() == 0:
+			self.sorted_by = 'REC READ'
+		elif self.check_for_unread() <> 0:
+			self.sorted_by = 'REC UNREAD'
 		self.show_sms()
 
 	def del_displayed_sms(self):
@@ -23,6 +27,14 @@ class SmsScreen(EdjeGroup):
 			self.part_text_set("sms_time_number_%s" %x, "")
 			self.part_text_set("sms_text_%s" %x, "")
 			x += 1
+
+	def check_for_unread(self):
+		connection = connect(DB_FILE_PATH)
+		cursor = connection.cursor()
+		cursor.execute("SELECT COUNT(*) FROM sms WHERE status='REC UNREAD'")
+		for row in cursor:
+			print 'Count: ', row[0]
+		return row[0]
 
 	def show_sms(self):
 		x = 1
