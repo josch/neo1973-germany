@@ -33,21 +33,21 @@ class HonScreen(EdjeGroup):
 		self.image = self.evas.Image(file=self.pix)
 		x, y = self.image.image_size
 		dx, dy = self.part_size_get('icon')
-#		self.image.geometry = 0, 0 , 100, 100
-#		self.image.show()
 		if x * dy > y * dx:
 			y = y * dx / x
 			x = dx
 		else:
 			x = x * dy / y
 			y = dy
-		print 'x,y: ', x, y, dx, dy
-#		self.obj.show()
+		print 'x, y, dx, dy: ', x, y, dx, dy
 		self.image.fill = 0, 0, x, y
 		self.part_swallow('icon', self.image)
+		self.obj = self.part_object_get('clipper')
+		self.obj.size = x, y
+		self.obj.show()
+		print 'obj: ', self.obj
 
 	def delete(self):
-		self.image.hide()
 		EdjeGroup.hide(self)
 
 	@edje.decorators.signal_callback("mouse,up,1", "*")

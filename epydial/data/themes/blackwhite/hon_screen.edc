@@ -172,9 +172,18 @@ collections {
 				}
 			}
 			part {
+				name: "clipper";
+				type: RECT;
+				description {
+					rel1 { relative: 1/2 1/2; offset: -180 -180; }
+					rel2 { relative: 1/2 1/2; offset: 180 180; }
+				}
+			}
+			part {
 				name: "icon";
-				mouse_events: 0;
 				type: SWALLOW;
+				mouse_events: 0;
+				clip_to: "clipper";
 				description {
 					/*fixed: 1 1;*/
 					rel1 { relative: 1/2 1/2; offset: -180 -180; }
