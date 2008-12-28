@@ -174,8 +174,8 @@ class PyneoController(object):
 		class_.hon_hotornot.HotOrNot(vote, dbus_interface=DIN_HOTORNOT)
 
 	@classmethod
-	def show_sms_detail(class_, number):
-		class_.notify_callbacks("show_sms_detail", number)
+	def show_sms_detail(class_, number, status):
+		class_.notify_callbacks("show_sms_detail", number, status)
 
 	@classmethod
 	def power_up_gsm(class_):

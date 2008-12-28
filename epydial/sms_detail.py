@@ -21,10 +21,10 @@ class SmsDetail(EdjeGroup):
 		cursor.execute("UPDATE sms SET status='REC READ' WHERE time='%s'" %(sms_time))
 		connection.commit()
 
-	def on_show_sms_detail(self, sms_number):
+	def on_show_sms_detail(self, sms_number, sms_status):
 		connection = connect(DB_FILE_PATH)
 		cursor = connection.cursor()
-		cursor.execute("SELECT * FROM sms WHERE status='%s' ORDER BY time DESC LIMIT 1 OFFSET %s" %('REC UNREAD', sms_number))
+		cursor.execute("SELECT * FROM sms WHERE status='%s' ORDER BY time DESC LIMIT 1 OFFSET %s" %(sms_status, sms_number))
 		for row in cursor:
 			self.part_text_set("sms_text_1", row[2] + '<br>' + row[1] + '<br>' + row[3])
 

@@ -59,19 +59,19 @@ class SmsScreen(EdjeGroup):
 		if self.detail == False:
 			if source == "1":
 				PyneoController.show_sms_screen_detail()
-				PyneoController.show_sms_detail(self.sms_offset)
+				PyneoController.show_sms_detail(self.sms_offset, self.sorted_by)
 			if source == "2":
 				self.sms_offset += 1
 				PyneoController.show_sms_screen_detail()
-				PyneoController.show_sms_detail(self.sms_offset)
+				PyneoController.show_sms_detail(self.sms_offset, self.sorted_by)
 			if source == "3":
 				self.sms_offset += 2
 				PyneoController.show_sms_screen_detail()
-				PyneoController.show_sms_detail(self.sms_offset)
+				PyneoController.show_sms_detail(self.sms_offset, self.sorted_by)
 			if source == "4":
 				self.sms_offset += 3
 				PyneoController.show_sms_screen_detail()
-				PyneoController.show_sms_detail(self.sms_offset)
+				PyneoController.show_sms_detail(self.sms_offset, self.sorted_by)
 			if source == "button_10":
 				PyneoController.show_dialer_screen()
 			if source == "button_12":
