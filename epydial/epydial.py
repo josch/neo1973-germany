@@ -521,7 +521,7 @@ from calc_screen import *
 from pix_screen import *
 from contacts_screen import *
 from sms_screen import *
-#from sms_detail import *
+from sms_detail import *
 
 class Dialer(object):
 	screens = None
@@ -547,7 +547,7 @@ class Dialer(object):
 		PyneoController.register_callback("show_pix_screen", self.on_pix_screen)
 		PyneoController.register_callback("show_contacts_screen", self.on_contacts_screen)
 		PyneoController.register_callback("show_sms_screen", self.on_sms_screen)
-#		PyneoController.register_callback("show_sms_screen_detail", self.on_sms_screen_detail)
+		PyneoController.register_callback("show_sms_screen_detail", self.on_sms_screen_detail)
 
 		# Initialize the D-Bus interface to pyneo
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
