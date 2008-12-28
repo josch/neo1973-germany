@@ -44,6 +44,7 @@ import ecore.evas
 import edje.decorators
 import edje
 import evas.decorators
+from time import sleep
 
 from pyneo.dbus_support import *
 from pyneo.sys_support import pr_set_name
@@ -123,12 +124,12 @@ class PyneoController(object):
 	def init(class_):
 		try:
 			class_.gsm = object_by_url('dbus:///org/pyneo/GsmDevice')
-			class_.gsm_wireless = object_by_url(class_.gsm.GetDevice('wireless'))
-			class_.gsm_sms = object_by_url(class_.gsm.GetDevice('shortmessage_storage'))
+			class_.gsm_wireless = object_by_url(class_.gsm.GetDevice('wireless', dbus_interface=DIN_POWERED))
+			class_.gsm_sms = object_by_url(class_.gsm.GetDevice('shortmessage_storage', dbus_interface=DIN_POWERED))
 			class_.pwr = object_by_url('dbus:///org/pyneo/Power')
 			class_.gps = object_by_url('dbus:///org/pyneo/GpsLocation')
 			class_.hon = object_by_url('dbus:///org/pyneo/HotOrNot')
-			class_.hon_hotornot = object_by_url(class_.hon.GetDevice('hotornot'))
+			class_.hon_hotornot = object_by_url(class_.hon.GetDevice('hotornot', dbus_interface=DIN_POWERED))
 			class_.call_type = 'nix'
 			class_.brightness_value = 60
 			class_.call = None
@@ -199,7 +200,7 @@ class PyneoController(object):
 	@classmethod
 	def get_gsm_keyring(class_):
 		try:
-			class_.gsm_keyring = object_by_url(class_.gsm_wireless.GetKeyring())
+			class_.gsm_keyring = object_by_url(class_.gsm_wireless.GetKeyring(dbus_interface=DIN_AUTHORIZED))
 			
 		except Exception, e:
 			print "SIM error: " + str(e)
@@ -307,7 +308,7 @@ class PyneoController(object):
 			res = dedbusmap(class_.gsm_wireless.GetStatus(dbus_interface=DIN_WIRELESS, ))
 			if not res['stat'] in (1, 5, ):
 				print '---', 'registering to gsm network'
-				class_.gsm_wireless.Register()
+				class_.gsm_wireless.Register(dbus_interface=DIN_WIRELESS)
 				res = dedbusmap(class_.gsm_wireless.GetStatus(dbus_interface=DIN_WIRELESS, ))
 			else:
 				print '---', 'already registered'
@@ -370,8 +371,8 @@ class PyneoController(object):
 
 	@classmethod
 	def show_dialer_screen(class_):
-		class_.pwr.SetBrightness(class_.brightness_value, dbus_interface=DIN_POWER)
-		class_.pwr.GetStatus(dbus_interface=DIN_POWERED)
+#		class_.pwr.SetBrightness(class_.brightness_value, dbus_interface=DIN_POWER)
+#		class_.pwr.GetStatus(dbus_interface=DIN_POWERED)
 		class_.notify_callbacks("show_dialer_screen")
 
 	@classmethod
@@ -473,7 +474,7 @@ class PyneoController(object):
 			content = dedbusmap(sm.GetContent())
 			InsertSms('REC UNREAD', content['from_msisdn'], content['time'], content['text'].encode('utf-8'))
 			print '--- NEW SMS:', content['from_msisdn'], content['time'], content['text'].encode('utf-8')
-		class_.gsm_sms.DeleteAll()
+		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
 
 	@classmethod
 	def first_check_new_sms(class_):
@@ -485,14 +486,14 @@ class PyneoController(object):
 			connection.commit()
 
 		try:
-			res = class_.gsm_sms.ListAll()
+			res = class_.gsm_sms.ListAll(dbus_interface=DIN_STORAGE)
 			for n in res:
 				sm = object_by_url(n)
 				content = dedbusmap(sm.GetContent())
 				InsertSms('REC UNREAD', content['from_msisdn'], content['time'], content['text'].encode('utf-8'))
 		except:
 			print '--- NULL new sms'
-		class_.gsm_sms.DeleteAll()
+		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
 
 	@classmethod
 	def show_sms_screen(class_):
@@ -520,7 +521,7 @@ from calc_screen import *
 from pix_screen import *
 from contacts_screen import *
 from sms_screen import *
-from sms_detail import *
+#from sms_detail import *
 
 class Dialer(object):
 	screens = None
@@ -546,7 +547,7 @@ class Dialer(object):
 		PyneoController.register_callback("show_pix_screen", self.on_pix_screen)
 		PyneoController.register_callback("show_contacts_screen", self.on_contacts_screen)
 		PyneoController.register_callback("show_sms_screen", self.on_sms_screen)
-		PyneoController.register_callback("show_sms_screen_detail", self.on_sms_screen_detail)
+#		PyneoController.register_callback("show_sms_screen_detail", self.on_sms_screen_detail)
 
 		# Initialize the D-Bus interface to pyneo
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
