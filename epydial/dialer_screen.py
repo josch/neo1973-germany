@@ -132,6 +132,11 @@ class DialerScreen(EdjeGroup):
 					self.text =[]
 					self.part_text_set("numberdisplay_text", "".join(self.text))
 					PyneoController.show_pix_screen()
+				elif source == "dial" and ''.join(self.text) == "5":
+					print '--- Yahoo Weather Screen'
+					self.text = []
+					self.part_text_set("numberdisplay_text", "".join(self.text))
+					PyneoController.show_weather_screen()
 				elif source == "dial" and ''.join(self.text) == "6":
 					print '--- Hon Screen'
 					self.text = []

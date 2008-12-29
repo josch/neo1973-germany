@@ -31,6 +31,7 @@ PIX_SCREEN_NAME = "pyneo/pix/screen"
 CONTACTS_SCREEN_NAME = "pyneo/contacts/screen"
 SMS_SCREEN_NAME = "pyneo/sms/screen"
 SMS_DETAIL_SCREEN_NAME = "pyneo/sms/detail"
+WEATHER_SCREEN_NAME = "pyneo/weather/screen"
 
 from datetime import datetime
 from dbus import SystemBus
@@ -504,6 +505,10 @@ class PyneoController(object):
 		class_.notify_callbacks("show_sms_screen_detail")
 
 	@classmethod
+	def show_weather_screen(class_):
+		class_.notify_callbacks("show_weather_screen")
+
+	@classmethod
 	def vibrate_start(class_):
 		class_.pwr.Vibrate(10, 3, 1, dbus_interface=DIN_POWER)
 
@@ -522,6 +527,7 @@ from pix_screen import *
 from contacts_screen import *
 from sms_screen import *
 from sms_detail import *
+from weather_screen import *
 
 class Dialer(object):
 	screens = None
@@ -548,6 +554,7 @@ class Dialer(object):
 		PyneoController.register_callback("show_contacts_screen", self.on_contacts_screen)
 		PyneoController.register_callback("show_sms_screen", self.on_sms_screen)
 		PyneoController.register_callback("show_sms_screen_detail", self.on_sms_screen_detail)
+		PyneoController.register_callback("show_weather_screen", self.on_weather_screen)
 
 		# Initialize the D-Bus interface to pyneo
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -621,6 +628,10 @@ class Dialer(object):
 	def on_sms_screen_detail(self):
 		self.init_screen(SMS_DETAIL_SCREEN_NAME, SmsDetail(self))
 		self.show_screen(SMS_DETAIL_SCREEN_NAME)
+
+	def on_weather_screen(self):
+		self.init_screen(WEATHER_SCREEN_NAME, WeatherScreen(self))
+		self.show_screen(WEATHER_SCREEN_NAME)
 
 
 class EvasCanvas(object):

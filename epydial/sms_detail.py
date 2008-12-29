@@ -22,9 +22,10 @@ class SmsDetail(EdjeGroup):
 		connection.commit()
 
 	def on_show_sms_detail(self, sms_number, sms_status):
+		self.sms_offset = sms_number
 		connection = connect(DB_FILE_PATH)
 		cursor = connection.cursor()
-		cursor.execute("SELECT * FROM sms WHERE status='%s' ORDER BY time DESC LIMIT 1 OFFSET %s" %(sms_status, sms_number))
+		cursor.execute("SELECT * FROM sms WHERE status='%s' ORDER BY time DESC LIMIT 1 OFFSET %s" %(self.sms_offset, sms_number))
 		for row in cursor:
 			self.part_text_set("sms_text_1", row[2] + '<br>' + row[1] + '<br>' + row[3])
 
@@ -35,5 +36,11 @@ class SmsDetail(EdjeGroup):
 	def on_edje_signal_dialer_status_triggered(self, emission, source):
 		if source == "button_10":
 			PyneoController.show_dialer_screen()
+		if source == "button_11":
+			self.sms_offset -= 1
+			PyneoController.show_sms_detail(self.sms_offset, self.sorted_by)
+		if source == "button_12":
+			self.sms_offset += 1
+			PyneoController.show_sms_detail(self.sms_offset, self.sorted_by)
 		print 'source: ', source
 
