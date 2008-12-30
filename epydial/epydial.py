@@ -20,6 +20,7 @@ EDJE_FILE_PATH = "data/themes/blackwhite/"
 PIX_FILE_PATH = "/media/card/hon/"
 TRACK_FILE_PATH = "/media/card/track/"
 DB_FILE_PATH = "data/db/my.sqlite"
+PIX_WEATHER_FILE_PATH = "data/themes_data/blackwhite/images/stardock_weather/"
 
 DIALER_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
@@ -245,7 +246,6 @@ class PyneoController(object):
 	@classmethod
 	def gsm_accept(class_):
 		os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
-#		class_.call = object_by_url('dbus:///org/pyneo/gsmdevice/Call/1')
 		class_.call.Accept(dbus_interface=DIN_CALL)
 
 	@classmethod
@@ -271,19 +271,7 @@ class PyneoController(object):
 				class_.notify_callbacks("gsm_reg_denied")
 			elif nw_status == 4:
 				raise NotImplementedError("GSM registration has unknown state")
-		
-#		if status.has_key('phone_activity_status'):
-#			ph_status = status['phone_activity_status']
-#
-#			if class_.call_type != 'outgoing':
-#				if ph_status == 0:
-#					class_.notify_callbacks("gsm_phone_call_end")
-#					os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
-#				if ph_status == 3:
-#					class_.notify_callbacks("gsm_phone_ringing")
-#				if ph_status == 4:
-#					class_.notify_callbacks("gsm_phone_call_start")
-		
+	
 		if status.has_key('rssi'):
 			class_.notify_callbacks("gsm_signal_strength_change", status['rssi'])
 			

@@ -20,6 +20,25 @@ class WeatherScreen(EdjeGroup):
 		EdjeGroup.__init__(self, screen_manager, WEATHER_SCREEN_NAME)
 		self.weather_for_zip(ZIP_CODE, TEMP_UNIT)
 
+	def on_get_pix(self, icon):
+		self.image = self.evas.Image(file=PIX_WEATHER_FILE_PATH + icon + '.png')
+		x, y = self.image.image_size
+		dx, dy = self.part_size_get('clipper')
+		print 'x, y, dx, dy: ', x, y, dx, dy
+		if x * dy > y * dx:
+			y = y * dx / x
+			x = dx
+		else:
+			x = x * dy / y
+			y = dy
+		print 'x, y, dx, dy: ', x, y, dx, dy
+		self.image.fill = 0, 0, x, y
+		self.part_swallow('icon', self.image)
+		self.obj = self.part_object_get('clipper')
+		self.obj.size = x, y
+		self.obj.show()
+		print 'obj: ', self.obj
+
 	def weather_for_zip(self, zip_code, unit):
 		url = WEATHER_URL % (zip_code, unit)
 		dom = minidom.parse(urllib.urlopen(url))
@@ -29,26 +48,22 @@ class WeatherScreen(EdjeGroup):
 				'date': node.getAttribute('date'),
 				'low': node.getAttribute('low'),
 				'high': node.getAttribute('high'),
-				'condition': node.getAttribute('text')
+				'condition': node.getAttribute('text'),
+				'code': node.getAttribute('code'),
 			})
 		ycondition = dom.getElementsByTagNameNS(WEATHER_NS, 'condition')[0]
 
-		self.part_text_set("location", "dom.getElementsByTagName('title')[0].firstChild.data[17:]")
-
+		self.on_get_pix(ycondition.getAttribute('code'))
+		self.part_text_set("location", dom.getElementsByTagName('title')[0].firstChild.data[17:])
 		self.part_text_set("current", "current condition: %s<br>current temp: %s" % (ycondition.getAttribute('text'), ycondition.getAttribute('temp')))
-		#print forecasts.pop(1)['date']
-
 		self.part_text_set("forecasts", "forecasts:<br>date: %s<br>low: %s<br>high: %s<br>condition: %s" % (forecasts[1]['date'], forecasts[1]['low'], forecasts[1]['high'], forecasts[1]['condition']))
-
-#		return {
-#			'current_condition': ycondition.getAttribute('text'),
-#			'current_temp': ycondition.getAttribute('temp'),
-#			'forecasts': forecasts,
-#			'title': dom.getElementsByTagName('title')[0].firstChild.data
-#		}
 
 	@edje.decorators.signal_callback("mouse,up,1", "*")
 	def on_edje_signal_dialer_status_triggered(self, emission, source):
 		if source == "button_12":
+			self.image.delete()
 			PyneoController.show_dialer_screen()
+		if source == "headline":
+			self.image.delete()
+			self.weather_for_zip(ZIP_CODE, TEMP_UNIT)
 		print 'source: ', source
