@@ -1,0 +1,346 @@
+// audio_screen.edc
+// this is a theme for epydial, a pyneo dialer and more
+
+data {
+	item: "author" "thomasg [thomas (a) gstaedtner (.) net] , fgau (fgau@gau-net.de)";
+	item: "version" "prototype";
+	item: "name" "epydial_blackwhite";
+}
+
+fonts {
+	font: "Vera.ttf" "Vera";
+	font: "VeraBd.ttf" "VeraBd";
+}
+
+images {
+	image: "bg.png" COMP;
+	image: "play.png" COMP;
+	image: "pause.png" COMP;
+	image: "track_left.png" COMP;
+	image: "track_right.png" COMP;
+	image: "stop.png" COMP;
+}
+
+color_classes {
+	color_class {
+		name: "unvisible";
+		color: 0 0 0 0;
+		color2: 128 128 128 255;
+		color3: 128 128 128 255;
+	}
+	color_class {
+		name: "button_inactive";
+		color: 255 255 255 128;
+		color2: 128 128 128 255;
+		color3: 128 128 128 255;;
+	}
+	color_class {
+		name: "scale";
+		color: 255 255 255 64;
+		color2: 0 0 0 255;
+		color3: 0 0 0 255;
+	}
+}
+
+styles {
+	style {
+		name: "textblock_style";
+		base: "font=Vera font_size=20 align=left valign=top color=#fff";
+		tag: "h1" "+ font_size=28";
+		tag: "/h1" "- \n";
+		tag: "p" "+";
+		tag: "/p" "- \n";
+		tag: "em" "+ style=underline underline_color=#000A underline2_color=#0005";
+		tag: "/em" "-";
+		tag: "br" "\n";
+		tag: "c1" "+ color=#fff";
+		tag: "/c1" "-";
+		tag: "c2" "+ color=#f3f";
+		tag: "/c2" "-";
+	}
+}
+
+#define key(n, x, y)\
+part {\
+	name: n;\
+	type: IMAGE;\
+	description {\
+		image {\
+			normal: n".png";\
+		}\
+		rel1 {\
+			to: pad;\
+			relative: (x+1)/4-1/8 (y+1)/5-1/10;\
+			offset: -50 -50;\
+		}\
+		rel2 {\
+			to: pad;\
+			relative: (x+1)/4-1/8 (y+1)/5-1/10;\
+			offset: 50 50;\
+		}\
+	}\
+}\
+program { \
+	name: "button_"n"_signal_emit"; \
+	signal: "mouse,down,*"; \
+	source: n; \
+	action: SIGNAL_EMIT "music_player_send" n; \
+} \
+
+#define key_play_pause(n, n1, n2, x, y)\
+part {\
+	name: n;\
+	type: IMAGE;\
+	description {\
+		state: "default" 0; \
+		image {\
+			normal: n1".png";\
+		}\
+		rel1 {\
+			to: pad;\
+			relative: (x+1)/4-1/8 (y+1)/5-1/10;\
+			offset: -50 -50;\
+		}\
+		rel2 {\
+			to: pad;\
+			relative: (x+1)/4-1/8 (y+1)/5-1/10;\
+			offset: 50 50;\
+		}\
+	}\
+	description {\
+		state: "default" 1; \
+		image {\
+			normal: n2".png";\
+		}\
+		rel1 {\
+			to: pad;\
+			relative: (x+1)/4-1/8 (y+1)/5-1/10;\
+			offset: -50 -50;\
+		}\
+		rel2 {\
+			to: pad;\
+			relative: (x+1)/4-1/8 (y+1)/5-1/10;\
+			offset: 50 50;\
+		}\
+	}\
+}\
+program { \
+	name: "button_"n"_signal_emit"; \
+	signal: "mouse,down,*"; \
+	source: n; \
+	action: SIGNAL_EMIT "music_player_send" n; \
+} \
+program { \
+	name: "press_key1"; \
+	signal: "key1"; \
+	action: STATE_SET "default" 1; \
+	target: n; \
+} \
+program { \
+	name: "press_key2"; \
+	signal: "key2"; \
+	action: STATE_SET "default" 0; \
+	target: n; \
+} \
+
+#define HBAR(barname, bordercolor, borderwidth, rel1x, rel1y, rel2x, rel2y, left_right_offset) \
+part { \
+	name: "description_"barname; \
+	type: TEXT; \
+	mouse_events: 0; \
+	description { \
+		color_class: bordercolor; \
+		rel1 { relative: rel1x rel1y; }; \
+		rel2 { relative: rel2x rel2y; }; \
+		text { \
+			text: barname; \
+			font: "VeraBd"; \
+			size: 16; \
+		} \
+	} \
+} \
+part { \
+	name: "button_left_bg_"barname; \
+	type: RECT; \
+	description { \
+		state: "default" 0; \
+		color_class: "unvisible"; \
+		rel1 { relative: rel1x rel1y; offset: 0 0; }; \
+		rel2 { relative: rel2x/4 rel2y; offset: 0 0; }; \
+	} \
+	description { \
+		state: "default" 0.5; \
+		inherit: "default" 0; \
+		color_class: "unvisible"; \
+		rel1.offset: 0 -5; \
+		rel2.offset: 0 5; \
+	} \
+	description { \
+		state: "default" 1; \
+		inherit: "default" 0; \
+	} \
+} \
+part { \
+	name: "button_right_bg_"barname; \
+	type: RECT; \
+	description { \
+		state: "default" 0; \
+		color_class: "unvisible"; \
+		rel1 { relative: 1-rel2x/4 rel1y; offset: 0 0; }; \
+		rel2 { relative: rel2x rel2y; offset: 0 0; }; \
+	} \
+	description { \
+		state: "default" 0.5; \
+		inherit: "default" 0; \
+		color_class: "unvisible"; \
+		rel1.offset: 0 -5; \
+		rel2.offset: 0 5; \
+	} \
+	description { \
+		state: "default" 1; \
+		inherit: "default" 0; \
+	} \
+} \
+part { \
+	name: "button_left_"barname; \
+	type: TEXT; \
+	mouse_events: 0; \
+	description { \
+		state: "default" 0; \
+		color_class: bordercolor; \
+		rel1 { to: "button_left_bg_"barname; relative: 0 0; }; \
+		rel2 { to: "button_left_bg_"barname; relative: 1 1; }; \
+		text { \
+			text: "-"; \
+			font: "VeraBd"; \
+			size: 52; \
+			fit: 1 1; \
+		} \
+	} \
+} \
+part { \
+	name: "button_right_"barname; \
+	type: TEXT; \
+	mouse_events: 0; \
+	description { \
+		state: "default" 0; \
+		color_class: bordercolor; \
+		rel1 { to: "button_right_bg_"barname; relative: 0 0; }; \
+		rel2 { to: "button_right_bg_"barname; relative: 1 1; }; \
+		text { \
+			text: "+"; \
+			font: "VeraBd"; \
+			size: 52; \
+			fit: 1 1; \
+		} \
+	} \
+} \
+part { \
+	name: "scale_fg_"barname; \
+	type: RECT; \
+	mouse_events: 0; \
+	description { \
+		color_class: scale; \
+		rel1 { relative: rel2x/4 (rel1y+((rel2y-rel1y)/4)); }; \
+		rel2 { relative: 1-rel2x/4 (rel2y-((rel2y-rel1y)/4)); }; \
+	} \
+} \
+program { \
+	name: "button_left_bg_"barname"_animation"; \
+	signal: "mouse,down,*"; \
+	source: "button_left_bg_"barname; \
+	action: STATE_SET "default" 0.5; \
+	target: "button_left_bg_"barname; \
+} \
+program { \
+	name: "button_left_bg_"barname"_animation_end"; \
+	signal: "mouse,up,*"; \
+	source: "button_left_bg_"barname; \
+	action: STATE_SET "default" 1; \
+	target: "button_left_bg_"barname; \
+	transition: DECELERATE 0.1; \
+} \
+program { \
+	name: "button_right_bg_"barname"_animation"; \
+	signal: "mouse,down,*"; \
+	source: "button_right_bg_"barname; \
+	action: STATE_SET "default" 0.5; \
+	target: "button_right_bg_"barname; \
+} \
+program { \
+	name: "button_right_bg_"barname"_animation_end"; \
+	signal: "mouse,up,*"; \
+	source: "button_right_bg_"barname; \
+	action: STATE_SET "default" 1; \
+	target: "button_right_bg_"barname; \
+	transition: DECELERATE 0.1; \
+} \
+
+collections {
+	group {
+		name: "pyneo/audio/screen";
+		min: 100 100;
+		max: 800 800;
+		parts {
+			part {
+				name: "background";
+				type: IMAGE;
+				mouse_events: 0;
+				description {
+					state: "default" 0;
+					rel1 { relative: 0 0; offset: 0 0; };
+					rel2 { relative: 1 1; offset: 0 0; };
+					image { normal: "bg.png"; };
+				}
+			}
+			part {
+				name: "headline";
+				type: TEXT;
+				description {
+					state: "default" 0;
+					color_class: "button_inactive";
+					rel1 { relative: 1/20 1/20; }
+					rel2 { relative: 19/20 3/20; }
+					text {
+						text: "music";
+						size: 20;
+						font: "VeraBd";
+						fit: 1 1;
+					}
+				}
+			}
+			part {
+				name: "mp3_tags";
+				type: TEXTBLOCK;
+				mouse_events: 0;
+				description {
+					color_class: "button_inactive";
+					align: 0.5 0.5;
+					fixed: 1 1;
+					rel1 { relative: 0 4/20; }
+					rel2 { relative: 1 7/20; }
+					text { 
+						text: "";
+						style: "textblock_style";
+					}
+				}
+			}
+			part {
+				name: "pad";
+				type: RECT;
+				description {
+					visible: 0;
+					rel1 { relative: 0.0 1.0; offset: 25 -125; }
+					rel2 { relative: 1.0 1.0; offset: -25 -25; }
+				}
+			}
+			key("track_left", 0, 2)
+			key("stop", 1, 2)
+			key_play_pause("play_pause", "play", "pause", 2, 2)
+			key("track_right", 3, 2)
+
+			HBAR("volume", button_inactive, 1, 0, 46/70, 1, 56/70, 10);
+			
+		}
+	}
+}

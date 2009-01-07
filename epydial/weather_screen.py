@@ -5,7 +5,7 @@ __version__ = "prototype"
 __copyright__ = "Copyright (c) 2008"
 __license__ = "GPL3"
 
-ZIP_CODE = 'GMXX0007' #GMXX0007 Berlin, GMXX0049 Hamburg
+ZIP_CODE = 'GMXX0049' #GMXX0007 Berlin, GMXX0049 Hamburg
 TEMP_UNIT = 'c'
 
 WEATHER_URL = 'http://xml.weather.yahoo.com/forecastrss?p=%s&u=%s'

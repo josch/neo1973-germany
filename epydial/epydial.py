@@ -21,6 +21,7 @@ PIX_FILE_PATH = "/media/card/hon/"
 TRACK_FILE_PATH = "/media/card/track/"
 DB_FILE_PATH = "data/db/my.sqlite"
 PIX_WEATHER_FILE_PATH = "data/themes_data/blackwhite/images/stardock_weather/"
+MP3_FILE_PATH = "/media/card/mp3/"
 
 DIALER_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
@@ -33,6 +34,7 @@ CONTACTS_SCREEN_NAME = "pyneo/contacts/screen"
 SMS_SCREEN_NAME = "pyneo/sms/screen"
 SMS_DETAIL_SCREEN_NAME = "pyneo/sms/detail"
 WEATHER_SCREEN_NAME = "pyneo/weather/screen"
+AUDIO_SCREEN_NAME = "pyneo/audio/screen"
 
 from datetime import datetime
 from dbus import SystemBus
@@ -88,6 +90,8 @@ class PyneoController(object):
 	pwr = None
 	gps = None
 	hon = None
+	mp3 = None
+	mp3_music = None
 	gsm_wireless = None
 	gsm_keyring = None
 	gsm_sms = None
@@ -132,6 +136,7 @@ class PyneoController(object):
 			class_.gps = object_by_url('dbus:///org/pyneo/GpsLocation')
 			class_.hon = object_by_url('dbus:///org/pyneo/HotOrNot')
 			class_.hon_hotornot = object_by_url(class_.hon.GetDevice('hotornot', dbus_interface=DIN_POWERED))
+			class_.mp3 = object_by_url('dbus:///org/pyneo/Player')
 			class_.call_type = 'nix'
 			class_.brightness_value = 60
 			class_.call = None
@@ -360,8 +365,8 @@ class PyneoController(object):
 
 	@classmethod
 	def show_dialer_screen(class_):
-#		class_.pwr.SetBrightness(class_.brightness_value, dbus_interface=DIN_POWER)
-#		class_.pwr.GetStatus(dbus_interface=DIN_POWERED)
+		class_.pwr.SetBrightness(class_.brightness_value, dbus_interface=DIN_POWER)
+		class_.pwr.GetStatus(dbus_interface=DIN_POWERED)
 		class_.notify_callbacks("show_dialer_screen")
 
 	@classmethod
@@ -415,24 +420,18 @@ class PyneoController(object):
 		def CallStatus(newmap):
 			newmap = dedbusmap(newmap)
 			print '---', 'CallStatus'
-#			for n, v in newmap.items():
-#				print '\t', n, ':', v
 
 		def CallRing(newmap):
 			newmap = dedbusmap(newmap)
 			class_.notify_callbacks("gsm_phone_ringing")
 			if newmap['number']: class_.notify_callbacks("gsm_number_display", newmap['number'])
 			print '---', 'CallRing'
-#			for n, v in newmap.items():
-#				print '\t', n, ':', v
 
 		def CallEnd(newmap):
 			class_.notify_callbacks("gsm_phone_call_end")
 			os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
 			newmap = dedbusmap(newmap)
 			print '---', 'CallEnd'
-#			for n, v in newmap.items():
-#				print '\t', n, ':', v
 			if class_.call:
 				class_.call = None
 				while class_.callsigs:
@@ -463,7 +462,7 @@ class PyneoController(object):
 			content = dedbusmap(sm.GetContent())
 			InsertSms('REC UNREAD', content['from_msisdn'], content['time'], content['text'].encode('utf-8'))
 			print '--- NEW SMS:', content['from_msisdn'], content['time'], content['text'].encode('utf-8')
-		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
+#		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
 
 	@classmethod
 	def first_check_new_sms(class_):
@@ -482,7 +481,7 @@ class PyneoController(object):
 				InsertSms('REC UNREAD', content['from_msisdn'], content['time'], content['text'].encode('utf-8'))
 		except:
 			print '--- NULL new sms'
-		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
+#		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
 
 	@classmethod
 	def show_sms_screen(class_):
@@ -504,6 +503,37 @@ class PyneoController(object):
 	def vibrate_stop(class_):
 		class_.pwr.Vibrate(0, 0, 0, dbus_interface=DIN_POWER)
 
+	@classmethod
+	def show_audio_screen(class_):
+		class_.notify_callbacks("show_audio_screen")
+
+	@classmethod
+	def play_music(class_):
+		class_.mp3.Play(dbus_interface='org.pyneo.Music')
+
+	@classmethod
+	def stop_music(class_):
+		class_.mp3.Stop(dbus_interface='org.pyneo.Music')
+
+	@classmethod
+	def pause_music(class_):
+		class_.mp3.Pause(dbus_interface='org.pyneo.Music')
+
+	@classmethod
+	def next_music(class_):
+		class_.mp3.Next(dbus_interface='org.pyneo.Music')
+
+	@classmethod
+	def previous_music(class_):
+		class_.mp3.Previous(dbus_interface='org.pyneo.Music')
+
+	@classmethod
+	def set_playlist_from_dir(class_):
+		class_.mp3.SetPlaylistFromDir(MP3_FILE_PATH, dbus_interface='org.pyneo.Music')
+
+	@classmethod
+	def get_mp3_tags(class_):
+		class_.notify_callbacks("on_get_mp3_tags", class_.mp3.GetStatus(dbus_interface='org.pyneo.Music'))
 
 from dialer_screen import *
 from incall_screen import *
@@ -516,6 +546,7 @@ from contacts_screen import *
 from sms_screen import *
 from sms_detail import *
 from weather_screen import *
+from audio_screen import *
 
 class Dialer(object):
 	screens = None
@@ -543,6 +574,7 @@ class Dialer(object):
 		PyneoController.register_callback("show_sms_screen", self.on_sms_screen)
 		PyneoController.register_callback("show_sms_screen_detail", self.on_sms_screen_detail)
 		PyneoController.register_callback("show_weather_screen", self.on_weather_screen)
+		PyneoController.register_callback("show_audio_screen", self.on_audio_screen)
 
 		# Initialize the D-Bus interface to pyneo
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
@@ -555,6 +587,7 @@ class Dialer(object):
 		self.init_screen(GSM_STATUS_SCREEN_NAME, GsmStatusScreen(self))
 		self.init_screen(GPS_STATUS_SCREEN_NAME, GpsStatusScreen(self))
 
+		PyneoController.set_playlist_from_dir()
 		PyneoController.power_up_gsm()
 		PyneoController.get_gsm_keyring()
 
@@ -621,6 +654,9 @@ class Dialer(object):
 		self.init_screen(WEATHER_SCREEN_NAME, WeatherScreen(self))
 		self.show_screen(WEATHER_SCREEN_NAME)
 
+	def on_audio_screen(self):
+		self.init_screen(AUDIO_SCREEN_NAME, AudioScreen(self))
+		self.show_screen(AUDIO_SCREEN_NAME)
 
 class EvasCanvas(object):
 	def __init__(self, fullscreen, engine_name):
