@@ -19,6 +19,8 @@ images {
 	image: "track_left.png" COMP;
 	image: "track_right.png" COMP;
 	image: "stop.png" COMP;
+	image: "player-plus.png" COMP;
+	image: "player-minus.png" COMP;
 }
 
 color_classes {
@@ -87,6 +89,33 @@ program { \
 	action: SIGNAL_EMIT "music_player_send" n; \
 } \
 
+#define key1(n, x, y)\
+part {\
+	name: n;\
+	type: IMAGE;\
+	description {\
+		image {\
+			normal: n".png";\
+		}\
+		rel1 {\
+			to: pad1;\
+			relative: (x+1)/4-1/8 (y+1)/5-1/10;\
+			offset: -50 -50;\
+		}\
+		rel2 {\
+			to: pad1;\
+			relative: (x+1)/4-1/8 (y+1)/5-1/10;\
+			offset: 50 50;\
+		}\
+	}\
+}\
+program { \
+	name: "button_"n"_signal_emit"; \
+	signal: "mouse,down,*"; \
+	source: n; \
+	action: SIGNAL_EMIT "music_player_send" n; \
+} \
+
 #define key_play_pause(n, n1, n2, x, y)\
 part {\
 	name: n;\
@@ -143,138 +172,6 @@ program { \
 	target: n; \
 } \
 
-#define HBAR(barname, bordercolor, borderwidth, rel1x, rel1y, rel2x, rel2y, left_right_offset) \
-part { \
-	name: "description_"barname; \
-	type: TEXT; \
-	mouse_events: 0; \
-	description { \
-		color_class: bordercolor; \
-		rel1 { relative: rel1x rel1y; }; \
-		rel2 { relative: rel2x rel2y; }; \
-		text { \
-			text: barname; \
-			font: "VeraBd"; \
-			size: 16; \
-		} \
-	} \
-} \
-part { \
-	name: "button_left_bg_"barname; \
-	type: RECT; \
-	description { \
-		state: "default" 0; \
-		color_class: "unvisible"; \
-		rel1 { relative: rel1x rel1y; offset: 0 0; }; \
-		rel2 { relative: rel2x/4 rel2y; offset: 0 0; }; \
-	} \
-	description { \
-		state: "default" 0.5; \
-		inherit: "default" 0; \
-		color_class: "unvisible"; \
-		rel1.offset: 0 -5; \
-		rel2.offset: 0 5; \
-	} \
-	description { \
-		state: "default" 1; \
-		inherit: "default" 0; \
-	} \
-} \
-part { \
-	name: "button_right_bg_"barname; \
-	type: RECT; \
-	description { \
-		state: "default" 0; \
-		color_class: "unvisible"; \
-		rel1 { relative: 1-rel2x/4 rel1y; offset: 0 0; }; \
-		rel2 { relative: rel2x rel2y; offset: 0 0; }; \
-	} \
-	description { \
-		state: "default" 0.5; \
-		inherit: "default" 0; \
-		color_class: "unvisible"; \
-		rel1.offset: 0 -5; \
-		rel2.offset: 0 5; \
-	} \
-	description { \
-		state: "default" 1; \
-		inherit: "default" 0; \
-	} \
-} \
-part { \
-	name: "button_left_"barname; \
-	type: TEXT; \
-	mouse_events: 0; \
-	description { \
-		state: "default" 0; \
-		color_class: bordercolor; \
-		rel1 { to: "button_left_bg_"barname; relative: 0 0; }; \
-		rel2 { to: "button_left_bg_"barname; relative: 1 1; }; \
-		text { \
-			text: "-"; \
-			font: "VeraBd"; \
-			size: 52; \
-			fit: 1 1; \
-		} \
-	} \
-} \
-part { \
-	name: "button_right_"barname; \
-	type: TEXT; \
-	mouse_events: 0; \
-	description { \
-		state: "default" 0; \
-		color_class: bordercolor; \
-		rel1 { to: "button_right_bg_"barname; relative: 0 0; }; \
-		rel2 { to: "button_right_bg_"barname; relative: 1 1; }; \
-		text { \
-			text: "+"; \
-			font: "VeraBd"; \
-			size: 52; \
-			fit: 1 1; \
-		} \
-	} \
-} \
-part { \
-	name: "scale_fg_"barname; \
-	type: RECT; \
-	mouse_events: 0; \
-	description { \
-		color_class: scale; \
-		rel1 { relative: rel2x/4 (rel1y+((rel2y-rel1y)/4)); }; \
-		rel2 { relative: 1-rel2x/4 (rel2y-((rel2y-rel1y)/4)); }; \
-	} \
-} \
-program { \
-	name: "button_left_bg_"barname"_animation"; \
-	signal: "mouse,down,*"; \
-	source: "button_left_bg_"barname; \
-	action: STATE_SET "default" 0.5; \
-	target: "button_left_bg_"barname; \
-} \
-program { \
-	name: "button_left_bg_"barname"_animation_end"; \
-	signal: "mouse,up,*"; \
-	source: "button_left_bg_"barname; \
-	action: STATE_SET "default" 1; \
-	target: "button_left_bg_"barname; \
-	transition: DECELERATE 0.1; \
-} \
-program { \
-	name: "button_right_bg_"barname"_animation"; \
-	signal: "mouse,down,*"; \
-	source: "button_right_bg_"barname; \
-	action: STATE_SET "default" 0.5; \
-	target: "button_right_bg_"barname; \
-} \
-program { \
-	name: "button_right_bg_"barname"_animation_end"; \
-	signal: "mouse,up,*"; \
-	source: "button_right_bg_"barname; \
-	action: STATE_SET "default" 1; \
-	target: "button_right_bg_"barname; \
-	transition: DECELERATE 0.1; \
-} \
 
 collections {
 	group {
@@ -309,6 +206,12 @@ collections {
 					}
 				}
 			}
+			program {
+				name: "button_headline_signal_emit";
+				signal: "mouse,down,*";
+				source: "headline";
+				action: SIGNAL_EMIT "music_player_send" "headline";
+			}
 			part {
 				name: "mp3_tags";
 				type: TEXTBLOCK;
@@ -334,13 +237,45 @@ collections {
 					rel2 { relative: 1.0 1.0; offset: -25 -25; }
 				}
 			}
+			part {
+				name: "pad1";
+				type: RECT;
+				description {
+					visible: 0;
+					rel1 { relative: 0.0 1.0; offset: 25 -275; }
+					rel2 { relative: 1.0 1.0; offset: -25 -175; }
+				}
+			}
+			part {
+				name: "volume_label";
+				type: TEXT;
+				description {
+					state: "default" 0;
+					color_class: "button_inactive";
+					rel1 {
+						to: pad1;
+						relative: 1/2 1/2;
+						offset: -90 -90;
+					}
+					rel2 {
+						to: pad1;
+						relative: 1/2 1/2;
+						offset: 90 90;
+					}
+					text {
+						text: "volume 100%";
+						size: 20;
+						font: "VeraBd";
+						fit: 1 1;
+					}
+				}
+			}		
 			key("track_left", 0, 2)
 			key("stop", 1, 2)
 			key_play_pause("play_pause", "play", "pause", 2, 2)
 			key("track_right", 3, 2)
-
-			HBAR("volume", button_inactive, 1, 0, 46/70, 1, 56/70, 10);
-			
+			key1("player-minus", 0, 2)
+			key1("player-plus", 3, 2)
 		}
 	}
 }

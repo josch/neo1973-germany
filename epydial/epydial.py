@@ -19,7 +19,8 @@ WM_INFO = ("epydial", "epydial")
 EDJE_FILE_PATH = "data/themes/blackwhite/"
 PIX_FILE_PATH = "/media/card/hon/"
 TRACK_FILE_PATH = "/media/card/track/"
-DB_FILE_PATH = "data/db/my.sqlite"
+DB_FILE_PATH = "/media/card/epydialdb/epydial.sqlite"
+DB_PATH = "/media/card/epydialdb/"
 PIX_WEATHER_FILE_PATH = "data/themes_data/blackwhite/images/stardock_weather/"
 MP3_FILE_PATH = "/media/card/mp3/"
 
@@ -153,11 +154,12 @@ class PyneoController(object):
 		# No error (anymore)
 		if class_._dbus_timer: class_._dbus_timer.stop()
 		
-		# Register our own D-Bus callbacks (device status, new calls, power status, new sms)
-		class_.gsm_wireless.connect_to_signal("Status", class_.on_gsm_wireless_status, dbus_interface=DIN_WIRELESS)
+		# Register our own D-Bus callbacks (device status, new calls, power status, new sms, new music title)
+		class_.gsm_wireless.connect_to_signal('Status', class_.on_gsm_wireless_status, dbus_interface=DIN_WIRELESS)
 		class_.gsm_wireless.connect_to_signal('New', class_.check_new_call, dbus_interface=DIN_WIRELESS)
-		class_.pwr.connect_to_signal("Status", class_.on_pwr_status, dbus_interface=DIN_POWERED)
+		class_.pwr.connect_to_signal('Status', class_.on_pwr_status, dbus_interface=DIN_POWERED)
 		class_.gsm_sms.connect_to_signal('New', class_.check_new_sms, dbus_interface=DIN_STORAGE)
+		class_.mp3.connect_to_signal('Status', class_.on_mp3_status, dbus_interface='org.pyneo.Music')
 
 	@classmethod
 	def get_pwr_status(class_):
@@ -448,40 +450,44 @@ class PyneoController(object):
 			class_.callsigs.append(class_.call.connect_to_signal('End', CallEnd, dbus_interface=DIN_CALL, ))
 
 	@classmethod
+	def on_mp3_status(class_, newmap):
+		newmap = dedbusmap(newmap)
+		print 'Music MP3 Status: %s' %newmap
+		class_.notify_callbacks("on_get_mp3_tags", newmap)
+
+	@classmethod
 	def check_new_sms(class_, newmap,):
 		def InsertSms(status, from_msisdn, time, text):			
 			connection = connect(DB_FILE_PATH)
 			cursor = connection.cursor()
-			cursor.execute("INSERT INTO sms (status, from_msisdn, time, sms_text) VALUES ('" \
-				+ status + "', '" + from_msisdn + "', '" + time + "', '" + text + "')")
+			cursor.execute('INSERT INTO sms (status, from_msisdn, time, sms_text) VALUES (?, ?, ?, ?)', (status, from_msisdn, time, text,))
 			connection.commit()
 
 		res = dedbusmap(newmap)
 		for n in res:
 			sm = object_by_url(n)
-			content = dedbusmap(sm.GetContent())
+			content = dedbusmap(sm.GetContent(dbus_interface=DIN_ENTRY))
 			InsertSms('REC UNREAD', content['from_msisdn'], content['time'], content['text'].encode('utf-8'))
 			print '--- NEW SMS:', content['from_msisdn'], content['time'], content['text'].encode('utf-8')
-#		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
+		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
 
 	@classmethod
 	def first_check_new_sms(class_):
 		def InsertSms(status, from_msisdn, time, text):			
 			connection = connect(DB_FILE_PATH)
 			cursor = connection.cursor()
-			cursor.execute("INSERT INTO sms (status, from_msisdn, time, sms_text) VALUES ('" \
-				+ status + "', '" + from_msisdn + "', '" + time + "', '" + text + "')")
+			cursor.execute('INSERT INTO sms (status, from_msisdn, time, sms_text) VALUES (?, ?, ?, ?)', (status, from_msisdn, time, text,))
 			connection.commit()
 
 		try:
 			res = class_.gsm_sms.ListAll(dbus_interface=DIN_STORAGE)
 			for n in res:
 				sm = object_by_url(n)
-				content = dedbusmap(sm.GetContent())
+				content = dedbusmap(sm.GetContent(dbus_interface=DIN_ENTRY))
 				InsertSms('REC UNREAD', content['from_msisdn'], content['time'], content['text'].encode('utf-8'))
 		except:
 			print '--- NULL new sms'
-#		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
+		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
 
 	@classmethod
 	def show_sms_screen(class_):
@@ -535,6 +541,18 @@ class PyneoController(object):
 	def get_mp3_tags(class_):
 		class_.notify_callbacks("on_get_mp3_tags", class_.mp3.GetStatus(dbus_interface='org.pyneo.Music'))
 
+	@classmethod
+	def set_volume(class_, status):
+		class_.mp3.SetVolume(status, dbus_interface='org.pyneo.Music')
+
+	@classmethod
+	def db_check(class_):
+		if not os.path.exists(DB_FILE_PATH):
+			os.mkdir(DB_PATH)
+			print '--- Add db path: ', DB_PATH
+			os.system('cp %s %s' % ('./data/db/epydial.sqlite', DB_PATH))
+			print '--- Add sqlite'
+
 from dialer_screen import *
 from incall_screen import *
 from gsm_status_screen import *
@@ -587,6 +605,7 @@ class Dialer(object):
 		self.init_screen(GSM_STATUS_SCREEN_NAME, GsmStatusScreen(self))
 		self.init_screen(GPS_STATUS_SCREEN_NAME, GpsStatusScreen(self))
 
+		PyneoController.db_check()
 		PyneoController.set_playlist_from_dir()
 		PyneoController.power_up_gsm()
 		PyneoController.get_gsm_keyring()
