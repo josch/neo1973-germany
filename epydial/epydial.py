@@ -23,6 +23,7 @@ DB_FILE_PATH = "/media/card/epydialdb/epydial.sqlite"
 DB_PATH = "/media/card/epydialdb/"
 PIX_WEATHER_FILE_PATH = "data/themes_data/blackwhite/images/stardock_weather/"
 MP3_FILE_PATH = "/media/card/mp3/"
+RINGTONE_FILE = "/usr/share/epydial/data/sounds/ringtone_simple02.mp3"
 
 DIALER_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
@@ -488,6 +489,7 @@ class PyneoController(object):
 		except:
 			print '--- NULL new sms'
 		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
+		PyneoController.stop_ringtone()
 
 	@classmethod
 	def show_sms_screen(class_):
@@ -544,6 +546,18 @@ class PyneoController(object):
 	@classmethod
 	def set_volume(class_, status):
 		class_.mp3.SetVolume(status, dbus_interface='org.pyneo.Music')
+
+	@classmethod
+	def set_ringtone(class_, sound_file):
+		class_.mp3.SetRingtone(sound_file, dbus_interface='org.pyneo.Music')
+
+	@classmethod
+	def play_ringtone(class_):
+		class_.mp3.PlayRingtone(dbus_interface='org.pyneo.Music')
+
+	@classmethod
+	def stop_ringtone(class_):
+		class_.mp3.StopRingtone(dbus_interface='org.pyneo.Music')
 
 	@classmethod
 	def db_check(class_):
@@ -607,6 +621,8 @@ class Dialer(object):
 
 		PyneoController.db_check()
 		PyneoController.set_playlist_from_dir()
+		PyneoController.set_ringtone(RINGTONE_FILE)
+		PyneoController.play_ringtone()
 		PyneoController.power_up_gsm()
 		PyneoController.get_gsm_keyring()
 
