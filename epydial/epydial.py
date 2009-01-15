@@ -457,39 +457,34 @@ class PyneoController(object):
 		class_.notify_callbacks("on_get_mp3_tags", newmap)
 
 	@classmethod
-	def check_new_sms(class_, newmap,):
-		def InsertSms(status, from_msisdn, time, text):			
-			connection = connect(DB_FILE_PATH)
-			cursor = connection.cursor()
-			cursor.execute('INSERT INTO sms (status, from_msisdn, time, sms_text) VALUES (?, ?, ?, ?)', (status, from_msisdn, time, text,))
-			connection.commit()
+	def insert_new_sms(class_, status, from_msisdn, time, text):
+		connection = connect(DB_FILE_PATH)
+		cursor = connection.cursor()
+		cursor.execute('INSERT INTO sms (status, from_msisdn, time, sms_text) VALUES (?, ?, ?, ?)', (status, from_msisdn, time, text,))
+		connection.commit()
 
+	@classmethod
+	def check_new_sms(class_, newmap,):
 		res = dedbusmap(newmap)
 		for n in res:
 			sm = object_by_url(n)
 			content = dedbusmap(sm.GetContent(dbus_interface=DIN_ENTRY))
-			InsertSms('REC UNREAD', content['from_msisdn'], content['time'], content['text'].encode('utf-8'))
+			PyneoController.insert_new_sms('REC UNREAD', content['from_msisdn'], content['time'], content['text'].encode('utf-8'))
 			print '--- NEW SMS:', content['from_msisdn'], content['time'], content['text'].encode('utf-8')
 		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
 
 	@classmethod
 	def first_check_new_sms(class_):
-		def InsertSms(status, from_msisdn, time, text):			
-			connection = connect(DB_FILE_PATH)
-			cursor = connection.cursor()
-			cursor.execute('INSERT INTO sms (status, from_msisdn, time, sms_text) VALUES (?, ?, ?, ?)', (status, from_msisdn, time, text,))
-			connection.commit()
-
 		try:
 			res = class_.gsm_sms.ListAll(dbus_interface=DIN_STORAGE)
 			for n in res:
 				sm = object_by_url(n)
 				content = dedbusmap(sm.GetContent(dbus_interface=DIN_ENTRY))
-				InsertSms('REC UNREAD', content['from_msisdn'], content['time'], content['text'].encode('utf-8'))
+				PyneoController.insert_new_sms('REC UNREAD', content['from_msisdn'], content['time'], content['text'].encode('utf-8'))
 		except:
 			print '--- NULL new sms'
 		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
-		PyneoController.stop_ringtone()
+		PyneoController.stop_ringtone() #TODO: not the optimal break for the startup sound ;)
 
 	@classmethod
 	def show_sms_screen(class_):
@@ -563,9 +558,8 @@ class PyneoController(object):
 	def db_check(class_):
 		if not os.path.exists(DB_FILE_PATH):
 			os.mkdir(DB_PATH)
-			print '--- Add db path: ', DB_PATH
 			os.system('cp %s %s' % ('./data/db/epydial.sqlite', DB_PATH))
-			print '--- Add sqlite'
+			print '--- Add db path and a empty sqlite db' 
 
 from dialer_screen import *
 from incall_screen import *
@@ -621,8 +615,6 @@ class Dialer(object):
 
 		PyneoController.db_check()
 		PyneoController.set_playlist_from_dir()
-		PyneoController.set_ringtone(RINGTONE_FILE)
-		PyneoController.play_ringtone()
 		PyneoController.power_up_gsm()
 		PyneoController.get_gsm_keyring()
 
