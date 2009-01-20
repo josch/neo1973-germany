@@ -23,6 +23,7 @@ DB_FILE_PATH = "/media/card/epydialdb/epydial.sqlite"
 DB_PATH = "/media/card/epydialdb/"
 PIX_WEATHER_FILE_PATH = "data/themes_data/blackwhite/images/stardock_weather/"
 MP3_FILE_PATH = "/media/card/mp3/"
+COVER_FILE_PATH = "/media/card/epydial/cover/"
 RINGTONE_FILE = "/usr/share/epydial/data/sounds/ringtone_simple02.mp3"
 
 DIALER_SCREEN_NAME = "pyneo/dialer/main"
@@ -484,7 +485,6 @@ class PyneoController(object):
 		except:
 			print '--- NULL new sms'
 		class_.gsm_sms.DeleteAll(dbus_interface=DIN_STORAGE)
-		PyneoController.stop_ringtone() #TODO: not the optimal break for the startup sound ;)
 
 	@classmethod
 	def show_sms_screen(class_):
