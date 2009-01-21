@@ -21,3 +21,5 @@ Example:
 TODO:
 -change write to /sys/files to dbus, when available
 -fix dbus
+
+21.01.2009: added support for 2.6.28 kernel

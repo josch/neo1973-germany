@@ -50,10 +50,17 @@ ee.callback_resize = resize_cb
 
 class PyBatclass:
   def __init__(self, edje_obj):
-    self.filePower = os.open( "/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/force_usb_limit_dangerous", os.O_RDWR )
-    self.filePowerread = os.open( "/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/usb_curlim", os.O_RDONLY )
+    self.system = os.uname()[2][0:6]
+    if self.system == "2.6.27":
+      self.filePowerpath = "/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/"
+      self.filehostmodepath = "/sys/devices/platform/s3c2410-ohci/"
+    elif self.system == "2.6.28":
+      self.filePowerpath = "/sys/devices/platform/s3c2440-i2c/i2c-adapter:i2c-0/0-0073/pcf50633-mbc/"
+      self.filehostmodepath = "/sys/class/i2c-adapter/i2c-0/0-0073/neo1973-pm-host.0/"
+    self.filePower = os.open( self.filePowerpath+"force_usb_limit_dangerous", os.O_RDWR )
+    self.filePowerread = os.open( self.filePowerpath+"usb_curlim", os.O_RDONLY )
     self.fileusbmode = open( "/sys/devices/platform/s3c2410-ohci/usb_mode", "r+" )
-    self.filehostmode = os.open( "/sys/devices/platform/neo1973-pm-host.0/hostmode", os.O_RDWR )
+    self.filehostmode = os.open( self.filehostmodepath+"hostmode", os.O_RDWR )
     self.mode = self.fileusbmode.readline()
     self.power = str(os.read(self.filePowerread, 4))
     self.mode = self.mode.split()[0]
