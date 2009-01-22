@@ -289,6 +289,22 @@ collections {
 					rel2 { relative: 1/2 1/2; offset: 80 80; }
 				}
 			} /*end icon swallow */
+			part {
+				name: "duration";
+				type: TEXT;
+				mouse_events: 0;
+				description {
+					state: "default" 0;
+					color_class: "button_inactive";
+					rel1 { relative: 6/8 3/8; }
+					rel2 { relative: 1 4/8; }
+					text {
+						size: 20;
+						font: "VeraBd";
+						fit: 1 1;
+					}
+				}
+			}
 			key("track_left", 0, 2)
 			key("stop", 1, 2)
 			key_play_pause("play_pause", "play", "pause", 2, 2)

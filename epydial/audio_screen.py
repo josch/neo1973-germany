@@ -20,7 +20,7 @@ from pyneo.dns_support import DNSCache #require: export PYTHONPATH=/usr/share/py
 
 class AudioScreen(EdjeGroup):
 	toggle = 0
-	volume = 0.9
+	volume = 0.1
 
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, AUDIO_SCREEN_NAME)
@@ -71,8 +71,15 @@ class AudioScreen(EdjeGroup):
 
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("on_get_mp3_tags", self.on_get_mp3_tags)
+		PyneoController.register_callback("on_get_song_duration", self.on_get_song_duration)
+#		PyneoController.register_callback("on_get_song_position", self.on_get_song_position)
+
+	def on_get_song_duration(self, status):
+		self.part_text_set("duration", "%s" % time.ctime(status)[14:][:5])
+		print '--- current song length: ', status
 
 	def on_get_mp3_tags(self, status):
+		PyneoController.get_song_duration()
 		try:
 			self.image.delete()
 		except:
@@ -80,12 +87,10 @@ class AudioScreen(EdjeGroup):
 
 		self.part_text_set("mp3_tags", "artist: %s<br>album: %s<br>title: %s" % (status['artist'], status['album'], status['title']))
 		if not os.path.isfile(COVER_FILE_PATH + '%s_%s.jpeg' % (status['artist'], status['album'])):
-			try:
-				content = self.get_amazon_cover(status['artist'], status['album'])
-				with open(COVER_FILE_PATH + '%s_%s.jpeg' % (status['artist'], status['album']), 'w') as f:
-					f.write(content)
-			except:
-				pass # display a dummy cover
+			print '--- cover not exists'
+			content = self.get_amazon_cover(status['artist'], status['album'])
+			with open(COVER_FILE_PATH + '%s_%s.jpeg' % (status['artist'], status['album']), 'w') as f:
+				f.write(content)
 
 		self.image = self.evas.Image(file=COVER_FILE_PATH + '%s_%s.jpeg' % (status['artist'], status['album']))
 		x, y = self.image.image_size
