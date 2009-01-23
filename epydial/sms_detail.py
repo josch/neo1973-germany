@@ -22,15 +22,14 @@ class SmsDetail(EdjeGroup):
 		connection.commit()
 
 	def on_show_sms_detail(self, sms_number, sms_status):
-		self.sms_offset = sms_number
 		connection = connect(DB_FILE_PATH)
 		cursor = connection.cursor()
-		cursor.execute("SELECT * FROM sms WHERE status='%s' ORDER BY time DESC LIMIT 1 OFFSET %s" %(self.sms_offset, sms_number))
+		cursor.execute("SELECT * FROM sms WHERE status='%s' ORDER BY time DESC LIMIT 1 OFFSET %s" %(sms_status, sms_number))
 		for row in cursor:
 			self.part_text_set("sms_text_1", row[2] + '<br>' + row[1] + '<br>' + row[3])
 
-		if row[0] == 'REC UNREAD':
-			self.mark_sms_read(row[2])
+			if row[0] == 'REC UNREAD':
+				self.mark_sms_read(row[2])
 
 	@edje.decorators.signal_callback("mouse,up,1", "*")
 	def on_edje_signal_dialer_status_triggered(self, emission, source):

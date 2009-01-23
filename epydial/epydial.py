@@ -609,7 +609,6 @@ class Dialer(object):
 		PyneoController.register_callback("show_sms_screen_detail", self.on_sms_screen_detail)
 		PyneoController.register_callback("show_weather_screen", self.on_weather_screen)
 		PyneoController.register_callback("show_audio_screen", self.on_audio_screen)
-#		PyneoController.register_callback("on_get_song_duration", self.on_get_song_duration)
 
 		# Initialize the D-Bus interface to pyneo
 		dbus_ml = e_dbus.DBusEcoreMainLoop()
