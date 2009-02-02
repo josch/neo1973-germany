@@ -16,11 +16,13 @@ from httplib import HTTPConnection
 from urllib import urlencode
 from urlparse import urlparse, urlunparse
 from xml.dom.minidom import parseString
-from pyneo.dns_support import DNSCache #require: export PYTHONPATH=/usr/share/pyneod
+from pyneo.dns_support import DNSCache #require: 'export PYTHONPATH=/usr/share/pyneod'
 
 class AudioScreen(EdjeGroup):
 	toggle = 0
 	volume = 0.1
+	position_timer = None
+	e_timer = None
 
 	def __init__(self, screen_manager):
 		EdjeGroup.__init__(self, screen_manager, AUDIO_SCREEN_NAME)
@@ -72,7 +74,12 @@ class AudioScreen(EdjeGroup):
 	def register_pyneo_callbacks(self):
 		PyneoController.register_callback("on_get_mp3_tags", self.on_get_mp3_tags)
 		PyneoController.register_callback("on_get_song_duration", self.on_get_song_duration)
-#		PyneoController.register_callback("on_get_song_position", self.on_get_song_position)
+		PyneoController.register_callback("on_get_song_position", self.on_get_song_position)
+
+	def on_get_song_position(self, status):
+		self.position_timer = status = time.time()
+		self.e_timer = ecore.timer_add(1.0, self.display_position)
+		self.display_position()
 
 	def on_get_song_duration(self, status):
 		self.part_text_set("duration", "%s" % time.ctime(status)[14:][:5])
@@ -80,6 +87,7 @@ class AudioScreen(EdjeGroup):
 
 	def on_get_mp3_tags(self, status):
 		PyneoController.get_song_duration()
+		PyneoController.get_song_position()
 		try:
 			self.image.delete()
 		except:
@@ -108,6 +116,11 @@ class AudioScreen(EdjeGroup):
 		self.obj.size = x, y
 		self.obj.show()
 
+	def display_position(self):
+		elapsed = (time.time() - self.position_timer)
+		self.part_text_set("position", "%s" % (time.ctime(elapsed)[14:][:5]))
+		return True
+
 	@edje.decorators.signal_callback("music_player_send", "*")
 	def on_edje_signal_audio_screen_triggered(self, emission, source):
 		if source == "headline":
@@ -117,12 +130,14 @@ class AudioScreen(EdjeGroup):
 			if self.toggle == 0:
 				self.signal_emit("key1", "")
 				PyneoController.play_music()
+				PyneoController.get_mp3_tags()
 				self.toggle = 1
 			elif self.toggle == 1:
+				print '--- timer stoppen'
+				self.e_timer.delete()
 				self.signal_emit("key2", "")
 				PyneoController.pause_music()
 				self.toggle = 0
-			PyneoController.get_mp3_tags()
 		if source == "stop":
 			self.signal_emit("key2", "")
 			self.toggle = 0

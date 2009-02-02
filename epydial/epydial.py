@@ -556,11 +556,11 @@ class PyneoController(object):
 
 	@classmethod
 	def get_song_duration(class_):
-		class_.notify_callbacks("on_get_song_duration", class_.mp3.GetSongDuration(dbus_interface='org.pyneo.Music'))
+		class_.notify_callbacks('on_get_song_duration', class_.mp3.GetSongDuration(dbus_interface='org.pyneo.Music'))
 
 	@classmethod
 	def get_song_position(class_):
-		class_mp3.GetSongPosition(dbus_interface='org.pyneo,Music')
+		class_.notify_callbacks('on_get_song_position', class_.mp3.GetSongPosition(dbus_interface='org.pyneo.Music'))
 
 	@classmethod
 	def db_check(class_):

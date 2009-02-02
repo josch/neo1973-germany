@@ -18,7 +18,7 @@ class InCallScreen(EdjeGroup):
 		connection = connect(DB_FILE_PATH)
 		cursor = connection.cursor()
 		try:
-			cursor.execute("SELECT * FROM contacts WHERE mobil LIKE '%" + str(number) + "' OR home LIKE '%" + str(number) + "' OR work LIKE '%" + str(number) + "'")
+			cursor.execute("SELECT * FROM contacts WHERE mobil LIKE %s OR home LIKE %s OR work LIKE %s" % (number, number, number))
 			for row in cursor:
 				CallerNamemap = row[0], row[1], row[2], row[3], row[4]
 
@@ -27,9 +27,9 @@ class InCallScreen(EdjeGroup):
 			elif CallerNamemap[4] == str(number): source = 'work'
 
 			if CallerNamemap[1] and CallerNamemap[0]:
-				self.part_text_set("incall_number_text", "%s: %s"% (source, CallerNamemap[1] + ', ' + CallerNamemap[0]))
+				self.part_text_set("incall_number_text", "%s: %s, %s" % (source, CallerNamemap[1], CallerNamemap[0]))
 		except:
-			self.part_text_set("incall_number_text", "unknown")
+			self.part_text_set("incall_number_text", "??? %s ???" % number)
 
 	@edje.decorators.signal_callback("dialer_incall_send", "*")
 	def on_edje_signal_dialer_incall_triggered(self, emission, source):
