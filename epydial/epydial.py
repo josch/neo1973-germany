@@ -24,7 +24,7 @@ DB_PATH = "/media/card/epydialdb/"
 PIX_WEATHER_FILE_PATH = "data/themes_data/blackwhite/images/stardock_weather/"
 MP3_FILE_PATH = "/media/card/mp3/"
 COVER_FILE_PATH = "/media/card/epydial/cover/"
-RINGTONE_FILE = "/usr/share/epydial/data/sounds/ringtone_simple02.mp3"
+RINGTONE_FILE = "/usr/share/epydial/data/sounds/ring-ring.mp3"
 
 DIALER_SCREEN_NAME = "pyneo/dialer/main"
 INCALL_SCREEN_NAME = "pyneo/dialer/incall"
@@ -432,6 +432,7 @@ class PyneoController(object):
 			print '---', 'CallRing'
 
 		def CallEnd(newmap):
+			class_.mp3.StopRingtone(dbus_interface='org.pyneo.Music')
 			class_.notify_callbacks("gsm_phone_call_end")
 			os.system('alsactl -f /usr/share/openmoko/scenarios/stereoout.state restore')
 			newmap = dedbusmap(newmap)
@@ -443,7 +444,7 @@ class PyneoController(object):
 
 		newmap = dedbusmap(newmap)
 		print '---', 'CallNew'
-		os.system('alsactl -f /usr/share/openmoko/scenarios/gsmhandset.state restore')
+		class_.mp3.PlayRingtone(dbus_interface='org.pyneo.Music')
 		for n, v in newmap.items():
 #			print '\t', n, ':', v
 			class_.call = object_by_url(n)
@@ -547,6 +548,10 @@ class PyneoController(object):
 		class_.mp3.SetRingtone(sound_file, dbus_interface='org.pyneo.Music')
 
 	@classmethod
+	def set_ringtone_volume(class_, status):
+		class_.mp3.SetRingtoneVolume(status, dbus_interface='org.pyneo.Music')
+
+	@classmethod
 	def play_ringtone(class_):
 		class_.mp3.PlayRingtone(dbus_interface='org.pyneo.Music')
 
@@ -623,6 +628,8 @@ class Dialer(object):
 
 		PyneoController.db_check()
 		PyneoController.set_playlist_from_dir()
+		PyneoController.set_ringtone(RINGTONE_FILE)
+		PyneoController.set_ringtone_volume(0.6)
 		PyneoController.power_up_gsm()
 		PyneoController.get_gsm_keyring()
 

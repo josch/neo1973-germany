@@ -34,7 +34,9 @@ class InCallScreen(EdjeGroup):
 	@edje.decorators.signal_callback("dialer_incall_send", "*")
 	def on_edje_signal_dialer_incall_triggered(self, emission, source):
 		if source == "Hangup Call":
+			PyneoController.stop_ringtone()
 			PyneoController.gsm_hangup()
 		if source == "Accept Call":
+			PyneoController.stop_ringtone()
 			PyneoController.gsm_accept()
 		print source
