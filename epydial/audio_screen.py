@@ -87,7 +87,7 @@ class AudioScreen(EdjeGroup):
 
 	def on_get_mp3_tags(self, status):
 		PyneoController.get_song_duration()
-		PyneoController.get_song_position()
+#		PyneoController.get_song_position()
 		try:
 			self.image.delete()
 		except:
@@ -133,8 +133,6 @@ class AudioScreen(EdjeGroup):
 				PyneoController.get_mp3_tags()
 				self.toggle = 1
 			elif self.toggle == 1:
-				print '--- timer stoppen'
-				self.e_timer.delete()
 				self.signal_emit("key2", "")
 				PyneoController.pause_music()
 				self.toggle = 0
@@ -142,6 +140,7 @@ class AudioScreen(EdjeGroup):
 			self.signal_emit("key2", "")
 			self.toggle = 0
 			PyneoController.stop_music()
+			PyneoController.get_mp3_tags()
 		if source == "track_right":
 			PyneoController.next_music()
 		if source == "track_left":

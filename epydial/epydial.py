@@ -363,8 +363,8 @@ class PyneoController(object):
 	def on_pwr_status(class_, status_map):
 		status = dedbusmap(status_map)
 		print "POWER Status: " + str(status)
-		if status.has_key('battvolt'):
-			class_.notify_callbacks("battvolt_change", status['battvolt'], status['chgmode'])
+#		if status.has_key('battvolt'):
+		class_.notify_callbacks("capacity_change", status)
 		class_.notify_callbacks("pwr_status_change", status)
 
 	@classmethod

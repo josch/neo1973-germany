@@ -73,8 +73,4 @@ class GsmStatusScreen(EdjeGroup):
 			PyneoController.power_down_gsm()
 		elif source == "on" and status == "off":
 			PyneoController.power_up_gsm()
-#		elif source == "button_right_bg_brightness":
-#			PyneoController.brightness_change(source)
-#		elif source == "button_left_bg_brightness":
-#			PyneoController.brightness_change(source)
-
+		print 'source: ', source
