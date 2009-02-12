@@ -24,17 +24,16 @@ class DialerScreen(EdjeGroup):
 		PyneoController.register_callback("sim_ready", self.on_sim_ready)
 		PyneoController.register_callback("gsm_registering", self.on_gsm_registering)
 		PyneoController.register_callback("gsm_registered", self.on_gsm_registered)
-#		PyneoController.register_callback("gsm_dialing", self.on_gsm_dialing)
 		PyneoController.register_callback("gsm_operator_change", self.on_gsm_operator_change)
 		PyneoController.register_callback("gsm_signal_strength_change", self.on_gsm_signal_strength_change)
 		PyneoController.register_callback("capacity_change", self.on_capacity_change)
 
 	def on_capacity_change(self, status):
-#		if chgmode == "play-only" or chgmode == "idle":
-#			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 64, 0, 0, 0, 0, 0, 0, 0, 0)
-#		else:
-#			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 128, 0, 0, 0, 0, 0, 0, 0, 0)
-		self.part_text_set("battvolt_text", "%s" % status['capacity'])
+		if status['status'] != "Charging":
+			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 64, 0, 0, 0, 0, 0, 0, 0, 0)
+		else:
+			EdjeGroup.color_class_set(self, "battvolt_active", 255, 255, 255, 128, 0, 0, 0, 0, 0, 0, 0, 0)
+		self.part_text_set("battvolt_text", "%s%%" % status['capacity'])
 		
 	def on_sim_key_required(self, key_type):
 		print '---', 'opening keyring'
