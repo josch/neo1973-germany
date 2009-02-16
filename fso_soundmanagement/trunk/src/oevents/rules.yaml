@@ -21,19 +21,16 @@
 # - RingTone(cmd)           : cmd can be 'start' or 'stop'
 # - Time(hour, min)         : create a trigger activated at the given time
 # - Debug(msg)              : Action that prints a debug message (only for debuging)
--
-    trigger: Time(12,29)
-    actions: Debug("A Test")
--
-    #
-    # Suspend Handling
-    #
-    trigger: InputEvent()
-    filters:
-             - HasAttr(switch, "POWER")
-             - HasAttr(event, "released")
-             - HasAttr(duration, 0)
-    actions: Suspend()
+# -
+#     #
+#     # Suspend Handling
+#     #
+#     trigger: InputEvent()
+#     filters:
+#              - HasAttr(switch, "POWER")
+#              - HasAttr(event, "released")
+#              - HasAttr(duration, 0)
+#     actions: Suspend()
 -
     #
     # Call -> Audio Scenario Handling
@@ -46,21 +43,31 @@
     filters: Not(CallListContains("active"))
     actions: 
              - RingTone()
-             - SetDisplayBrightness("pcf50633_bl", 90)
+             - Command('xset -display localhost:0 s reset')
+             - OccupyResource(CPU)
 -
     name: 'handset'
     while: CallStatus()
     filters: Or(HasAttr(status, "outgoing"), HasAttr(status, "active"))
-    actions: SetScenario(gsmhandset)
+    actions:
+            - SetScenario(gsmhandset)
+            - OccupyResource(CPU)
 -
     name: 'headset'
     while: CallStatus()
     filters: Or(HasAttr(status, "outgoing"), HasAttr(status, "active"))
-    actions: SetScenario(gsmheadset)
+    actions: 
+            - SetScenario(gsmheadset)
+            - OccupyResource(CPU)
 -
     while: PowerStatus()
     filters: HasAttr(status, "charging")
     actions: SetLed("gta02_power_orange", "light")
+#-
+#    while: PowerStatus()
+#    filters: Not(HasAttr(status, "discharging"))
+#    actions: OccupyResource(Display)
+
 -
     while: PowerStatus()
     filters: HasAttr(status, "critical")
@@ -114,44 +121,40 @@
              - SetScenario(silent)
              - SetProfile(silent)
 
+#change scenarios on profile change
+-
+    trigger: DbusTrigger(system, 'org.freesmartphone.opreferencesd', 0, 'org.freesmartphone.Preferences.Service', 'Notify')
+    filters:
+             - HasAttr(key, "enabled-rules")
+             - HasAttr(variant, "silent")
+    actions: Debug("dbus trigger test")
+
     #
     # A few testing rules :
     #
 
-    # This rule will only be enabled in silent mode
-    # According to the preferences rules conf files.
--
-    name: 'test-rule'
-    trigger: IdleState()
-    filters: HasAttr(status, "busy")
-    actions: Debug("Hello This is a test")
--
-    trigger: Test("test")
-    actions: Debug("trigger test")
--
-    while: Test("test2")
-    actions: RingTone()
 -
     trigger: DbusTrigger(system, 'org.freesmartphone.odeviced', 0, 'org.freesmartphone.Device.IdleNotifier', 'State')
     actions: Debug("dbus trigger test")
-- 
 
     #
     # Idleness Brightness Handling
-    #
+    # (activating the user's screen saver from a central daemon is quite hacky 
+    #  we really want some user's application to listen for the right signals)
+-
     trigger: IdleState()
     filters: HasAttr(status, "busy")
-    actions: SetDisplayBrightness("pcf50633_bl", 90)
+    actions: Command('xset -display localhost:0 s reset')
 -
     trigger: IdleState()
     filters: HasAttr(status, "idle_dim")
-    actions: SetDisplayBrightness("pcf50633_bl", 20)
--
-    trigger: IdleState()
-    filters: HasAttr(status, "idle_prelock")
-    actions: SetDisplayBrightness("pcf50633_bl", 0)
+    actions: Command('xset -display localhost:0 s activate')
+#-
+#    trigger: IdleState()
+#    filters: HasAttr(status, "idle_prelock")
+#    actions: SetDisplayBrightness("0", 0)
 
-    #
+#
     # usb and aux Handling
     #
 -
@@ -160,11 +163,11 @@
              - HasAttr(switch, "USB")
              - HasAttr(event, "pressed")
     actions: Command('pybat')
--
-    trigger: InputEvent()
-
-    filters:
-             - HasAttr(switch, "AUX")
-             - HasAttr(event, "pressed")
-
-    actions: Command('auxmenu')
+# -
+#     trigger: InputEvent()
+# 
+#     filters:
+#              - HasAttr(switch, "AUX")
+#              - HasAttr(event, "pressed")
+# 
+#     actions: Command('auxmenu')

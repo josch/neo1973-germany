@@ -1,9 +1,10 @@
-ring-tone: "Arkanoid_PSID.sid"
+ring-tone: "klingelton.mp3"
 ring-volume: 10
 # SID tunes have no concept of length
-ring-length: 60
+ring-length: 15
 
-message-tone: "Arkanoid_PSID.sid;tune=3"
+message-tone: "ringtone_ringnroll.ogg"
 message-volume: 10
 # SID tunes have no concept of length
 message-length: 3
+

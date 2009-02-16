@@ -8,20 +8,23 @@ Attention: some files will be overwritten!
 It adds:
 - 2 profiles: headset and headset_silent
 - a new .state file: silent.state
-- an menu for the auxbutton
+- an menu for the auxbutton (since rev 213 disabled)
 
 Improvements:
-When you mute the phone in the auxmenu (don't use the profile switcher from zhone!), silent.state is loaded and the silent profile is choosen.
+[When you mute the phone in the auxmenu (don't use the profile switcher from zhone!), silent.state is loaded and the silent profile is choosen.]
 If you plug in the headset, headset.state is loaded, an the profile switches to headset or headset_silent(they are the same, just to remember if the phone is muted or not)
 during a call gsmhandset.state or gsmheadset.state is loaded
 
 
 Known Issues:
--the "lock-funktion" don't work yet
+[-the "lock-funktion" don't work yet]
 -the install script will overwrite your /etc/freesmartphone/oevents/rules.yaml and some other files.
 -You will hear nothing, if you plug in or remove the headset during an call
 
 Changelog:
+Rev 245: upgraded rules.yaml, changed rington (change the file phone/default.yaml)
+
+Rev 213: removed auxmenu, 
 
 Rev 212: changed some files to newer versions (tested with shr)
 
