@@ -355,7 +355,6 @@ class PyneoController(object):
 	def on_gps_position_status(class_, status_map):
 		status = dedbusmap(status_map)
 		print "GPS Status: " + str(status)
-
 		if status.has_key('fix'):
 			class_.notify_callbacks("gps_position_change", status)
 
@@ -363,7 +362,6 @@ class PyneoController(object):
 	def on_pwr_status(class_, status_map):
 		status = dedbusmap(status_map)
 		print "POWER Status: " + str(status)
-#		if status.has_key('battvolt'):
 		class_.notify_callbacks("capacity_change", status)
 		class_.notify_callbacks("pwr_status_change", status)
 
