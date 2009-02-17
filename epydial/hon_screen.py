@@ -40,10 +40,10 @@ class HonScreen(EdjeGroup):
 			x = x * dy / y
 			y = dy
 		print 'x, y, dx, dy: ', x, y, dx, dy
-		self.image.fill = 0, 0, x, y
+		self.image.fill = (361-x)/2, (361-y)/2, x, y
 		self.part_swallow('icon', self.image)
 		self.obj = self.part_object_get('clipper')
-		self.obj.size = x, y
+		self.obj.geometry = 60+(361-x)/2, 140+(361-y)/2, x, y
 		self.obj.show()
 		print 'obj: ', self.obj
 
