@@ -421,7 +421,7 @@ class PyneoController(object):
 	def check_new_call(class_, newmap):
 		def CallStatus(newmap):
 			newmap = dedbusmap(newmap)
-			print '---', 'CallStatus'
+			print '---', 'CallStatus', newmap
 
 		def CallRing(newmap):
 			newmap = dedbusmap(newmap)

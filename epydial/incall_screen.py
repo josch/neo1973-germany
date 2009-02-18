@@ -18,7 +18,7 @@ class InCallScreen(EdjeGroup):
 		connection = connect(DB_FILE_PATH)
 		cursor = connection.cursor()
 		try:
-			cursor.execute("SELECT * FROM contacts WHERE mobil LIKE %s OR home LIKE %s OR work LIKE %s" % (number, number, number))
+			cursor.execute("SELECT * FROM contacts WHERE mobil LIKE '%%%s%%' OR home LIKE '%%%s%%' OR work LIKE '%%%s%%'" % (number, number, number))
 			for row in cursor:
 				CallerNamemap = row[0], row[1], row[2], row[3], row[4]
 
